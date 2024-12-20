@@ -94,9 +94,9 @@ func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer
 	c.IActor = actor.NewActor(id, longConnServer.GetEngine())
 }
 
-func (c *Client) Run() {
+func (c *Client) Launch() {
 	go c.readMessage()
-	go c.longConnServer.GetEngine().SpawnActor(c.IActor)
+	c.longConnServer.GetEngine().SpawnActor(c)
 }
 
 func (c *Client) GetActor() concepts.IActor {

@@ -99,5 +99,5 @@ func (o *ThirdApi) WSHandler(c *gin.Context) {
 
 	// Register the client with the server and start message processing
 	o.ws.Register(client)
-	client.Run()
+	client.Launch()
 }
