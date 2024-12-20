@@ -24,8 +24,8 @@ type Actor struct {
 	closed   atomic.Bool
 }
 
-func NewActor(id string, e *Engine) *Actor {
-	actorId := concepts.NewActorId(e.address, id)
+func NewActor(id string, e concepts.IEngine) *Actor {
+	actorId := concepts.NewActorId(e.GetAddress(), id)
 	ctx := newContext(context.Background(), e)
 	a := &Actor{
 		actorId:      actorId,

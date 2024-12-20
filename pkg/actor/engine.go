@@ -41,6 +41,10 @@ func GenClientAddress(kind, address string) string {
 	return sAddress
 }
 
+func (e *Engine) GetAddress() string {
+	return e.address
+}
+
 func (e *Engine) SpawnActor(actor concepts.IActor) (*concepts.ActorId, error) {
 	err := e.Registry.add(actor)
 	if err != nil {

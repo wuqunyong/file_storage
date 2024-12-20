@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 )
 
 type LongConnServer interface {
@@ -14,13 +14,13 @@ type LongConnServer interface {
 	Register(c *Client)
 	UnRegister(c *Client)
 	GetClient() *Client
-	GetEngine() *actor.Engine
+	GetEngine() concepts.IEngine
 	Encoder
 }
 
 type WsServer struct {
 	config     Config
-	engine     *actor.Engine
+	engine     concepts.IEngine
 	httpServer *http.Server
 	wg         *sync.WaitGroup
 
@@ -31,7 +31,7 @@ type WsServer struct {
 	Encoder
 }
 
-func NewWsServer(config Config, engine *actor.Engine) *WsServer {
+func NewWsServer(config Config, engine concepts.IEngine) *WsServer {
 	return &WsServer{
 		config:         config,
 		engine:         engine,
@@ -47,7 +47,7 @@ func NewWsServer(config Config, engine *actor.Engine) *WsServer {
 	}
 }
 
-func (ws *WsServer) GetEngine() *actor.Engine {
+func (ws *WsServer) GetEngine() concepts.IEngine {
 	return ws.engine
 }
 

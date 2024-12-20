@@ -13,10 +13,10 @@ const LocalLookupAddr = "local"
 type Registry struct {
 	mu     sync.RWMutex
 	lookup map[string]concepts.IActor
-	engine *Engine
+	engine concepts.IEngine
 }
 
-func newRegistry(e *Engine) *Registry {
+func newRegistry(e concepts.IEngine) *Registry {
 	return &Registry{
 		lookup: make(map[string]concepts.IActor, 1024),
 		engine: e,

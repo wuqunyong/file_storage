@@ -1,13 +1,17 @@
 package actor
 
-import "context"
+import (
+	"context"
+
+	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+)
 
 type Context struct {
-	engine  *Engine
+	engine  concepts.IEngine
 	context context.Context
 }
 
-func newContext(ctx context.Context, e *Engine) *Context {
+func newContext(ctx context.Context, e concepts.IEngine) *Context {
 	return &Context{
 		context: ctx,
 		engine:  e,
