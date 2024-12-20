@@ -49,6 +49,10 @@ func (e *Engine) SpawnActor(actor concepts.IActor) (*concepts.ActorId, error) {
 	return actor.ActorId(), nil
 }
 
+func (e *Engine) RemoveActor(id *concepts.ActorId) {
+	e.Registry.Remove(id)
+}
+
 func (e *Engine) Request(request concepts.IMsgReq) error {
 	if !e.isLocalMessage(request.GetTarget()) {
 		if !e.rpcFlag {

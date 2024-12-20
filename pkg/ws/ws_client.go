@@ -181,6 +181,7 @@ func (c *Client) close() {
 		return
 	}
 	c.closed.Store(true)
+	c.IActor.Stop()
 	c.conn.Close()
 	c.hbCancel() // Close server-initiated heartbeat.
 	c.longConnServer.UnRegister(c)

@@ -86,15 +86,11 @@ func (a *Actor) Stop() {
 	}
 	a.closed.Store(true)
 	close(a.cancelch)
-	a.context.engine.Registry.Remove(a.ActorId())
+	a.context.engine.RemoveActor(a.ActorId())
 }
 
 func (a *Actor) Register(name string, fun interface{}) error {
 	return a.msgs.Register(name, fun)
-}
-
-func (a *Actor) getTimerQueue() *tick.TimerQueue {
-	return a.timerQueue
 }
 
 func (a *Actor) Send(request concepts.IMsgReq) error {
