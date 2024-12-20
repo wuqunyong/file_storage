@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
-	"github.com/wuqunyong/file_storage/internal/api"
+	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
 // apiCmd represents the api command
@@ -23,25 +23,25 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var config api.Config
+		var config ws.Config
 		// 使用 Flags
 		config.HttpPort, _ = cmd.Flags().GetString("httpPort")
 		config.HttpsPort, _ = cmd.Flags().GetString("HttpsPort")
 		config.ServerCertificate = "E:/VCity/city/config/metaserver.vcity.app_chain.crt"
 		config.ServerPrivateKey = "E:/VCity/city/config/metaserver.vcity.app_key.key"
-		wsServer := api.NewWsServer(config)
+		wsServer := ws.NewWsServer(config)
 		wsServer.Run()
 		defer wsServer.Stop()
 
-		moduleA := &api.ModuleA{}
-		api.GetInstance().Register(1, moduleA.Handler_Func1)
-		api.GetInstance().Register(2, moduleA.Handler_Func2)
+		moduleA := &ws.ModuleA{}
+		ws.GetInstance().Register(1, moduleA.Handler_Func1)
+		ws.GetInstance().Register(2, moduleA.Handler_Func2)
 
 		// Wait for the process to be shutdown.
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 		<-sigs
-		api.SIGTERMExit()
+		ws.SIGTERMExit()
 	},
 }
 

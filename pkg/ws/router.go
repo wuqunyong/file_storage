@@ -1,4 +1,4 @@
-package api
+package ws
 
 import (
 	"github.com/gin-gonic/gin"
