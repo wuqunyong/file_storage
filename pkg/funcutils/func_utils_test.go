@@ -34,7 +34,7 @@ func (h *Handler) Func2(ctx context.Context, arg *int32, reply *testdata.Person)
 
 func Test1(t *testing.T) {
 	handler := Handler{}
-	ptrMethod := GetReflectFunc(handler.Func1, true)
+	ptrMethod := GetRPCReflectFunc(handler.Func1, true)
 	if ptrMethod == nil {
 		return
 	}
@@ -42,13 +42,13 @@ func Test1(t *testing.T) {
 	reply := &Reply1{}
 	var args *int32 = new(int32)
 	*args = 10
-	CallReflectFunc(ptrMethod, context.Background(), args, reply)
+	CallPRCReflectFunc(ptrMethod, context.Background(), args, reply)
 	fmt.Printf("Reply1 value:%v\n", reply)
 }
 
 func Test2(t *testing.T) {
 	handler := Handler{}
-	ptrMethod := GetReflectFunc(handler.Func2, true)
+	ptrMethod := GetRPCReflectFunc(handler.Func2, true)
 	if ptrMethod == nil {
 		return
 	}
@@ -65,6 +65,6 @@ func Test2(t *testing.T) {
 
 	var args *int32 = new(int32)
 	*args = 10
-	CallReflectFunc(ptrMethod, context.Background(), args, argValue)
+	CallPRCReflectFunc(ptrMethod, context.Background(), args, argValue)
 	fmt.Printf("Reply2 value:%v\n", reply)
 }

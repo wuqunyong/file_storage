@@ -37,9 +37,9 @@ var apiCmd = &cobra.Command{
 		wsServer.Run()
 		defer wsServer.Stop()
 
-		moduleA := &ws.ModuleA{}
-		ws.GetInstance().Register(1, moduleA.Handler_Func1)
-		ws.GetInstance().Register(2, moduleA.Handler_Func2)
+		// moduleA := &ws.ModuleA{}
+		// ws.GetInstance().Register(1, moduleA.Handler_Func1)
+		// ws.GetInstance().Register(2, moduleA.Handler_Func2)
 
 		// Wait for the process to be shutdown.
 		sigs := make(chan os.Signal, 1)

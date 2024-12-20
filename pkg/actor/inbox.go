@@ -43,9 +43,9 @@ func (inbox *Inbox) Register(name string, fun interface{}) error {
 		return errors.New("duplicate name:" + name)
 	}
 
-	ptrMethod := funcutils.GetReflectFunc(fun, true)
+	ptrMethod := funcutils.GetRPCReflectFunc(fun, true)
 	if ptrMethod == nil {
-		return errors.New("GetReflectFunc err:" + name)
+		return errors.New("GetRPCReflectFunc err:" + name)
 	}
 
 	inbox.method[name] = ptrMethod
@@ -149,14 +149,14 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 	)
 
 	if message.Remote {
-		args := reflect.New(ptrMethod.ArgType.Elem()).Interface()
+		args := reflect.New(ptrMethod.ArgType[1].Elem()).Interface()
 		err := decoder.Decode(message.ArgsData, args)
 		if err != nil {
 			sError := fmt.Sprintf("Decode err:%v\n", err)
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
 			return reply
 		}
-		code, err = funcutils.CallReflectFunc(ptrMethod, inbox.ctx, args, response)
+		code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, args, response)
 		if err != nil {
 			sError := fmt.Sprintf("err:%s\n" + err.Error())
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
@@ -181,7 +181,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 		return reply
 	}
 
-	code, err = funcutils.CallReflectFunc(ptrMethod, inbox.ctx, message.Args, response)
+	code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, message.Args, response)
 	if err != nil {
 		sError := fmt.Sprintf("err:%s\n" + err.Error())
 		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)

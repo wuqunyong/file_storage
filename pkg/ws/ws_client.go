@@ -81,6 +81,7 @@ type Client struct {
 	hbCtx          context.Context
 	hbCancel       context.CancelFunc
 	concepts.IActor
+	msgHandler *RegisterHandler
 }
 
 func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer LongConnServer, id string) {
@@ -92,6 +93,14 @@ func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer
 	c.closedErr = nil
 	c.hbCtx, c.hbCancel = context.WithCancel(context.Background())
 	c.IActor = actor.NewActor(id, longConnServer.GetEngine())
+	c.msgHandler = newRegisterHandler()
+}
+
+func (c *Client) Init() error {
+	moduleA := &ModuleA{}
+	c.msgHandler.Register(3, moduleA.Handler_Func3)
+
+	return nil
 }
 
 func (c *Client) Launch() {
@@ -147,29 +156,9 @@ func (c *Client) readMessage() {
 
 			fmt.Printf("Unmarshal jsonReq: %+v\n", jsonReq)
 
-			handler := GetInstance().GetHandler(jsonReq.Opcode)
-			if handler == nil {
-				fmt.Printf("unregister opcode:%d\n", jsonReq.Opcode)
-				c.closedErr = ErrUnregisterOpcode
-				return
-			}
-
 			task := func() {
-				resp, codeErr := handler(c, &jsonReq)
-				if codeErr != nil {
-					reply := Resp{
-						RequestId: jsonReq.RequestId,
-						ErrCode:   codeErr.Code(),
-						ErrMsg:    codeErr.Error(),
-					}
-					c.writeTextMsg(reply)
-				} else {
-					reply := Resp{
-						RequestId: jsonReq.RequestId,
-						Data:      resp,
-					}
-					c.writeTextMsg(reply)
-				}
+				response := c.msgHandler.callFunc(c, &jsonReq)
+				c.writeTextMsg(response)
 			}
 			c.GetActor().PostTask(task)
 
@@ -271,7 +260,7 @@ func (c *Client) writeBinaryMsg(resp Resp) error {
 	return c.conn.WriteMessage(MessageBinary, encodedBuf)
 }
 
-func (c *Client) writeTextMsg(resp Resp) error {
+func (c *Client) writeTextMsg(resp *Resp) error {
 	if c.closed.Load() {
 		return nil
 	}
