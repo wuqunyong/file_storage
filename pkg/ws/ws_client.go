@@ -12,7 +12,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/wuqunyong/file_storage/pkg/tick"
+	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 )
 
 const (
@@ -79,12 +80,10 @@ type Client struct {
 	closedErr      error
 	hbCtx          context.Context
 	hbCancel       context.CancelFunc
-	tickDuration   time.Duration
-	task           chan func()
-	timerQueue     *tick.TimerQueue
+	concepts.IActor
 }
 
-func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer LongConnServer) {
+func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer LongConnServer, id string) {
 	c.w = new(sync.Mutex)
 	c.conn = conn
 	c.ctx = ctx
@@ -92,14 +91,16 @@ func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer
 	c.closed.Store(false)
 	c.closedErr = nil
 	c.hbCtx, c.hbCancel = context.WithCancel(context.Background())
-	c.tickDuration = time.Duration(10) * time.Millisecond
-	c.task = make(chan func(), workerChanCap)
-	c.timerQueue = tick.NewTimerQueue()
+	c.IActor = actor.NewActor(id, longConnServer.GetEngine())
 }
 
 func (c *Client) Run() {
 	go c.readMessage()
-	go c.processTask()
+	go c.longConnServer.GetEngine().SpawnActor(c.IActor)
+}
+
+func (c *Client) GetActor() concepts.IActor {
+	return c.IActor
 }
 
 func (c *Client) readMessage() {
@@ -170,7 +171,7 @@ func (c *Client) readMessage() {
 					c.writeTextMsg(reply)
 				}
 			}
-			c.inputFunc(task)
+			c.GetActor().PostTask(task)
 
 		case PingMessage:
 			c.writePongMsg("")
@@ -184,50 +185,6 @@ func (c *Client) readMessage() {
 	}
 }
 
-func (c *Client) processTask() {
-	ticker := time.NewTicker(c.tickDuration)
-	defer func() {
-		ticker.Stop()
-		if r := recover(); r != nil {
-			fmt.Println("task have panic err:", r, string(debug.Stack()))
-		}
-		c.close()
-	}()
-
-	for {
-		select {
-		case f, ok := <-c.task:
-			if !ok {
-				return
-			}
-			if f == nil {
-				continue
-			}
-			f()
-		case <-ticker.C:
-			// fmt.Println("tick")
-		}
-
-		curMilliTime := time.Now().UnixMilli()
-		for c.timerQueue.Len() > 0 {
-			item := c.timerQueue.Peek()
-			if curMilliTime < item.GetExpireTime() {
-				break
-			}
-			item = c.timerQueue.Pop()
-			item.Run()
-		}
-	}
-}
-
-func (c *Client) GetTimerQueue() *tick.TimerQueue {
-	return c.timerQueue
-}
-
-func (c *Client) inputFunc(fn func()) {
-	c.task <- fn
-}
-
 func (c *Client) close() {
 	c.w.Lock()
 	defer c.w.Unlock()
@@ -238,7 +195,6 @@ func (c *Client) close() {
 	c.conn.Close()
 	c.hbCancel() // Close server-initiated heartbeat.
 	c.longConnServer.UnRegister(c)
-	close(c.task)
 }
 
 func (c *Client) activeHeartbeat() {

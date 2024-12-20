@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
+	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
@@ -29,7 +30,14 @@ to quickly create a Cobra application.`,
 		config.HttpsPort, _ = cmd.Flags().GetString("HttpsPort")
 		config.ServerCertificate = "E:/VCity/city/config/metaserver.vcity.app_chain.crt"
 		config.ServerPrivateKey = "E:/VCity/city/config/metaserver.vcity.app_key.key"
-		wsServer := ws.NewWsServer(config)
+
+		engine := actor.NewEngine("test", "1.2.3", true, "nats://127.0.0.1:4222")
+		err := engine.Init()
+		if err != nil {
+			return
+		}
+
+		wsServer := ws.NewWsServer(config, engine)
 		wsServer.Run()
 		defer wsServer.Stop()
 

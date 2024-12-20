@@ -5,6 +5,8 @@ import (
 	"net"
 	"net/http"
 	"sync"
+
+	"github.com/wuqunyong/file_storage/pkg/actor"
 )
 
 type LongConnServer interface {
@@ -12,12 +14,13 @@ type LongConnServer interface {
 	Register(c *Client)
 	UnRegister(c *Client)
 	GetClient() *Client
-
+	GetEngine() *actor.Engine
 	Encoder
 }
 
 type WsServer struct {
 	config     Config
+	engine     *actor.Engine
 	httpServer *http.Server
 	wg         *sync.WaitGroup
 
@@ -28,9 +31,10 @@ type WsServer struct {
 	Encoder
 }
 
-func NewWsServer(config Config) *WsServer {
+func NewWsServer(config Config, engine *actor.Engine) *WsServer {
 	return &WsServer{
 		config:         config,
+		engine:         engine,
 		wg:             &sync.WaitGroup{},
 		registerChan:   make(chan *Client, 1000),
 		unregisterChan: make(chan *Client, 1000),
@@ -41,6 +45,10 @@ func NewWsServer(config Config) *WsServer {
 		},
 		Encoder: NewJsonEncoder(),
 	}
+}
+
+func (ws *WsServer) GetEngine() *actor.Engine {
+	return ws.engine
 }
 
 func (ws *WsServer) Run() error {

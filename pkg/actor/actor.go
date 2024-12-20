@@ -51,6 +51,10 @@ func (a *Actor) Start() {
 	go a.handleMsg()
 }
 
+func (a *Actor) GetTimerQueue() *tick.TimerQueue {
+	return a.timerQueue
+}
+
 func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts ...context.Context) concepts.IMsgReq {
 	var ctx context.Context
 	if len(opts) > 0 {
