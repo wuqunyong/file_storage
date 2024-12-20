@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"reflect"
@@ -15,6 +16,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/errs"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
 	"google.golang.org/protobuf/proto"
@@ -86,7 +88,13 @@ func SwitchFunc(obj any) {
 	}
 }
 
+var asciiSpace = [256]uint8{'\t': 1, '\n': 1, '\v': 1, '\f': 1, '\r': 1, ' ': 1}
+
 func TestClient(t *testing.T) {
+	logger.CreateLogger("log.txt")
+
+	fmt.Printf("%v, %T, %s\n", asciiSpace, asciiSpace, reflect.TypeOf(asciiSpace).Name())
+
 	engine := actor.NewEngine("test", "1.2.3", true, "nats://127.0.0.1:4222")
 	err := engine.Init()
 	if err != nil {
@@ -107,7 +115,7 @@ func TestClient(t *testing.T) {
 	person := &testdata.Person{Name: "小明", Age: 18}
 	request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
 	if reflect.TypeOf(request) == emptyMsgType {
-		fmt.Printf("Same\n")
+		slog.Info("test", "type", "same")
 	}
 
 	fmt.Printf("request:%T, %v\n", request, request)
