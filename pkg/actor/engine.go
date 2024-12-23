@@ -30,7 +30,9 @@ func (c IComponentSlice) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
 func NewEngine(kind, address string, rpcFlag bool, connString string) *Engine {
 	sServerAddress := GenServerAddress(kind, address)
 	e := &Engine{
-		address: sServerAddress,
+		address:    sServerAddress,
+		components: make(map[string]concepts.IComponent),
+		id2Name:    make(map[string]string),
 	}
 	e.registry = newRegistry(e)
 	e.rpcFlag = rpcFlag
@@ -63,14 +65,16 @@ func (e *Engine) AddComponent(component concepts.IComponent) error {
 		return errors.New(sError)
 	}
 
+	name := component.Name()
+	id := component.ActorId().GetId()
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	_, err := e.SpawnActor(component)
 	if err != nil {
 		return err
 	}
-	e.components[component.Name()] = component
-	e.id2Name[component.ActorId().GetId()] = component.Name()
+	e.components[name] = component
+	e.id2Name[id] = name
 
 	return nil
 }

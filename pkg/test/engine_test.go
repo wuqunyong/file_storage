@@ -15,10 +15,14 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -90,12 +94,55 @@ func SwitchFunc(obj any) {
 
 var asciiSpace = [256]uint8{'\t': 1, '\n': 1, '\v': 1, '\f': 1, '\r': 1, ' ': 1}
 
+type Black interface {
+	Create(ctx context.Context, blacks []*BlackObj) (err error)
+}
+
+func NewBlackMongo(db *mongo.Database) (Black, error) {
+	coll := db.Collection("black")
+	_, err := coll.Indexes().CreateOne(context.Background(), mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "owner_user_id", Value: 1},
+			{Key: "block_user_id", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &BlackMgo{coll: coll}, nil
+}
+
+type BlackMgo struct {
+	coll *mongo.Collection
+}
+
+type BlackObj struct {
+	OwnerUserID    string    `bson:"owner_user_id"`
+	BlockUserID    string    `bson:"block_user_id"`
+	CreateTime     time.Time `bson:"create_time"`
+	AddSource      int32     `bson:"add_source"`
+	OperatorUserID string    `bson:"operator_user_id"`
+	Ex             string    `bson:"ex"`
+}
+
+func (b *BlackMgo) Create(ctx context.Context, blacks []*BlackObj) (err error) {
+	return mongodb.InsertMany(ctx, b.coll, blacks)
+}
+
 func TestClient(t *testing.T) {
 	logger.CreateLogger("log.txt")
 
 	fmt.Printf("%v, %T, %s\n", asciiSpace, asciiSpace, reflect.TypeOf(asciiSpace).Name())
 
 	engine := actor.NewEngine("test", "1.2.3", true, "nats://127.0.0.1:4222")
+
+	var mongoConfig mongodb.Config
+	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
+	mongoConfig.Database = "vcity"
+	component := mongodb.NewMongoComponent(engine, context.Background(), &mongoConfig)
+	engine.AddComponent(component)
+
 	err := engine.Init()
 	if err != nil {
 		t.Fatal("init err", err)
@@ -111,6 +158,21 @@ func TestClient(t *testing.T) {
 	engine.Start()
 
 	time.Sleep(time.Duration(3) * time.Second)
+
+	mongoComponent := engine.GetComponent(mongodb.ComponentName).(*mongodb.MongoComponent)
+	blackTable, err := NewBlackMongo(mongoComponent.GetDatabase())
+	if err != nil {
+		t.Fatal("init err", err)
+	}
+	var blacks []*BlackObj
+	blacks = append(blacks, &BlackObj{
+		OwnerUserID: "1",
+		CreateTime:  time.Now(),
+	}, &BlackObj{
+		OwnerUserID: "2",
+		CreateTime:  time.Now(),
+	})
+	blackTable.Create(context.Background(), blacks)
 
 	person := &testdata.Person{Name: "小明", Age: 18}
 	request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)

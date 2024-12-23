@@ -4,9 +4,12 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/common"
+	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
@@ -24,6 +27,13 @@ var apiCmd = &cobra.Command{
 		config.ServerPrivateKey = "E:/VCity/city/config/metaserver.vcity.app_key.key"
 
 		engine := actor.NewEngine("test", "1.2.3", true, "nats://127.0.0.1:4222")
+
+		var mongoConfig mongodb.Config
+		mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
+		mongoConfig.Database = "vcity"
+		component := mongodb.NewMongoComponent(engine, context.Background(), &mongoConfig)
+		engine.AddComponent(component)
+
 		err := engine.Init()
 		if err != nil {
 			return
