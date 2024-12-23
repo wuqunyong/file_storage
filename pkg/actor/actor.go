@@ -43,6 +43,10 @@ func (a *Actor) ActorId() *concepts.ActorId {
 	return a.actorId
 }
 
+func (a *Actor) GetEngine() concepts.IEngine {
+	return a.context.GetEngine()
+}
+
 func (a *Actor) Init() error {
 	return nil
 }

@@ -4,12 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/spf13/cobra"
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
@@ -32,6 +29,7 @@ var apiCmd = &cobra.Command{
 			return
 		}
 		engine.Start()
+		defer engine.Stop()
 
 		wsServer := ws.NewWsServer(config, engine)
 		wsServer.Run()
@@ -40,12 +38,7 @@ var apiCmd = &cobra.Command{
 		// moduleA := &ws.ModuleA{}
 		// ws.GetInstance().Register(1, moduleA.Handler_Func1)
 		// ws.GetInstance().Register(2, moduleA.Handler_Func2)
-
-		// Wait for the process to be shutdown.
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-		<-sigs
-		ws.SIGTERMExit()
+		common.WaitForShutdown()
 	},
 }
 

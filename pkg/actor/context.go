@@ -17,3 +17,7 @@ func newContext(ctx context.Context, e concepts.IEngine) *Context {
 		engine:  e,
 	}
 }
+
+func (ctx *Context) GetEngine() concepts.IEngine {
+	return ctx.engine
+}

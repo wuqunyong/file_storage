@@ -11,6 +11,10 @@ func (actorId *ActorId) String() string {
 	return actorId.Address + actorSeparator + actorId.ID
 }
 
+func (actorId *ActorId) GetId() string {
+	return actorId.ID
+}
+
 func (actorId *ActorId) Equals(other *ActorId) bool {
 	return actorId.Address == other.Address && actorId.ID == other.ID
 }

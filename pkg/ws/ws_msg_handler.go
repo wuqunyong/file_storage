@@ -221,3 +221,29 @@ func (a *ModuleA) Handler_Func3(client *Client, reqeust *testdata.Person, respon
 
 	return nil
 }
+
+func (a *ModuleA) Handler_Func4(client *Client, reqeust *testdata.Person, response *testdata.Person) errs.CodeError {
+	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
+
+	fmt.Printf("recv:%+v\n", reqeust)
+
+	response.Address += "|Changed"
+	curMilliTime := time.Now().UnixMilli()
+	for i := 0; i < 60; i++ {
+		iRand := rand.Intn(180) * 1000
+		iValue := curMilliTime + int64(iRand)
+		item := tick.NewItem(iValue, func(id uint64) {
+			fmt.Println("Id:", id, "expireTime:", iValue)
+		})
+		client.GetTimerQueue().Push(item)
+		fmt.Println("id:", item.GetId(), "set expireTime:", iValue)
+
+		iMod := item.GetId() % 10
+		if iMod%3 == 0 {
+			client.GetTimerQueue().Remove(item.GetId())
+			fmt.Println("remove id:", item.GetId())
+		}
+	}
+
+	return errs.NewCodeError(errors.New("customer err"), 123)
+}

@@ -99,6 +99,7 @@ func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer
 func (c *Client) Init() error {
 	moduleA := &ModuleA{}
 	c.msgHandler.Register(3, moduleA.Handler_Func3)
+	c.msgHandler.Register(4, moduleA.Handler_Func4)
 
 	return nil
 }
