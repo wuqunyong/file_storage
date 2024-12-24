@@ -18,7 +18,6 @@ type Engine struct {
 	rpcServer  concepts.IRPCServer
 	mu         sync.Mutex
 	components map[string]concepts.IComponent
-	id2Name    map[string]string
 }
 
 type IComponentSlice []concepts.IComponent
@@ -32,7 +31,6 @@ func NewEngine(kind, address string, rpcFlag bool, connString string) *Engine {
 	e := &Engine{
 		address:    sServerAddress,
 		components: make(map[string]concepts.IComponent),
-		id2Name:    make(map[string]string),
 	}
 	e.registry = newRegistry(e)
 	e.rpcFlag = rpcFlag
@@ -60,21 +58,10 @@ func (e *Engine) AddComponent(component concepts.IComponent) error {
 		return errors.New(sError)
 	}
 
-	if e.HasActor(component.ActorId()) {
-		sError := fmt.Sprintf("duplicate actor id:%s", component.ActorId().String())
-		return errors.New(sError)
-	}
-
 	name := component.Name()
-	id := component.ActorId().GetId()
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	_, err := e.SpawnActor(component)
-	if err != nil {
-		return err
-	}
 	e.components[name] = component
-	e.id2Name[id] = name
 
 	return nil
 }
@@ -149,6 +136,7 @@ func (e *Engine) Init() error {
 
 	var componentsObj IComponentSlice
 	for _, value := range e.components {
+		value.SetEngine(e)
 		componentsObj = append(componentsObj, value)
 	}
 	sort.Sort(componentsObj)

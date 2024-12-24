@@ -140,7 +140,7 @@ func TestClient(t *testing.T) {
 	var mongoConfig mongodb.Config
 	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
 	mongoConfig.Database = "vcity"
-	component := mongodb.NewMongoComponent(engine, context.Background(), &mongoConfig)
+	component := mongodb.NewMongoComponent(context.Background(), &mongoConfig)
 	engine.AddComponent(component)
 
 	err := engine.Init()
