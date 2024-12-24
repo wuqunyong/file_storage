@@ -18,12 +18,12 @@ type Item struct {
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the item in the heap.
 
-	id        uint64
-	when      time.Time
-	period    int64
-	oneshot   bool
-	task      TimerCb
-	callTimes int64
+	id       uint64
+	when     time.Time
+	period   int64
+	oneshot  bool
+	task     TimerCb
+	numCalls int64
 }
 
 func (item *Item) GetId() uint64 {
@@ -43,11 +43,11 @@ func (item *Item) SetOneshot(value bool) {
 }
 
 func (item *Item) Restore() {
-	item.callTimes++
 	item.expireTime = item.expireTime + item.period
 }
 
 func (item *Item) Run() {
+	item.numCalls++
 	if item.task == nil {
 		return
 	}
@@ -60,15 +60,28 @@ func GetTimeAfterInterval(milliSec int64) int64 {
 	return iExpireTime
 }
 
-func NewItem(period int64, task TimerCb) *Item {
-	expireTime := GetTimeAfterInterval(period)
+func NewItem(period time.Duration, task TimerCb) *Item {
+	expireTime := GetTimeAfterInterval(int64(period))
 	return &Item{
 		when:       time.Now(),
-		period:     period,
+		period:     int64(period),
 		expireTime: expireTime,
 		oneshot:    true,
 		task:       task,
-		callTimes:  0,
+		numCalls:   0,
+	}
+}
+
+func NewPersistentItem(id uint64, period time.Duration, task TimerCb) *Item {
+	expireTime := GetTimeAfterInterval(int64(period))
+	return &Item{
+		id:         id,
+		when:       time.Now(),
+		period:     int64(period),
+		expireTime: expireTime,
+		oneshot:    false,
+		task:       task,
+		numCalls:   0,
 	}
 }
 
@@ -113,8 +126,10 @@ type TimerQueue struct {
 }
 
 func NewTimerQueue() *TimerQueue {
+	var initId uint64 = 100000
 	timer := &TimerQueue{
-		id:     0,
+		id:     initId,
+		maxId:  initId,
 		queue:  make(PriorityQueue, 0),
 		idItem: make(map[uint64]*Item),
 	}

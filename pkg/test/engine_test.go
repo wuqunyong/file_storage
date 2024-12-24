@@ -61,7 +61,7 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 		actor.PostTask(func1)
 	}
 
-	actor.id = 1000
+	actor.id = 10000
 	funcCb := func(id uint64) {
 		fmt.Println("Id:", id)
 
@@ -78,12 +78,11 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 		})
 		blackTable.Create(context.Background(), blacks)
 	}
-	item := tick.NewItem(1000*15, func(id uint64) {
+	item := tick.NewPersistentItem(2, 1000*15, func(id uint64) {
 		fmt.Println("Id:", id)
 		funcCb(id)
 	})
-	item.SetOneshot(false)
-	actor.GetTimerQueue().Push(item)
+	actor.GetTimerQueue().Restore(item)
 
 	return nil
 }
