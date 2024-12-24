@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/funcutils"
@@ -16,28 +17,6 @@ import (
 	"golang.org/x/exp/rand"
 	"google.golang.org/protobuf/proto"
 )
-
-type Req struct {
-	RequestId int32  `json:"requestId"`
-	Opcode    int32  `json:"opcode"`
-	Flag      int32  `json:"flag"`
-	Data      []byte `json:"data"` // 在序列化和反序列化时，[]byte 会被自动转换为 Base64 编码的字符串（JSON 格式要求）
-}
-
-type Resp struct {
-	RequestId int32  `json:"requestId"`
-	ErrCode   int32  `json:"errCode"`
-	ErrMsg    string `json:"errMsg"`
-	Data      []byte `json:"data"`
-}
-
-func NewResp(requestId int32, errCode int32, errMsg string) *Resp {
-	return &Resp{
-		RequestId: requestId,
-		ErrCode:   errCode,
-		ErrMsg:    errMsg,
-	}
-}
 
 var (
 	instance *RegisterHandler
@@ -48,7 +27,7 @@ type RegisterHandler struct {
 	msgHandler map[int32]*funcutils.MethodType
 }
 
-func newRegisterHandler() *RegisterHandler {
+func NewRegisterHandler() *RegisterHandler {
 	return &RegisterHandler{
 		msgHandler: make(map[int32]*funcutils.MethodType),
 	}
@@ -56,7 +35,7 @@ func newRegisterHandler() *RegisterHandler {
 
 func GetInstance() *RegisterHandler {
 	once.Do(func() {
-		instance = newRegisterHandler()
+		instance = NewRegisterHandler()
 	})
 	return instance
 }
@@ -84,12 +63,12 @@ func (h *RegisterHandler) GetHandler(opcode int32) *funcutils.MethodType {
 	return nil
 }
 
-func (handler *RegisterHandler) callFunc(client *Client, request *Req) *Resp {
+func (handler *RegisterHandler) callFunc(client *Client, request *common.Req) *common.Resp {
 	requestId := request.RequestId
 	ptrMethod := handler.GetHandler(request.Opcode)
 	if ptrMethod == nil {
 		sError := fmt.Sprintf("unregister Opcode:%d", request.Opcode)
-		reply := NewResp(requestId, 1, sError)
+		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
 
@@ -104,31 +83,55 @@ func (handler *RegisterHandler) callFunc(client *Client, request *Req) *Resp {
 	err = decoder.Decode(request.Data, args)
 	if err != nil {
 		sError := fmt.Sprintf("Decode err:%v\n", err)
-		reply := NewResp(requestId, 1, sError)
+		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
 	code, err = funcutils.CallClientReflectFunc(ptrMethod, client, args, response)
 	if err != nil {
 		sError := fmt.Sprintf("err:%s\n" + err.Error())
-		reply := NewResp(requestId, 1, sError)
+		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
 
 	if code != nil {
-		reply := NewResp(requestId, code.Code(), code.Msg())
+		reply := common.NewResp(requestId, code.Code(), code.Msg())
 		return reply
 	}
 
 	replyData, err := decoder.Encode(response)
 	if err != nil {
 		sError := fmt.Sprintf("Encode err:%v\n", err)
-		reply := NewResp(requestId, 1, sError)
+		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
 
-	reply := NewResp(requestId, 0, "")
+	reply := common.NewResp(requestId, 0, "")
 	reply.Data = replyData
 	return reply
+}
+
+type ClientHandler struct {
+	client     *Client
+	msgHandler *RegisterHandler
+}
+
+func NewClientHandler(client *Client, msgHandler *RegisterHandler) *ClientHandler {
+	return &ClientHandler{
+		client:     client,
+		msgHandler: msgHandler,
+	}
+}
+
+func (handler *ClientHandler) Init() error {
+	moduleA := &ModuleA{}
+	handler.msgHandler.Register(3, moduleA.Handler_Func3)
+	handler.msgHandler.Register(4, moduleA.Handler_Func4)
+	return nil
+}
+
+func (handler *ClientHandler) CallFunc(request *common.Req) {
+	response := handler.msgHandler.callFunc(handler.client, request)
+	handler.client.writeTextMsg(response)
 }
 
 type ModuleA struct {
@@ -140,7 +143,7 @@ type TestJsonMsg struct {
 	Extra string `json:"extra"`
 }
 
-func (a *ModuleA) Handler_Func1(client *Client, data *Req) ([]byte, errs.CodeError) {
+func (a *ModuleA) Handler_Func1(client *Client, data *common.Req) ([]byte, errs.CodeError) {
 	//{"hello":"world","value":123}
 	//eyJoZWxsbyI6IndvcmxkIiwidmFsdWUiOjEyM30=
 	//{"opcode":1,"data":"eyJoZWxsbyI6IndvcmxkIiwidmFsdWUiOjEyM30="}
@@ -158,7 +161,7 @@ func (a *ModuleA) Handler_Func1(client *Client, data *Req) ([]byte, errs.CodeErr
 	return respBytes, nil
 }
 
-func (a *ModuleA) Handler_Func2(client *Client, data *Req) ([]byte, errs.CodeError) {
+func (a *ModuleA) Handler_Func2(client *Client, data *common.Req) ([]byte, errs.CodeError) {
 	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
 
 	person := &testdata.Person{}

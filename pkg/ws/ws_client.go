@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 )
 
@@ -81,10 +82,10 @@ type Client struct {
 	hbCtx          context.Context
 	hbCancel       context.CancelFunc
 	concepts.IActor
-	msgHandler *RegisterHandler
+	msgHandler concepts.IClientHandler
 }
 
-func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer LongConnServer, id string) {
+func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer LongConnServer, id string, handler concepts.IClientHandler) {
 	c.w = new(sync.Mutex)
 	c.conn = conn
 	c.ctx = ctx
@@ -93,14 +94,14 @@ func (c *Client) ResetClient(ctx *UserConnContext, conn LongConn, longConnServer
 	c.closedErr = nil
 	c.hbCtx, c.hbCancel = context.WithCancel(context.Background())
 	c.IActor = actor.NewActor(id, longConnServer.GetEngine())
-	c.msgHandler = newRegisterHandler()
+	c.msgHandler = handler
 }
 
 func (c *Client) Init() error {
-	moduleA := &ModuleA{}
-	c.msgHandler.Register(3, moduleA.Handler_Func3)
-	c.msgHandler.Register(4, moduleA.Handler_Func4)
-
+	err := c.msgHandler.Init()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -147,7 +148,7 @@ func (c *Client) readMessage() {
 		case MessageText:
 			fmt.Printf("message:%s\n", message)
 
-			var jsonReq Req
+			var jsonReq common.Req
 			err := json.Unmarshal(message, &jsonReq)
 			if err != nil {
 				fmt.Printf("Unmarshal err: %s\n", err.Error())
@@ -158,8 +159,7 @@ func (c *Client) readMessage() {
 			fmt.Printf("Unmarshal jsonReq: %+v\n", jsonReq)
 
 			task := func() {
-				response := c.msgHandler.callFunc(c, &jsonReq)
-				c.writeTextMsg(response)
+				c.msgHandler.CallFunc(&jsonReq)
 			}
 			c.GetActor().PostTask(task)
 
@@ -241,7 +241,7 @@ func (c *Client) writePongMsg(appData string) error {
 	return err
 }
 
-func (c *Client) writeBinaryMsg(resp Resp) error {
+func (c *Client) writeBinaryMsg(resp common.Resp) error {
 	if c.closed.Load() {
 		return nil
 	}
@@ -262,7 +262,7 @@ func (c *Client) writeBinaryMsg(resp Resp) error {
 	return c.conn.WriteMessage(MessageBinary, encodedBuf)
 }
 
-func (c *Client) writeTextMsg(resp *Resp) error {
+func (c *Client) writeTextMsg(resp *common.Resp) error {
 	if c.closed.Load() {
 		return nil
 	}

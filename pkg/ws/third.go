@@ -95,7 +95,7 @@ func (o *ThirdApi) WSHandler(c *gin.Context) {
 	}
 
 	client := o.ws.GetClient()
-	client.ResetClient(connContext, wsLongConn, o.ws, "123")
+	client.ResetClient(connContext, wsLongConn, o.ws, "123", NewClientHandler(client, NewRegisterHandler()))
 
 	// Register the client with the server and start message processing
 	o.ws.Register(client)
