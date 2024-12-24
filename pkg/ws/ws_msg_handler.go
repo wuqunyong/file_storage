@@ -40,18 +40,17 @@ func GetInstance() *RegisterHandler {
 	return instance
 }
 
-func (h *RegisterHandler) Register(opcode int32, handler any) error {
+func (h *RegisterHandler) MustRegister(opcode int32, handler any) {
 	_, ok := h.msgHandler[opcode]
 	if ok {
 		sErr := fmt.Sprintf("duplicate id:%d\n", opcode)
-		return errors.New(sErr)
+		panic(sErr)
 	}
 	ptrMethon, err := funcutils.GetClientReflectFunc(handler)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	h.msgHandler[opcode] = ptrMethon
-	return nil
 }
 
 func (h *RegisterHandler) GetHandler(opcode int32) *funcutils.MethodType {
@@ -63,7 +62,7 @@ func (h *RegisterHandler) GetHandler(opcode int32) *funcutils.MethodType {
 	return nil
 }
 
-func (handler *RegisterHandler) callFunc(client *Client, request *common.Req) *common.Resp {
+func (handler *RegisterHandler) CallFunc(client *Client, request *common.Req) *common.Resp {
 	requestId := request.RequestId
 	ptrMethod := handler.GetHandler(request.Opcode)
 	if ptrMethod == nil {
@@ -122,15 +121,24 @@ func NewClientHandler(client *Client, msgHandler *RegisterHandler) *ClientHandle
 	}
 }
 
-func (handler *ClientHandler) Init() error {
+func (handler *ClientHandler) Init() (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			sErr := fmt.Sprintf("register have panic err:%s", r)
+			err = errors.New(sErr)
+		}
+	}()
+
 	moduleA := &ModuleA{}
-	handler.msgHandler.Register(3, moduleA.Handler_Func3)
-	handler.msgHandler.Register(4, moduleA.Handler_Func4)
-	return nil
+	handler.msgHandler.MustRegister(3, moduleA.Handler_Func3)
+	handler.msgHandler.MustRegister(4, moduleA.Handler_Func4)
+	// handler.msgHandler.MustRegister(4, moduleA.Handler_Func4)
+	handler.msgHandler.MustRegister(5, moduleA.Handler_Func4)
+	return err
 }
 
 func (handler *ClientHandler) CallFunc(request *common.Req) {
-	response := handler.msgHandler.callFunc(handler.client, request)
+	response := handler.msgHandler.CallFunc(handler.client, request)
 	handler.client.writeTextMsg(response)
 }
 
