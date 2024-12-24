@@ -18,8 +18,12 @@ type Item struct {
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the item in the heap.
 
-	id   uint64
-	task TimerCb
+	id        uint64
+	when      time.Time
+	period    int64
+	oneshot   bool
+	task      TimerCb
+	callTimes int64
 }
 
 func (item *Item) GetId() uint64 {
@@ -28,6 +32,19 @@ func (item *Item) GetId() uint64 {
 
 func (item *Item) GetExpireTime() int64 {
 	return item.expireTime
+}
+
+func (item *Item) GetOneshot() bool {
+	return item.oneshot
+}
+
+func (item *Item) SetOneshot(value bool) {
+	item.oneshot = value
+}
+
+func (item *Item) Restore() {
+	item.callTimes++
+	item.expireTime = item.expireTime + item.period
 }
 
 func (item *Item) Run() {
@@ -43,10 +60,15 @@ func GetTimeAfterInterval(milliSec int64) int64 {
 	return iExpireTime
 }
 
-func NewItem(expireTime int64, task TimerCb) *Item {
+func NewItem(period int64, task TimerCb) *Item {
+	expireTime := GetTimeAfterInterval(period)
 	return &Item{
+		when:       time.Now(),
+		period:     period,
 		expireTime: expireTime,
+		oneshot:    true,
 		task:       task,
+		callTimes:  0,
 	}
 }
 

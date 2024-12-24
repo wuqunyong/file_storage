@@ -13,6 +13,7 @@ import (
 type Engine struct {
 	registry   *Registry
 	address    string
+	connString string
 	rpcFlag    bool
 	rpcClient  concepts.IRPCClient
 	rpcServer  concepts.IRPCServer
@@ -26,10 +27,15 @@ func (c IComponentSlice) Len() int           { return len(c) }
 func (c IComponentSlice) Less(i, j int) bool { return c[i].Priority() < c[j].Priority() }
 func (c IComponentSlice) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
 
-func NewEngine(kind, address string, rpcFlag bool, connString string) *Engine {
+func NewEngine(kind, address string, connString string) *Engine {
 	sServerAddress := GenServerAddress(kind, address)
+	rpcFlag := false
+	if connString != "" {
+		rpcFlag = true
+	}
 	e := &Engine{
 		address:    sServerAddress,
+		connString: connString,
 		components: make(map[string]concepts.IComponent),
 	}
 	e.registry = newRegistry(e)

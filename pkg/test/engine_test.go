@@ -8,17 +8,20 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"strconv"
 	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
+	"github.com/wuqunyong/file_storage/pkg/tick"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,6 +32,7 @@ import (
 type ActorObjA struct {
 	*actor.Actor
 	inited atomic.Bool
+	id     int
 }
 
 func (actor *ActorObjA) Init() error {
@@ -56,6 +60,30 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 		}
 		actor.PostTask(func1)
 	}
+
+	actor.id = 1000
+	funcCb := func(id uint64) {
+		fmt.Println("Id:", id)
+
+		actor.id++
+		mongoComponent := actor.GetEngine().GetComponent(mongodb.ComponentName).(*mongodb.MongoComponent)
+		blackTable, err := NewBlackMongo(mongoComponent.GetDatabase())
+		if err != nil {
+			return
+		}
+		var blacks []*BlackObj
+		blacks = append(blacks, &BlackObj{
+			OwnerUserID: strconv.Itoa(actor.id),
+			CreateTime:  time.Now(),
+		})
+		blackTable.Create(context.Background(), blacks)
+	}
+	item := tick.NewItem(1000*15, func(id uint64) {
+		fmt.Println("Id:", id)
+		funcCb(id)
+	})
+	item.SetOneshot(false)
+	actor.GetTimerQueue().Push(item)
 
 	return nil
 }
@@ -135,7 +163,7 @@ func TestClient(t *testing.T) {
 
 	fmt.Printf("%v, %T, %s\n", asciiSpace, asciiSpace, reflect.TypeOf(asciiSpace).Name())
 
-	engine := actor.NewEngine("test", "1.2.3", true, "nats://127.0.0.1:4222")
+	engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
 
 	var mongoConfig mongodb.Config
 	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
@@ -198,14 +226,12 @@ func TestClient(t *testing.T) {
 	}
 	fmt.Printf("obj2:%T, %v\n", obj, obj)
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	<-sigs
+	common.WaitForShutdown()
 }
 
 func TestServer(t *testing.T) {
 
-	engine := actor.NewEngine("test", "1.2.345", true, "nats://127.0.0.1:4222")
+	engine := actor.NewEngine("test", "1.2.345", "nats://127.0.0.1:4222")
 	engine.Init()
 	actorObj1 := &ActorObjA{
 		Actor: actor.NewActor("1", engine),

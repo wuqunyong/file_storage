@@ -134,6 +134,11 @@ func (a *Actor) handleMsg() {
 			}
 			item = a.timerQueue.Pop()
 			item.Run()
+
+			if !item.GetOneshot() {
+				item.Restore()
+				a.timerQueue.Restore(item)
+			}
 		}
 
 		if bDone {

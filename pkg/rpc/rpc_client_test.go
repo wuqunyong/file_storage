@@ -12,7 +12,7 @@ func TestClient1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 	sTopic := "identify.server.1.2.3"
 
-	engine := actor.NewEngine(actor.LocalLookupAddr, false, "")
+	engine := actor.NewEngine(actor.LocalLookupAddr, "")
 	rpcClient := NewRPCClient(engine, "nats://127.0.0.1:4222", "identify.client.1.2.3")
 	err := rpcClient.Init()
 	if err != nil {
@@ -31,7 +31,7 @@ func TestClient1(t *testing.T) {
 
 func TestClient2(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
-	engine := actor.NewEngine(actor.LocalLookupAddr, false, "")
+	engine := actor.NewEngine(actor.LocalLookupAddr, "")
 	rpcClient := NewRPCClient(engine, "nats://127.0.0.1:4222", "identify.client.1.2.3")
 	err := rpcClient.Init()
 	if err != nil {

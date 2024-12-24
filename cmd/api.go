@@ -26,12 +26,12 @@ var apiCmd = &cobra.Command{
 		config.ServerCertificate = "E:/VCity/city/config/metaserver.vcity.app_chain.crt"
 		config.ServerPrivateKey = "E:/VCity/city/config/metaserver.vcity.app_key.key"
 
-		engine := actor.NewEngine("test", "1.2.3", true, "nats://127.0.0.1:4222")
+		engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
 
 		var mongoConfig mongodb.Config
 		mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
 		mongoConfig.Database = "vcity"
-		component := mongodb.NewMongoComponent(engine, context.Background(), &mongoConfig)
+		component := mongodb.NewMongoComponent(context.Background(), &mongoConfig)
 		engine.AddComponent(component)
 
 		err := engine.Init()
