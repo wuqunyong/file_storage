@@ -78,11 +78,17 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 		})
 		blackTable.Create(context.Background(), blacks)
 	}
-	item := tick.NewPersistentItem(2, 1000*15, func(id uint64) {
+	item := tick.NewPersistentTimer(2, 15*time.Second, func(id uint64) {
 		fmt.Println("Id:", id)
 		funcCb(id)
 	})
 	actor.GetTimerQueue().Restore(item)
+
+	item1 := tick.NewPersistentTimer(3, 10*time.Second, func(id uint64) {
+		fmt.Println("Id:", id)
+	})
+	actor.GetTimerQueue().Restore(item)
+	actor.GetTimerQueue().Restore(item1)
 
 	return nil
 }
@@ -159,8 +165,6 @@ func (b *BlackMgo) Create(ctx context.Context, blacks []*BlackObj) (err error) {
 
 func TestClient(t *testing.T) {
 	logger.CreateLogger("log.txt")
-
-	fmt.Printf("%v, %T, %s\n", asciiSpace, asciiSpace, reflect.TypeOf(asciiSpace).Name())
 
 	engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
 

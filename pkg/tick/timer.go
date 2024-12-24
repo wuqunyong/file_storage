@@ -12,8 +12,8 @@ import (
 
 type TimerCb func(uint64)
 
-// An Item is something we manage in a priority queue.
-type Item struct {
+// An Timer is something we manage in a priority queue.
+type Timer struct {
 	expireTime int64 // The priority of the item in the queue.
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the item in the heap.
@@ -26,27 +26,27 @@ type Item struct {
 	numCalls int64
 }
 
-func (item *Item) GetId() uint64 {
+func (item *Timer) GetId() uint64 {
 	return item.id
 }
 
-func (item *Item) GetExpireTime() int64 {
+func (item *Timer) GetExpireTime() int64 {
 	return item.expireTime
 }
 
-func (item *Item) GetOneshot() bool {
+func (item *Timer) IsOneshot() bool {
 	return item.oneshot
 }
 
-func (item *Item) SetOneshot(value bool) {
+func (item *Timer) SetOneshot(value bool) {
 	item.oneshot = value
 }
 
-func (item *Item) Restore() {
+func (item *Timer) Restore() {
 	item.expireTime = item.expireTime + item.period
 }
 
-func (item *Item) Run() {
+func (item *Timer) Run() {
 	item.numCalls++
 	if item.task == nil {
 		return
@@ -54,15 +54,15 @@ func (item *Item) Run() {
 	item.task(item.id)
 }
 
-func GetTimeAfterInterval(milliSec int64) int64 {
-	iCur := time.Now().UnixMilli()
-	iExpireTime := iCur + milliSec
+func GetTimeAfterInterval(iPeriod int64) int64 {
+	iCur := time.Now().UnixNano()
+	iExpireTime := iCur + iPeriod
 	return iExpireTime
 }
 
-func NewItem(period time.Duration, task TimerCb) *Item {
+func NewTimer(period time.Duration, task TimerCb) *Timer {
 	expireTime := GetTimeAfterInterval(int64(period))
-	return &Item{
+	return &Timer{
 		when:       time.Now(),
 		period:     int64(period),
 		expireTime: expireTime,
@@ -72,9 +72,9 @@ func NewItem(period time.Duration, task TimerCb) *Item {
 	}
 }
 
-func NewPersistentItem(id uint64, period time.Duration, task TimerCb) *Item {
+func NewPersistentTimer(id uint64, period time.Duration, task TimerCb) *Timer {
 	expireTime := GetTimeAfterInterval(int64(period))
-	return &Item{
+	return &Timer{
 		id:         id,
 		when:       time.Now(),
 		period:     int64(period),
@@ -86,7 +86,7 @@ func NewPersistentItem(id uint64, period time.Duration, task TimerCb) *Item {
 }
 
 // A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
+type PriorityQueue []*Timer
 
 func (pq PriorityQueue) Len() int { return len(pq) }
 
@@ -102,7 +102,7 @@ func (pq PriorityQueue) Swap(i, j int) {
 
 func (pq *PriorityQueue) Push(x any) {
 	n := len(*pq)
-	item := x.(*Item)
+	item := x.(*Timer)
 	item.index = n
 	*pq = append(*pq, item)
 }
@@ -122,7 +122,7 @@ type TimerQueue struct {
 	id     uint64
 	maxId  uint64
 	queue  PriorityQueue
-	idItem map[uint64]*Item
+	idItem map[uint64]*Timer
 }
 
 func NewTimerQueue() *TimerQueue {
@@ -131,7 +131,7 @@ func NewTimerQueue() *TimerQueue {
 		id:     initId,
 		maxId:  initId,
 		queue:  make(PriorityQueue, 0),
-		idItem: make(map[uint64]*Item),
+		idItem: make(map[uint64]*Timer),
 	}
 	heap.Init(&timer.queue)
 
@@ -149,7 +149,7 @@ func (t *TimerQueue) Len() int {
 	return t.queue.Len()
 }
 
-func (t *TimerQueue) Push(item *Item) {
+func (t *TimerQueue) Push(item *Timer) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -162,7 +162,7 @@ func (t *TimerQueue) Push(item *Item) {
 	heap.Push(&t.queue, item)
 }
 
-func (t *TimerQueue) Restore(item *Item) error {
+func (t *TimerQueue) Restore(item *Timer) error {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -184,7 +184,7 @@ func (t *TimerQueue) Restore(item *Item) error {
 	return nil
 }
 
-func (t *TimerQueue) Pop() *Item {
+func (t *TimerQueue) Pop() *Timer {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -192,12 +192,12 @@ func (t *TimerQueue) Pop() *Item {
 		return nil
 	}
 
-	item := heap.Pop(&t.queue).(*Item)
+	item := heap.Pop(&t.queue).(*Timer)
 	delete(t.idItem, item.id)
 	return item
 }
 
-func (t *TimerQueue) Peek() *Item {
+func (t *TimerQueue) Peek() *Timer {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -208,7 +208,7 @@ func (t *TimerQueue) Peek() *Item {
 	return t.queue[0]
 }
 
-func (t *TimerQueue) Remove(id uint64) *Item {
+func (t *TimerQueue) Remove(id uint64) *Timer {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -217,7 +217,7 @@ func (t *TimerQueue) Remove(id uint64) *Item {
 		return nil
 	}
 
-	remItem := heap.Remove(&t.queue, item.index).(*Item)
+	remItem := heap.Remove(&t.queue, item.index).(*Timer)
 	delete(t.idItem, item.id)
 	return remItem
 }

@@ -13,19 +13,19 @@ func Test(t *testing.T) {
 	}
 	for _, priority := range items {
 		var iValue int64 = priority
-		item1 := NewItem(iValue, func(id uint64) {
+		item1 := NewTimer(iValue, func(id uint64) {
 			fmt.Println("Id:", id, "priority:", iValue)
 		})
 		timerQueue.Push(item1)
 	}
 
-	item1 := NewItem(10, func(id uint64) {
+	item1 := NewTimer(10, func(id uint64) {
 		fmt.Println("Id:", id, "priority:", 10)
 	})
 	timerQueue.Push(item1)
 	iId := item1.GetId()
 
-	item2 := NewItem(20, func(id uint64) {
+	item2 := NewTimer(20, func(id uint64) {
 		fmt.Println("Id:", id, "priority:", 20)
 	})
 	timerQueue.Push(item2)

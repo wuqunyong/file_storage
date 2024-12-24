@@ -126,19 +126,26 @@ func (a *Actor) handleMsg() {
 			bDone = true
 		}
 
-		curMilliTime := time.Now().UnixMilli()
-		for a.timerQueue.Len() > 0 {
-			item := a.timerQueue.Peek()
-			if curMilliTime < item.GetExpireTime() {
+		var lRestore []*tick.Timer
+
+		iTime := time.Now().UnixNano()
+		iLen := a.timerQueue.Len()
+		for i := 0; i < iLen; i++ {
+			timer := a.timerQueue.Peek()
+			if iTime < timer.GetExpireTime() {
 				break
 			}
-			item = a.timerQueue.Pop()
-			item.Run()
+			timer = a.timerQueue.Pop()
+			timer.Run()
 
-			if !item.GetOneshot() {
-				item.Restore()
-				a.timerQueue.Restore(item)
+			if !timer.IsOneshot() {
+				timer.Restore()
+				lRestore = append(lRestore, timer)
 			}
+		}
+
+		for _, timer := range lRestore {
+			a.timerQueue.Restore(timer)
 		}
 
 		if bDone {

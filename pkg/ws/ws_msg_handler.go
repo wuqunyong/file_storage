@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
@@ -178,8 +179,8 @@ func (a *ModuleA) Handler_Func2(client *Client, data *Req) ([]byte, errs.CodeErr
 	// curMilliTime := time.Now().UnixMilli()
 	for i := 0; i < 60; i++ {
 		iRand := rand.Intn(180) * 1000
-		iValue := int64(iRand)
-		item := tick.NewItem(iValue, func(id uint64) {
+		iValue := time.Duration(iRand)
+		item := tick.NewTimer(iValue*time.Millisecond, func(id uint64) {
 			fmt.Println("Id:", id, "expireTime:", iValue)
 		})
 		client.GetTimerQueue().Push(item)
@@ -204,8 +205,8 @@ func (a *ModuleA) Handler_Func3(client *Client, reqeust *testdata.Person, respon
 	// curMilliTime := time.Now().UnixMilli()
 	for i := 0; i < 60; i++ {
 		iRand := rand.Intn(180) * 1000
-		iValue := int64(iRand)
-		item := tick.NewItem(iValue, func(id uint64) {
+		iValue := time.Duration(iRand)
+		item := tick.NewTimer(iValue*time.Millisecond, func(id uint64) {
 			fmt.Println("Id:", id, "expireTime:", iValue)
 		})
 		client.GetTimerQueue().Push(item)
@@ -230,8 +231,8 @@ func (a *ModuleA) Handler_Func4(client *Client, reqeust *testdata.Person, respon
 	// curMilliTime := time.Now().UnixMilli()
 	for i := 0; i < 60; i++ {
 		iRand := rand.Intn(180) * 1000
-		iValue := int64(iRand)
-		item := tick.NewItem(iValue, func(id uint64) {
+		iValue := time.Duration(iRand)
+		item := tick.NewTimer(iValue*time.Millisecond, func(id uint64) {
 			fmt.Println("Id:", id, "expireTime:", iValue)
 		})
 		client.GetTimerQueue().Push(item)

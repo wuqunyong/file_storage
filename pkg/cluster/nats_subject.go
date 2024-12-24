@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/nats-io/nats.go"
 )
@@ -27,7 +28,7 @@ func NewNatsSubject(subject string, size int) *NatsSubject {
 func (p *NatsSubject) Stop() {
 	err := p.Subscription.Unsubscribe()
 	if err != nil {
-		fmt.Printf("Unsubscribe error. [subject = %s, err = %v]", p.Subject, err)
+		slog.Error("Unsubscribe error", "subject", p.Subject, "err", err)
 	}
 	close(p.Ch)
 }
