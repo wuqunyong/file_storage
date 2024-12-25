@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/wuqunyong/file_storage/internal/api"
 	"google.golang.org/protobuf/proto"
 )
 
