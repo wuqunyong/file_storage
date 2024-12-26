@@ -140,14 +140,9 @@ func (e *Engine) Init() error {
 		}
 	}
 
-	var componentsObj IComponentSlice
-	for _, value := range e.components {
-		value.SetEngine(e)
-		componentsObj = append(componentsObj, value)
-	}
-	sort.Sort(componentsObj)
-
-	for _, obj := range componentsObj {
+	components := e.GetComponentSlice(false)
+	for _, obj := range components {
+		obj.SetEngine(e)
 		err := obj.OnInit()
 		if err != nil {
 			return err
@@ -162,15 +157,29 @@ func (e *Engine) Start() {
 		go e.rpcClient.Run()
 		go e.rpcServer.Run()
 	}
+
+	components := e.GetComponentSlice(false)
+	for _, obj := range components {
+		obj.OnStart()
+	}
+}
+
+func (e *Engine) GetComponentSlice(reverse bool) IComponentSlice {
+	var components IComponentSlice
+	for _, value := range e.components {
+		components = append(components, value)
+	}
+	if reverse {
+		sort.Sort(sort.Reverse(components))
+	} else {
+		sort.Sort(components)
+	}
+	return components
 }
 
 func (e *Engine) Stop() {
-	var componentsObj IComponentSlice
-	for _, value := range e.components {
-		componentsObj = append(componentsObj, value)
-	}
-	sort.Sort(sort.Reverse(componentsObj))
-	for _, obj := range componentsObj {
+	components := e.GetComponentSlice(true)
+	for _, obj := range components {
 		obj.OnCleanup()
 	}
 

@@ -46,6 +46,10 @@ func (component *MongoComponent) OnInit() error {
 	return nil
 }
 
+func (component *MongoComponent) OnStart() {
+
+}
+
 func (component *MongoComponent) OnCleanup() {
 
 }

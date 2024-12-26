@@ -6,5 +6,6 @@ type IComponent interface {
 	SetEngine(engine IEngine)
 	GetEngine() IEngine
 	OnInit() error
+	OnStart()
 	OnCleanup()
 }
