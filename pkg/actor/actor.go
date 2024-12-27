@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"runtime/debug"
 	"sync/atomic"
 	"time"
@@ -20,20 +21,22 @@ type Actor struct {
 	tickDuration time.Duration
 	timerQueue   *tick.TimerQueue
 
-	cancelch chan struct{}
-	closed   atomic.Bool
+	cancelch   chan struct{}
+	closed     atomic.Bool
+	shutdownCh chan struct{}
 }
 
 func NewActor(id string, e concepts.IEngine) *Actor {
 	actorId := concepts.NewActorId(e.GetAddress(), id)
-	ctx := newContext(context.Background(), e)
+	ctx := newContext(actorId, context.Background(), e)
 	a := &Actor{
 		actorId:      actorId,
 		context:      ctx,
 		msgs:         NewInbox(),
 		tickDuration: time.Duration(10) * time.Millisecond,
 		timerQueue:   tick.NewTimerQueue(),
-		cancelch:     make(chan struct{}, 1),
+		cancelch:     make(chan struct{}),
+		shutdownCh:   make(chan struct{}),
 	}
 	a.closed.Store(false)
 	return a
@@ -84,13 +87,35 @@ func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts 
 	return request
 }
 
+func (a *Actor) OnShutdown() {
+	slog.Info("OnShutdown", "actorId", a.actorId.String())
+}
+
 func (a *Actor) Stop() {
 	if a.closed.Load() {
 		return
 	}
 	a.closed.Store(true)
+
+	close(a.shutdownCh)
+	a.waitForChildrenClosed()
+	a.OnShutdown()
+
+	if a.context.parentCtx != nil {
+		a.context.parentCtx.children.Delete(a.actorId.ID)
+	}
+
 	close(a.cancelch)
 	a.context.engine.RemoveActor(a.ActorId())
+}
+
+func (a *Actor) waitForChildrenClosed() {
+	for {
+		if len(a.context.Children()) == 0 {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func (a *Actor) Register(name string, fun interface{}) error {
@@ -105,6 +130,32 @@ func (a *Actor) PostTask(funObj func()) error {
 	return a.msgs.Send(funObj)
 }
 
+func (a *Actor) IsRoot() bool {
+	return a.GetParentActor() == nil
+}
+
+func (a *Actor) GetParentActor() concepts.IActor {
+	parent := a.context.Parent()
+	if parent != nil {
+		return a.context.engine.GetRegistry().GetByID(parent.ID)
+	}
+	return nil
+}
+
+func (a *Actor) GetShutdownCh() <-chan struct{} {
+	return a.shutdownCh
+}
+
+func (a *Actor) GetParentShutdownCh() <-chan struct{} {
+	parent := a.GetParentActor()
+	if parent != nil {
+		return parent.GetShutdownCh()
+	}
+
+	tmpCh := make(chan struct{})
+	return tmpCh
+}
+
 func (a *Actor) handleMsg() {
 	ticker := time.NewTicker(a.tickDuration)
 	defer func() {
@@ -115,6 +166,7 @@ func (a *Actor) handleMsg() {
 		a.Stop()
 	}()
 
+	parentShutdownCh := a.GetParentShutdownCh()
 	for {
 		bDone := false
 		select {
@@ -123,6 +175,8 @@ func (a *Actor) handleMsg() {
 		case <-ticker.C:
 			// fmt.Println("tick")
 		case <-a.cancelch:
+			bDone = true
+		case <-parentShutdownCh:
 			bDone = true
 		}
 

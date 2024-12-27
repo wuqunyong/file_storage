@@ -5,9 +5,20 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
+)
+
+type ServerState int
+
+const (
+	STATE_UNINITIALIZED ServerState = iota
+	STATE_INITIALIZED
+	STATE_RUNNING
+	STATE_SHUTTING_DOWN
+	STATE_SHUTDOWN
 )
 
 type Engine struct {
@@ -17,6 +28,8 @@ type Engine struct {
 	rpcFlag    bool
 	rpcClient  concepts.IRPCClient
 	rpcServer  concepts.IRPCServer
+	state      ServerState
+	lastError  error
 	mu         sync.Mutex
 	components map[string]concepts.IComponent
 }
@@ -36,6 +49,7 @@ func NewEngine(kind, address string, connString string) *Engine {
 	e := &Engine{
 		address:    sServerAddress,
 		connString: connString,
+		state:      STATE_UNINITIALIZED,
 		components: make(map[string]concepts.IComponent),
 	}
 	e.registry = newRegistry(e)
@@ -56,6 +70,10 @@ func GenServerAddress(kind, address string) string {
 func GenClientAddress(kind, address string) string {
 	sAddress := fmt.Sprintf("engine.%s.client.%s", kind, address)
 	return sAddress
+}
+
+func (e *Engine) GetRegistry() concepts.IRegistry {
+	return e.registry
 }
 
 func (e *Engine) AddComponent(component concepts.IComponent) error {
@@ -132,10 +150,12 @@ func (e *Engine) Init() error {
 	if e.rpcFlag {
 		err := e.rpcClient.Init()
 		if err != nil {
+			e.lastError = err
 			return err
 		}
 		err = e.rpcServer.Init()
 		if err != nil {
+			e.lastError = err
 			return err
 		}
 	}
@@ -145,10 +165,12 @@ func (e *Engine) Init() error {
 		obj.SetEngine(e)
 		err := obj.OnInit()
 		if err != nil {
+			e.lastError = err
 			return err
 		}
 	}
 
+	e.state = STATE_INITIALIZED
 	return err
 }
 
@@ -162,6 +184,7 @@ func (e *Engine) Start() {
 	for _, obj := range components {
 		obj.OnStart()
 	}
+	e.state = STATE_RUNNING
 }
 
 func (e *Engine) GetComponentSlice(reverse bool) IComponentSlice {
@@ -177,7 +200,28 @@ func (e *Engine) GetComponentSlice(reverse bool) IComponentSlice {
 	return components
 }
 
+func (e *Engine) waitForRootClosed() {
+	for {
+		rootIds := e.registry.GetRootID()
+		if len(rootIds) == 0 {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
+}
+
 func (e *Engine) Stop() {
+	e.state = STATE_SHUTTING_DOWN
+
+	rootIds := e.registry.GetRootID()
+	for _, id := range rootIds {
+		actor := e.registry.GetByID(id)
+		if actor != nil {
+			actor.Stop()
+		}
+	}
+	e.waitForRootClosed()
+
 	components := e.GetComponentSlice(true)
 	for _, obj := range components {
 		obj.OnCleanup()
@@ -187,8 +231,13 @@ func (e *Engine) Stop() {
 		e.rpcClient.Stop()
 		e.rpcServer.Stop()
 	}
+	e.state = STATE_SHUTDOWN
 }
 
 func (e *Engine) isLocalMessage(actor *concepts.ActorId) bool {
 	return e.address == actor.Address
+}
+
+func (e *Engine) WaitForShutdown() {
+
 }

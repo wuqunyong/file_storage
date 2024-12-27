@@ -8,14 +8,12 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
-	"strconv"
 	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
-	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/errs"
@@ -62,33 +60,34 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 	}
 
 	actor.id = 10000
-	funcCb := func(id uint64) {
-		fmt.Println("Id:", id)
+	// funcCb := func(id uint64) {
+	// 	fmt.Println("Id:", id)
 
-		actor.id++
-		mongoComponent := actor.GetEngine().GetComponent(mongodb.ComponentName).(*mongodb.MongoComponent)
-		blackTable, err := NewBlackMongo(mongoComponent.GetDatabase())
-		if err != nil {
-			return
-		}
-		var blacks []*BlackObj
-		blacks = append(blacks, &BlackObj{
-			OwnerUserID: strconv.Itoa(actor.id),
-			CreateTime:  time.Now(),
-		})
-		blackTable.Create(context.Background(), blacks)
-	}
-	item := tick.NewPersistentTimer(2, 15*time.Second, func(id uint64) {
-		fmt.Println("Id:", id)
-		funcCb(id)
+	// 	actor.id++
+	// 	mongoComponent := actor.GetEngine().GetComponent(mongodb.ComponentName).(*mongodb.MongoComponent)
+	// 	blackTable, err := NewBlackMongo(mongoComponent.GetDatabase())
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// 	var blacks []*BlackObj
+	// 	blacks = append(blacks, &BlackObj{
+	// 		OwnerUserID: strconv.Itoa(actor.id),
+	// 		CreateTime:  time.Now(),
+	// 	})
+	// 	blackTable.Create(context.Background(), blacks)
+	// }
+	// item := tick.NewPersistentTimer(2, 15*time.Second, func(id uint64) {
+	// 	fmt.Println("Id:", id)
+	// 	funcCb(id)
+	// })
+	// actor.GetTimerQueue().Restore(item)
+
+	iTimestamp := GetNextMinuteTimestamp()
+	item := tick.NewPersistentTimerWithExpires(3, iTimestamp, 60*time.Second, func(id uint64) {
+		fmt.Println("offset Id:", id, time.Now())
 	})
 	actor.GetTimerQueue().Restore(item)
-
-	item1 := tick.NewPersistentTimer(3, 10*time.Second, func(id uint64) {
-		fmt.Println("Id:", id)
-	})
-	actor.GetTimerQueue().Restore(item)
-	actor.GetTimerQueue().Restore(item1)
+	// actor.GetTimerQueue().Restore(item1)
 
 	return nil
 }
@@ -163,8 +162,38 @@ func (b *BlackMgo) Create(ctx context.Context, blacks []*BlackObj) (err error) {
 	return mongodb.InsertMany(ctx, b.coll, blacks)
 }
 
+const TimeOffset = 8 * 3600
+
+func GetCurDayZeroTimestamp() int64 {
+	now := time.Now()
+	timeStr := now.Format("2006-01-02")
+	t, _ := time.Parse("2006-01-02", timeStr)
+	return t.Unix() - TimeOffset
+}
+
+func GetNextHourOffset() int64 {
+	now := time.Now()
+	timeStr := now.Format("2006-01-02 15")
+	t, _ := time.Parse("2006-01-02 15", timeStr)
+	iPass := (now.Unix() - t.Unix()) % 3600
+	iValue := 3600 - iPass
+	return iValue
+}
+
+func GetNextMinuteTimestamp() int64 {
+	now := time.Now()
+	timeStr := now.Format("2006-01-02 15:04")
+	t, _ := time.Parse("2006-01-02 15:04", timeStr)
+	t = t.Add(-TimeOffset * time.Second)
+	t = t.Add(60 * time.Second)
+	return t.UnixNano()
+}
+
 func TestClient(t *testing.T) {
 	logger.CreateLogger("log.txt")
+
+	iZero := GetNextMinuteTimestamp()
+	fmt.Println(iZero)
 
 	engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
 
@@ -187,6 +216,7 @@ func TestClient(t *testing.T) {
 	engine.SpawnActor(actorObj1)
 	engine.SpawnActor(actorObj2)
 	engine.Start()
+	defer engine.Stop()
 
 	time.Sleep(time.Duration(3) * time.Second)
 
@@ -229,7 +259,8 @@ func TestClient(t *testing.T) {
 	}
 	fmt.Printf("obj2:%T, %v\n", obj, obj)
 
-	common.WaitForShutdown()
+	time.Sleep(30 * time.Second)
+	// common.WaitForShutdown()
 }
 
 func TestServer(t *testing.T) {

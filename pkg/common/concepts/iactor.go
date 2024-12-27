@@ -15,6 +15,8 @@ type IActor interface {
 	Request(target *ActorId, method string, args any, opts ...context.Context) IMsgReq
 	PostTask(funObj func()) error
 	Stop()
-
+	GetShutdownCh() <-chan struct{}
+	OnShutdown()
 	Send(request IMsgReq) error
+	IsRoot() bool
 }

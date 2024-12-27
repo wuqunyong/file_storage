@@ -85,6 +85,18 @@ func NewPersistentTimer(id uint64, period time.Duration, task TimerCb) *Timer {
 	}
 }
 
+func NewPersistentTimerWithExpires(id uint64, expireTime int64, period time.Duration, task TimerCb) *Timer {
+	return &Timer{
+		id:         id,
+		when:       time.Now(),
+		period:     int64(period),
+		expireTime: expireTime,
+		oneshot:    false,
+		task:       task,
+		numCalls:   0,
+	}
+}
+
 // A PriorityQueue implements heap.Interface and holds Items.
 type PriorityQueue []*Timer
 
