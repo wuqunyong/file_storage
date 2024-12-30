@@ -3,6 +3,7 @@ package actor
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
@@ -37,6 +38,8 @@ func (r *Registry) GetActorId(kind, id string) *concepts.ActorId {
 
 // Remove removes the given PID from the registry.
 func (r *Registry) Remove(actorId *concepts.ActorId) {
+	slog.Info("Actor Remove", "actorId", actorId.String())
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.lookup, actorId.ID)
@@ -75,6 +78,8 @@ func (r *Registry) GetRootID() []string {
 }
 
 func (r *Registry) add(actor concepts.IActor) error {
+	slog.Info("Actor add", "actorId", actor.ActorId().String())
+
 	r.mu.Lock()
 	id := actor.ActorId().ID
 	if _, ok := r.lookup[id]; ok {
@@ -84,7 +89,7 @@ func (r *Registry) add(actor concepts.IActor) error {
 	}
 	r.lookup[id] = actor
 	r.mu.Unlock()
-	err := actor.Init()
+	err := actor.OnInit()
 	if err != nil {
 		return err
 	}

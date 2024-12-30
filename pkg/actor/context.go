@@ -2,6 +2,7 @@ package actor
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/safemap"
@@ -26,6 +27,10 @@ func newContext(actorId *concepts.ActorId, ctx context.Context, e concepts.IEngi
 
 func (c *Context) GetEngine() concepts.IEngine {
 	return c.engine
+}
+
+func (c *Context) GetParentCtx() *Context {
+	return c.parentCtx
 }
 
 func (c *Context) GetActorId(id string) *concepts.ActorId {
@@ -65,4 +70,18 @@ func (c *Context) Children() []*concepts.ActorId {
 // PID returns the PID of the process that belongs to the context.
 func (c *Context) ActorID() *concepts.ActorId {
 	return c.actorId
+}
+
+func (c *Context) SpawnChild(actor concepts.IActor, id string) *concepts.ActorId {
+	childId := c.actorId.GetId() + "." + id
+	childActor := NewActor(childId, c.engine)
+	childActor.context.parentCtx = c
+	c.children.Set(childActor.actorId.ID, childActor.actorId)
+	actor.SetEmbeddingActor(childActor)
+	_, err := c.engine.SpawnActor(actor)
+	if err != nil {
+		slog.Error("SpawnChild", "err", err)
+	}
+
+	return childActor.actorId
 }

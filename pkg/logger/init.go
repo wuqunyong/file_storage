@@ -13,7 +13,7 @@ func CreateLogger(name string) (*slog.Logger, error) {
 	}
 
 	options := &slog.HandlerOptions{
-		AddSource: true,
+		AddSource: false,
 		Level:     slog.LevelDebug,
 	}
 

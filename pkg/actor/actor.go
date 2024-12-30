@@ -50,12 +50,13 @@ func (a *Actor) GetEngine() concepts.IEngine {
 	return a.context.GetEngine()
 }
 
-func (a *Actor) Init() error {
+func (a *Actor) OnInit() error {
 	return nil
 }
 
 func (a *Actor) Start() {
-	go a.handleMsg()
+	parentShutdownCh := a.GetParentShutdownCh()
+	go a.handleMsg(parentShutdownCh)
 }
 
 func (a *Actor) GetTimerQueue() *tick.TimerQueue {
@@ -88,7 +89,7 @@ func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts 
 }
 
 func (a *Actor) OnShutdown() {
-	slog.Info("OnShutdown", "actorId", a.actorId.String())
+	slog.Info("Actor OnShutdown", "actorId", a.actorId.String())
 }
 
 func (a *Actor) Stop() {
@@ -101,8 +102,9 @@ func (a *Actor) Stop() {
 	a.waitForChildrenClosed()
 	a.OnShutdown()
 
-	if a.context.parentCtx != nil {
-		a.context.parentCtx.children.Delete(a.actorId.ID)
+	if a.context.GetParentCtx() != nil {
+		a.context.GetParentCtx().children.Delete(a.actorId.ID)
+		slog.Info("Actor Delete", "actorId", a.actorId.ID)
 	}
 
 	close(a.cancelch)
@@ -131,7 +133,7 @@ func (a *Actor) PostTask(funObj func()) error {
 }
 
 func (a *Actor) IsRoot() bool {
-	return a.GetParentActor() == nil
+	return a.context.Parent() == nil
 }
 
 func (a *Actor) GetParentActor() concepts.IActor {
@@ -147,16 +149,23 @@ func (a *Actor) GetShutdownCh() <-chan struct{} {
 }
 
 func (a *Actor) GetParentShutdownCh() <-chan struct{} {
-	parent := a.GetParentActor()
+	parent := a.context.Parent()
 	if parent != nil {
-		return parent.GetShutdownCh()
+		for {
+			parent := a.GetParentActor()
+			if parent != nil {
+				return parent.GetShutdownCh()
+			}
+
+			time.Sleep(10 * time.Millisecond)
+		}
 	}
 
 	tmpCh := make(chan struct{})
 	return tmpCh
 }
 
-func (a *Actor) handleMsg() {
+func (a *Actor) handleMsg(parentShutdownCh <-chan struct{}) {
 	ticker := time.NewTicker(a.tickDuration)
 	defer func() {
 		ticker.Stop()
@@ -166,7 +175,6 @@ func (a *Actor) handleMsg() {
 		a.Stop()
 	}()
 
-	parentShutdownCh := a.GetParentShutdownCh()
 	for {
 		bDone := false
 		select {
@@ -206,4 +214,12 @@ func (a *Actor) handleMsg() {
 			break
 		}
 	}
+}
+
+func (a *Actor) SetEmbeddingActor(actor concepts.IActor) {
+
+}
+
+func (a *Actor) SpawnChild(actor concepts.IActor, id string) *concepts.ActorId {
+	return a.context.SpawnChild(actor, id)
 }

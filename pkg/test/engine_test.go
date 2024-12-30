@@ -33,7 +33,7 @@ type ActorObjA struct {
 	id     int
 }
 
-func (actor *ActorObjA) Init() error {
+func (actor *ActorObjA) OnInit() error {
 	if actor.inited.Load() {
 		return errors.New("duplicate init")
 	}
@@ -189,6 +189,23 @@ func GetNextMinuteTimestamp() int64 {
 	return t.UnixNano()
 }
 
+type ChildActorObjA struct {
+	concepts.IActor
+}
+
+func (a *ChildActorObjA) OnInit() error {
+	slog.Info("ChildActorObjA OnInit", "actorId", a.ActorId().String())
+	return nil
+}
+
+func (a *ChildActorObjA) OnShutdown() {
+	slog.Info("ChildActorObjA OnShutdown", "actorId", a.ActorId().String())
+}
+
+func (a *ChildActorObjA) SetEmbeddingActor(actor concepts.IActor) {
+	a.IActor = actor
+}
+
 func TestClient(t *testing.T) {
 	logger.CreateLogger("log.txt")
 
@@ -213,9 +230,18 @@ func TestClient(t *testing.T) {
 	actorObj2 := &ActorObjA{
 		Actor: actor.NewActor("2", engine),
 	}
-	engine.SpawnActor(actorObj1)
+	for i := 0; i < 100; i++ {
+		actorObj2.SpawnChild(&ChildActorObjA{}, fmt.Sprintf("ppp:%d", i))
+	}
+
+	// engine.SpawnActor(actorObj1)
 	engine.SpawnActor(actorObj2)
 	engine.Start()
+
+	for i := 200; i < 300; i++ {
+		actorObj2.SpawnChild(&ChildActorObjA{}, fmt.Sprintf("ppp:%d", i))
+	}
+
 	defer engine.Stop()
 
 	time.Sleep(time.Duration(3) * time.Second)
@@ -260,6 +286,7 @@ func TestClient(t *testing.T) {
 	fmt.Printf("obj2:%T, %v\n", obj, obj)
 
 	time.Sleep(30 * time.Second)
+	fmt.Println("over")
 	// common.WaitForShutdown()
 }
 
