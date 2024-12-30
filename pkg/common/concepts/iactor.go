@@ -19,7 +19,7 @@ type IActor interface {
 	IsRoot() bool
 
 	SetEmbeddingActor(actor IActor)
-	SpawnChild(actor IActor, id string) *ActorId
+	SpawnChild(actor IActor, id string) (*ActorId, error)
 
 	OnInit() error
 	OnShutdown()

@@ -72,16 +72,16 @@ func (c *Context) ActorID() *concepts.ActorId {
 	return c.actorId
 }
 
-func (c *Context) SpawnChild(actor concepts.IActor, id string) *concepts.ActorId {
+func (c *Context) SpawnChild(actor concepts.IActor, id string) (*concepts.ActorId, error) {
 	childId := c.actorId.GetId() + "." + id
 	childActor := NewActor(childId, c.engine)
 	childActor.context.parentCtx = c
 	c.children.Set(childActor.actorId.ID, childActor.actorId)
 	actor.SetEmbeddingActor(childActor)
-	_, err := c.engine.SpawnActor(actor)
+	childActorId, err := c.engine.SpawnActor(actor)
 	if err != nil {
 		slog.Error("SpawnChild", "err", err)
 	}
 
-	return childActor.actorId
+	return childActorId, err
 }

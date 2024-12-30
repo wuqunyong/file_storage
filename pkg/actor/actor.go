@@ -55,8 +55,7 @@ func (a *Actor) OnInit() error {
 }
 
 func (a *Actor) Start() {
-	parentShutdownCh := a.GetParentShutdownCh()
-	go a.handleMsg(parentShutdownCh)
+	go a.handleMsg()
 }
 
 func (a *Actor) GetTimerQueue() *tick.TimerQueue {
@@ -165,7 +164,7 @@ func (a *Actor) GetParentShutdownCh() <-chan struct{} {
 	return tmpCh
 }
 
-func (a *Actor) handleMsg(parentShutdownCh <-chan struct{}) {
+func (a *Actor) handleMsg() {
 	ticker := time.NewTicker(a.tickDuration)
 	defer func() {
 		ticker.Stop()
@@ -175,6 +174,7 @@ func (a *Actor) handleMsg(parentShutdownCh <-chan struct{}) {
 		a.Stop()
 	}()
 
+	parentShutdownCh := a.GetParentShutdownCh()
 	for {
 		bDone := false
 		select {
@@ -217,9 +217,9 @@ func (a *Actor) handleMsg(parentShutdownCh <-chan struct{}) {
 }
 
 func (a *Actor) SetEmbeddingActor(actor concepts.IActor) {
-
+	panic("Unimplemented: SetEmbeddingActor")
 }
 
-func (a *Actor) SpawnChild(actor concepts.IActor, id string) *concepts.ActorId {
+func (a *Actor) SpawnChild(actor concepts.IActor, id string) (*concepts.ActorId, error) {
 	return a.context.SpawnChild(actor, id)
 }
