@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+option go_package = "protobuf/;testdata";
+package testdata;
+
+
+message HandshakeInitRequest
+{
+	string client_random = 1;
+}
+
+message HandshakeInitResponse
+{
+	int32 status_code = 1;
+	string server_random = 2;
+	string public_key = 3;
+}
+
+message HandshakeEstablishedRequest
+{
+	bytes encrypted_key = 1;
+}
+
+message HandshakeEstablishedResponse
+{
+	int32 status_code = 1;
+}
+
+message AccountLoginRequest
+{
+	uint64 account_id = 1;
+}
+
+message AccountLoginResponse
+{
+	int32 error_code = 1;
+	string ip = 2;
+	int32 port = 3;
+	uint64 user_id = 4;
+	string session_key = 5;
+}
+
+
+message ClientLoginRequest
+{
+	uint64 user_id = 1;
+	string session_key = 2;
+	int32 version = 3;
+}
+
+message ClientLoginResponse
+{
+	int32 error_code = 1;
+	uint64 user_id = 2;
+	int32 version = 3;
+	bool is_newbie = 4;
+	uint32 ammo = 5;
+	uint32 grenades = 6;
+}
+
+message EchoRequest
+{
+	uint64 value1 = 1;
+	string value2 = 2;
+}
+
+message EchoResponse
+{
+	uint64 value1 = 1;
+	string value2 = 2;
+}
+
+message AsyncEchoRequest
+{
+	uint64 value1 = 1;
+	string value2 = 2;
+}
+
+message AsyncEchoResponse
+{
+	uint64 value1 = 1;
+	string value2 = 2;
+}

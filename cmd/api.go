@@ -10,6 +10,8 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
+	"github.com/wuqunyong/file_storage/pkg/component/tcpserver"
+	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
@@ -33,6 +35,13 @@ var apiCmd = &cobra.Command{
 		mongoConfig.Database = "vcity"
 		component := mongodb.NewMongoComponent(context.Background(), &mongoConfig)
 		engine.AddComponent(component)
+
+		packer := tcpserver.NewPBPacker()
+		codec := &easytcp.ProtobufCodec{}
+
+		server := tcpserver.NewTCPServer(&easytcp.ServerOption{Packer: packer,
+			Codec: codec}, ":16007")
+		engine.AddComponent(server)
 
 		err := engine.Init()
 		if err != nil {
