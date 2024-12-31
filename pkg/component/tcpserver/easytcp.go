@@ -46,7 +46,7 @@ func (s *TCPServer) OnInit() error {
 		if err != nil {
 			fmt.Println("err:", err)
 		}
-		slog.Info("Recv 1001", "data", reqData)
+		slog.Info("Recv 1001", "data", reqData.String())
 
 		// set response
 		//c.SetResponseMessage(easytcp.NewMessage(1002, []byte("copy that")))
@@ -57,10 +57,13 @@ func (s *TCPServer) OnInit() error {
 		if err != nil {
 			fmt.Println("err:", err)
 		}
-		slog.Info("Recv 1003", "data", reqData)
+		slog.Info("Recv 1003", "data", reqData.String())
 
 		// set response
-		//c.SetResponseMessage(easytcp.NewMessage(1002, []byte("copy that")))
+		var response testdata.EchoResponse
+		response.Value1 = reqData.Value1
+		response.Value2 = reqData.Value2 + "|response"
+		c.SetResponse(1104, &response)
 	})
 	return nil
 }
