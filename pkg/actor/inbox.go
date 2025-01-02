@@ -136,7 +136,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 
 	ptrMethod, ok := inbox.method[message.FuncName]
 	if !ok {
-		sError := fmt.Sprintf("unregister name:%s\n", message.FuncName)
+		sError := fmt.Sprintf("unregister name:%s", message.FuncName)
 		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 		return reply
 	}
@@ -152,13 +152,13 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 		args := reflect.New(ptrMethod.ArgType[1].Elem()).Interface()
 		err := decoder.Decode(message.ArgsData, args)
 		if err != nil {
-			sError := fmt.Sprintf("Decode err:%v\n", err)
+			sError := fmt.Sprintf("Decode err:%v", err)
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
 		code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, args, response)
 		if err != nil {
-			sError := fmt.Sprintf("err:%s\n" + err.Error())
+			sError := fmt.Sprintf("err:%s" + err.Error())
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
@@ -170,7 +170,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 
 		replyData, err := decoder.Encode(response)
 		if err != nil {
-			sError := fmt.Sprintf("Encode err:%v\n", err)
+			sError := fmt.Sprintf("Encode err:%v", err)
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
@@ -183,7 +183,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 
 	code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, message.Args, response)
 	if err != nil {
-		sError := fmt.Sprintf("err:%s\n" + err.Error())
+		sError := fmt.Sprintf("err:%s" + err.Error())
 		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 		return reply
 	}

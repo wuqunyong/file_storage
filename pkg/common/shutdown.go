@@ -19,5 +19,5 @@ func WaitForShutdown() {
 
 func SIGTERMExit() {
 	progName := filepath.Base(os.Args[0])
-	slog.Warn("SIGTERMExit", "value", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0\n", progName))
+	slog.Warn("SIGTERMExit", "value", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
 }

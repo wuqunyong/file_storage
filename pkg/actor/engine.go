@@ -83,7 +83,7 @@ func (e *Engine) GetRegistry() concepts.IRegistry {
 
 func (e *Engine) MustAddComponent(component concepts.IComponent) {
 	if e.HasComponent(component.Name()) {
-		sError := fmt.Sprintf("duplicate component name:%s\n", component.Name())
+		sError := fmt.Sprintf("duplicate component name:%s", component.Name())
 		panic(sError)
 	}
 
@@ -142,7 +142,7 @@ func (e *Engine) Request(request concepts.IMsgReq) error {
 
 	actorObj := e.registry.get(request.GetTarget())
 	if actorObj == nil {
-		sError := fmt.Sprintf("not exist:%v\n", request.GetTarget().Address)
+		sError := fmt.Sprintf("not exist:%v", request.GetTarget().Address)
 		return errors.New(sError)
 	}
 	return actorObj.Send(request)

@@ -80,8 +80,8 @@ func (rpc *RPCClient) Run() {
 	}()
 
 	process := func(natsMsg *nats.Msg) {
-		fmt.Printf("msg:%+v\n", natsMsg)
-		fmt.Printf("data:%s\n", string(natsMsg.Data))
+		fmt.Printf("msg:%+v", natsMsg)
+		fmt.Printf("data:%s", string(natsMsg.Data))
 
 		if len(natsMsg.Data) == 0 {
 			slog.Error("nats receive", "header", natsMsg.Header, "Subject", natsMsg.Subject, "Reply", natsMsg.Reply)
@@ -89,7 +89,7 @@ func (rpc *RPCClient) Run() {
 		}
 		response, err := msg.ResponseUnmarshal(natsMsg.Data)
 		if err != nil {
-			fmt.Printf("err:%+v\n", err)
+			fmt.Printf("err:%+v", err)
 			return
 		}
 

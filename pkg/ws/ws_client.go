@@ -146,17 +146,17 @@ func (c *Client) readMessage() {
 		switch messageType {
 		case MessageBinary:
 		case MessageText:
-			fmt.Printf("message:%s\n", message)
+			fmt.Printf("message:%s", message)
 
 			var jsonReq common.Req
 			err := json.Unmarshal(message, &jsonReq)
 			if err != nil {
-				fmt.Printf("Unmarshal err: %s\n", err.Error())
+				fmt.Printf("Unmarshal err: %s", err.Error())
 				c.closedErr = ErrDataUnmarshal
 				return
 			}
 
-			fmt.Printf("Unmarshal jsonReq: %+v\n", jsonReq)
+			fmt.Printf("Unmarshal jsonReq: %+v", jsonReq)
 
 			task := func() {
 				c.msgHandler.CallFunc(&jsonReq)
@@ -190,7 +190,7 @@ func (c *Client) close() {
 
 func (c *Client) activeHeartbeat() {
 	go func() {
-		fmt.Printf("server initiative send heartbeat start.\n")
+		fmt.Printf("server initiative send heartbeat start.")
 		ticker := time.NewTicker(pingPeriod)
 		defer ticker.Stop()
 
@@ -198,7 +198,7 @@ func (c *Client) activeHeartbeat() {
 			select {
 			case <-ticker.C:
 				if err := c.writePingMsg(); err != nil {
-					fmt.Printf("send Ping Message error.\n")
+					fmt.Printf("send Ping Message error.")
 					return
 				}
 			case <-c.hbCtx.Done():

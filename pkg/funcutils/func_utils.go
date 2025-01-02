@@ -45,7 +45,7 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 	// Method needs two ins: context.Context, *args, *reply.
 	if mtype.NumIn() != iNumIn {
 		if reportErr {
-			log.Printf("rpc.Register: method %q has %d input parameters; needs exactly two\n", mname, mtype.NumIn())
+			log.Printf("rpc.Register: method %q has %d input parameters; needs exactly two", mname, mtype.NumIn())
 		}
 		return nil
 	}
@@ -60,7 +60,7 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 	contextType := mtype.In(0)
 	if contextType != typeOfContext {
 		if reportErr {
-			log.Printf("rpc.Register: context.Context of method %q is not a context.Context: %q\n", mname, contextType)
+			log.Printf("rpc.Register: context.Context of method %q is not a context.Context: %q", mname, contextType)
 		}
 		return nil
 	}
@@ -68,13 +68,13 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 	argType := mtype.In(1)
 	if argType.Kind() != reflect.Ptr {
 		if reportErr {
-			log.Printf("rpc.Register: argument type of method %q is not a pointer: %q\n", mname, argType)
+			log.Printf("rpc.Register: argument type of method %q is not a pointer: %q", mname, argType)
 		}
 		return nil
 	}
 	if !isExportedOrBuiltinType(argType) {
 		if reportErr {
-			log.Printf("rpc.Register: argument type of method %q is not exported: %q\n", mname, argType)
+			log.Printf("rpc.Register: argument type of method %q is not exported: %q", mname, argType)
 		}
 		return nil
 	}
@@ -82,28 +82,28 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 	replyType := mtype.In(2)
 	if replyType.Kind() != reflect.Ptr {
 		if reportErr {
-			log.Printf("rpc.Register: reply type of method %q is not a pointer: %q\n", mname, replyType)
+			log.Printf("rpc.Register: reply type of method %q is not a pointer: %q", mname, replyType)
 		}
 		return nil
 	}
 	// Reply type must be exported.
 	if !isExportedOrBuiltinType(replyType) {
 		if reportErr {
-			log.Printf("rpc.Register: reply type of method %q is not exported: %q\n", mname, replyType)
+			log.Printf("rpc.Register: reply type of method %q is not exported: %q", mname, replyType)
 		}
 		return nil
 	}
 	// Method needs one out.
 	if mtype.NumOut() != 1 {
 		if reportErr {
-			log.Printf("rpc.Register: method %q has %d output parameters; needs exactly one\n", mname, mtype.NumOut())
+			log.Printf("rpc.Register: method %q has %d output parameters; needs exactly one", mname, mtype.NumOut())
 		}
 		return nil
 	}
 	// The return type of the method must be error.
 	if returnType := mtype.Out(0); returnType != typeOfCodeError {
 		if reportErr {
-			log.Printf("rpc.Register: return type of method %q is %q, must be CodeError\n", mname, returnType)
+			log.Printf("rpc.Register: return type of method %q is %q, must be CodeError", mname, returnType)
 		}
 		return nil
 	}

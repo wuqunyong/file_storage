@@ -84,7 +84,7 @@ func (r *Registry) add(actor concepts.IActor) error {
 	id := actor.ActorId().ID
 	if _, ok := r.lookup[id]; ok {
 		r.mu.Unlock()
-		sError := fmt.Sprintf("duplicate actor id:%s\n", id)
+		sError := fmt.Sprintf("duplicate actor id:%s", id)
 		return errors.New(sError)
 	}
 	r.lookup[id] = actor

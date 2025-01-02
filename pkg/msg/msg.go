@@ -205,17 +205,18 @@ func (resp *MsgResp) Marshal() ([]byte, error) {
 func GetResult[T any](req concepts.IMsgReq) (result *T, code errs.CodeError) {
 	params := reflect.ValueOf(result)
 	if params.Kind() != reflect.Ptr {
-		return nil, errs.NewCodeError(errors.New("params type invalid"))
+		return nil, errs.NewCodeError(errors.New("template type invalid"))
 	}
 
 	argType := params.Type().Elem()
 	if argType.Kind() == reflect.Ptr {
-		return nil, errs.NewCodeError(errors.New("params type invalid"))
+		return nil, errs.NewCodeError(errors.New("template type invalid"))
 	}
 
 	request, ok := req.(*MsgReq)
 	if !ok {
-		return nil, errs.NewCodeError(errors.New("invalid cast"))
+		sError := fmt.Sprintf("type assertion error,%T", req)
+		return nil, errs.NewCodeError(errors.New(sError))
 	}
 
 	if request.Err != nil {
@@ -243,7 +244,7 @@ func GetResult[T any](req concepts.IMsgReq) (result *T, code errs.CodeError) {
 
 	obj, ok := response.Reply.(*T)
 	if !ok {
-		sError := fmt.Sprintf("typecast error:%T\n", response.Reply)
+		sError := fmt.Sprintf("type assertion error,%T:%T", result, response.Reply)
 		return nil, errs.NewCodeError(errors.New(sError))
 	}
 	return obj, nil

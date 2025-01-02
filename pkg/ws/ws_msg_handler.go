@@ -43,7 +43,7 @@ func GetInstance() *RegisterHandler {
 func (h *RegisterHandler) MustRegister(opcode int32, handler any) {
 	_, ok := h.msgHandler[opcode]
 	if ok {
-		sErr := fmt.Sprintf("duplicate id:%d\n", opcode)
+		sErr := fmt.Sprintf("duplicate id:%d", opcode)
 		panic(sErr)
 	}
 	ptrMethon, err := funcutils.GetClientReflectFunc(handler)
@@ -81,13 +81,13 @@ func (handler *RegisterHandler) CallFunc(client *Client, request *common.Req) *c
 	args := reflect.New(ptrMethod.ArgType[1].Elem()).Interface()
 	err = decoder.Decode(request.Data, args)
 	if err != nil {
-		sError := fmt.Sprintf("Decode err:%v\n", err)
+		sError := fmt.Sprintf("Decode err:%v", err)
 		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
 	code, err = funcutils.CallClientReflectFunc(ptrMethod, client, args, response)
 	if err != nil {
-		sError := fmt.Sprintf("err:%s\n" + err.Error())
+		sError := fmt.Sprintf("err:%s" + err.Error())
 		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
@@ -99,7 +99,7 @@ func (handler *RegisterHandler) CallFunc(client *Client, request *common.Req) *c
 
 	replyData, err := decoder.Encode(response)
 	if err != nil {
-		sError := fmt.Sprintf("Encode err:%v\n", err)
+		sError := fmt.Sprintf("Encode err:%v", err)
 		reply := common.NewResp(requestId, 1, sError)
 		return reply
 	}
@@ -178,7 +178,7 @@ func (a *ModuleA) Handler_Func2(client *Client, data *common.Req) ([]byte, errs.
 		return nil, errs.NewCodeError(err, errs.CODE_Unmarshal)
 	}
 
-	fmt.Printf("other:%+v\n", person)
+	fmt.Printf("other:%+v", person)
 
 	person.Address += "|Changed"
 
@@ -210,7 +210,7 @@ func (a *ModuleA) Handler_Func2(client *Client, data *common.Req) ([]byte, errs.
 func (a *ModuleA) Handler_Func3(client *Client, reqeust *testdata.Person, response *testdata.Person) errs.CodeError {
 	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
 
-	fmt.Printf("recv:%+v\n", reqeust)
+	fmt.Printf("recv:%+v", reqeust)
 
 	response.Address += "|Changed"
 	// curMilliTime := time.Now().UnixMilli()
@@ -236,7 +236,7 @@ func (a *ModuleA) Handler_Func3(client *Client, reqeust *testdata.Person, respon
 func (a *ModuleA) Handler_Func4(client *Client, reqeust *testdata.Person, response *testdata.Person) errs.CodeError {
 	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
 
-	fmt.Printf("recv:%+v\n", reqeust)
+	fmt.Printf("recv:%+v", reqeust)
 
 	response.Address += "|Changed"
 	// curMilliTime := time.Now().UnixMilli()
