@@ -249,5 +249,5 @@ func (e *Engine) WaitForShutdown() {
 	<-sigs
 
 	progName := filepath.Base(os.Args[0])
-	slog.Warn("Engine Exit", "action", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
+	slog.Warn("Engine Exit", "reason", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
 }

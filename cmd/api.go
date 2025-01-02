@@ -10,6 +10,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/component/tcpserver"
+	"github.com/wuqunyong/file_storage/pkg/component/wsserver"
 	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
@@ -31,16 +32,15 @@ var apiCmd = &cobra.Command{
 		mongoComp := mongodb.NewMongoComponent(context.Background(), mongodb.NewDefaultConfig())
 		engine.MustAddComponent(mongoComp)
 
-		server := tcpserver.NewTCPServer(tcpserver.NewPBServerOption(), ":16007")
-		engine.MustAddComponent(server)
+		tcpServerComp := tcpserver.NewTCPServer(tcpserver.NewPBServerOption(), ":16007")
+		engine.MustAddComponent(tcpServerComp)
+
+		wsServerComp := wsserver.NewWSServer(config)
+		engine.MustAddComponent(wsServerComp)
 
 		engine.MustInit()
 		engine.Start()
 		defer engine.Stop()
-
-		wsServer := ws.NewWsServer(config, engine)
-		wsServer.Run()
-		defer wsServer.Stop()
 
 		engine.WaitForShutdown()
 	},

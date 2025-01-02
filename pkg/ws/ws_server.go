@@ -51,6 +51,10 @@ func (ws *WsServer) GetEngine() concepts.IEngine {
 	return ws.engine
 }
 
+func (ws *WsServer) SetEngine(engine concepts.IEngine) {
+	ws.engine = engine
+}
+
 func (ws *WsServer) Run() error {
 	var (
 		client *Client
