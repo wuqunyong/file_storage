@@ -3,6 +3,7 @@ package rpc
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"runtime/debug"
 	"sync"
 	"sync/atomic"
@@ -83,6 +84,7 @@ func (rpc *RPCClient) Run() {
 		fmt.Printf("data:%s\n", string(natsMsg.Data))
 
 		if len(natsMsg.Data) == 0 {
+			slog.Error("nats receive", "header", natsMsg.Header, "Subject", natsMsg.Subject, "Reply", natsMsg.Reply)
 			return
 		}
 		response, err := msg.ResponseUnmarshal(natsMsg.Data)

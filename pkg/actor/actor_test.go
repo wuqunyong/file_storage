@@ -54,7 +54,7 @@ func Must[T proto.Message](arg []byte, object T) T {
 
 func Test(t *testing.T) {
 
-	engine := NewEngine(LocalLookupAddr, "1.2.3", "")
+	engine := NewEngine("test", LocalLookupAddr, "")
 	actorObj1 := &ActorObjA{
 		Actor: NewActor("1", engine),
 	}

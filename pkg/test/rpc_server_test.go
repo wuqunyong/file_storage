@@ -1,4 +1,4 @@
-package rpc
+package test
 
 import (
 	"fmt"
@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
 
 func TestServer1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
-	engine := actor.NewEngine(actor.LocalLookupAddr, "")
-	rpcServer := NewRPCServer(engine, "nats://127.0.0.1:4222", "identify.server.1.2.3")
+	engine := actor.NewEngine("test", actor.LocalLookupAddr, "")
+	rpcServer := rpc.NewRPCServer(engine, "nats://127.0.0.1:4222", "identify.server.1.2.3")
 	err := rpcServer.Init()
 	if err != nil {
 		t.Fatalf("err:%s", err)
@@ -22,8 +23,8 @@ func TestServer1(t *testing.T) {
 func TestServer2(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 	//nats pub identify.server.1.2.3 "hello world"
-	engine := actor.NewEngine(actor.LocalLookupAddr, "")
-	rpcServer := NewRPCServer(engine, "nats://127.0.0.1:4222", "identify.server.1.2.3")
+	engine := actor.NewEngine("test", actor.LocalLookupAddr, "")
+	rpcServer := rpc.NewRPCServer(engine, "nats://127.0.0.1:4222", "identify.server.1.2.3")
 	err := rpcServer.Init()
 	if err != nil {
 		t.Fatalf("err:%s", err)

@@ -70,9 +70,11 @@ func (s *TCPServer) OnInit() error {
 
 func (s *TCPServer) OnStart() {
 	go func() {
-		if err := s.server.Run(s.address); err != nil && err != easytcp.ErrServerStopped {
+		var err error
+		if err = s.server.Run(s.address); err != nil && err != easytcp.ErrServerStopped {
 			panic(fmt.Sprintf("serve error:%s\n", err.Error()))
 		}
+		slog.Info("Stopped tcpserver", "err", err)
 	}()
 }
 
