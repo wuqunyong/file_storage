@@ -8,10 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wuqunyong/file_storage/pkg/actor"
-	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/component/tcpserver"
-	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/ws"
 )
 
@@ -30,23 +28,13 @@ var apiCmd = &cobra.Command{
 
 		engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
 
-		var mongoConfig mongodb.Config
-		mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
-		mongoConfig.Database = "vcity"
-		component := mongodb.NewMongoComponent(context.Background(), &mongoConfig)
-		engine.AddComponent(component)
+		mongoComp := mongodb.NewMongoComponent(context.Background(), mongodb.NewDefaultConfig())
+		engine.MustAddComponent(mongoComp)
 
-		packer := tcpserver.NewPBPacker()
-		codec := &easytcp.ProtobufCodec{}
+		server := tcpserver.NewTCPServer(tcpserver.NewPBServerOption(), ":16007")
+		engine.MustAddComponent(server)
 
-		server := tcpserver.NewTCPServer(&easytcp.ServerOption{Packer: packer,
-			Codec: codec}, ":16007")
-		engine.AddComponent(server)
-
-		err := engine.Init()
-		if err != nil {
-			return
-		}
+		engine.MustInit()
 		engine.Start()
 		defer engine.Stop()
 
@@ -54,10 +42,7 @@ var apiCmd = &cobra.Command{
 		wsServer.Run()
 		defer wsServer.Stop()
 
-		// moduleA := &ws.ModuleA{}
-		// ws.GetInstance().Register(1, moduleA.Handler_Func1)
-		// ws.GetInstance().Register(2, moduleA.Handler_Func2)
-		common.WaitForShutdown()
+		engine.WaitForShutdown()
 	},
 }
 

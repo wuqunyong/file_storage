@@ -218,12 +218,9 @@ func TestClient(t *testing.T) {
 	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
 	mongoConfig.Database = "vcity"
 	component := mongodb.NewMongoComponent(context.Background(), &mongoConfig)
-	engine.AddComponent(component)
+	engine.MustAddComponent(component)
 
-	err := engine.Init()
-	if err != nil {
-		t.Fatal("init err", err)
-	}
+	engine.MustInit()
 	actorObj1 := &ActorObjA{
 		Actor: actor.NewActor("1", engine),
 	}
@@ -293,7 +290,7 @@ func TestClient(t *testing.T) {
 func TestServer(t *testing.T) {
 
 	engine := actor.NewEngine("test", "1.2.345", "nats://127.0.0.1:4222")
-	engine.Init()
+	engine.MustInit()
 	actorObj1 := &ActorObjA{
 		Actor: actor.NewActor("1", engine),
 	}

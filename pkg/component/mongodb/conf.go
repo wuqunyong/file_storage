@@ -19,6 +19,13 @@ type Config struct {
 	MaxRetry    int
 }
 
+func NewDefaultConfig() *Config {
+	var mongoConfig Config
+	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
+	mongoConfig.Database = "vcity"
+	return &mongoConfig
+}
+
 // CheckMongo tests the MongoDB connection without retries.
 func Check(ctx context.Context, config *Config) error {
 	if err := config.ValidateAndSetDefaults(); err != nil {

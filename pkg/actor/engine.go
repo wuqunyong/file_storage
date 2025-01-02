@@ -3,8 +3,13 @@ package actor
 import (
 	"errors"
 	"fmt"
+	"log/slog"
+	"os"
+	"os/signal"
+	"path/filepath"
 	"sort"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
@@ -49,9 +54,9 @@ func NewEngine(kind, address string, connString string) *Engine {
 	e := &Engine{
 		address:    sServerAddress,
 		connString: connString,
-		state:      STATE_UNINITIALIZED,
 		components: make(map[string]concepts.IComponent),
 	}
+	e.setState(STATE_UNINITIALIZED)
 	e.registry = newRegistry(e)
 	e.rpcFlag = rpcFlag
 	if e.rpcFlag {
@@ -76,18 +81,16 @@ func (e *Engine) GetRegistry() concepts.IRegistry {
 	return e.registry
 }
 
-func (e *Engine) AddComponent(component concepts.IComponent) error {
+func (e *Engine) MustAddComponent(component concepts.IComponent) {
 	if e.HasComponent(component.Name()) {
-		sError := fmt.Sprintf("duplicate component name:%s", component.Name())
-		return errors.New(sError)
+		sError := fmt.Sprintf("duplicate component name:%s\n", component.Name())
+		panic(sError)
 	}
 
 	name := component.Name()
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.components[name] = component
-
-	return nil
 }
 func (e *Engine) HasComponent(name string) bool {
 	componentObj := e.GetComponent(name)
@@ -145,18 +148,17 @@ func (e *Engine) Request(request concepts.IMsgReq) error {
 	return actorObj.Send(request)
 }
 
-func (e *Engine) Init() error {
-	var err error
+func (e *Engine) MustInit() {
 	if e.rpcFlag {
 		err := e.rpcClient.Init()
 		if err != nil {
 			e.lastError = err
-			return err
+			panic(err)
 		}
 		err = e.rpcServer.Init()
 		if err != nil {
 			e.lastError = err
-			return err
+			panic(err)
 		}
 	}
 
@@ -166,12 +168,11 @@ func (e *Engine) Init() error {
 		err := obj.OnInit()
 		if err != nil {
 			e.lastError = err
-			return err
+			panic(err)
 		}
 	}
 
-	e.state = STATE_INITIALIZED
-	return err
+	e.setState(STATE_INITIALIZED)
 }
 
 func (e *Engine) Start() {
@@ -184,7 +185,7 @@ func (e *Engine) Start() {
 	for _, obj := range components {
 		obj.OnStart()
 	}
-	e.state = STATE_RUNNING
+	e.setState(STATE_RUNNING)
 }
 
 func (e *Engine) GetComponentSlice(reverse bool) IComponentSlice {
@@ -211,8 +212,7 @@ func (e *Engine) waitForRootClosed() {
 }
 
 func (e *Engine) Stop() {
-	e.state = STATE_SHUTTING_DOWN
-
+	e.setState(STATE_SHUTTING_DOWN)
 	rootIds := e.registry.GetRootID()
 	for _, id := range rootIds {
 		actor := e.registry.GetByID(id)
@@ -231,7 +231,12 @@ func (e *Engine) Stop() {
 		e.rpcClient.Stop()
 		e.rpcServer.Stop()
 	}
-	e.state = STATE_SHUTDOWN
+	e.setState(STATE_SHUTDOWN)
+}
+
+func (e *Engine) setState(state ServerState) {
+	e.state = state
+	slog.Warn("Engine ChangeState", "state", e.state)
 }
 
 func (e *Engine) isLocalMessage(actor *concepts.ActorId) bool {
@@ -239,5 +244,10 @@ func (e *Engine) isLocalMessage(actor *concepts.ActorId) bool {
 }
 
 func (e *Engine) WaitForShutdown() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
 
+	progName := filepath.Base(os.Args[0])
+	slog.Warn("Engine Exit", "action", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
 }

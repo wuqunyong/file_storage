@@ -81,3 +81,10 @@ func (s *TCPServer) OnStart() {
 func (s *TCPServer) OnCleanup() {
 	s.server.Stop()
 }
+
+func NewPBServerOption() *easytcp.ServerOption {
+	packer := NewPBPacker()
+	codec := &easytcp.ProtobufCodec{}
+	return &easytcp.ServerOption{Packer: packer,
+		Codec: codec}
+}
