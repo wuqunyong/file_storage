@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
@@ -178,12 +179,12 @@ type MsgResp struct {
 	Codec encoders.IEncoder
 }
 
-func NewMsgResp(seqId int64, errCode int32, errMsg string, enc encoders.IEncoder) *MsgResp {
+func NewMsgResp(seqId int64, errCode int32, errMsg string, codec encoders.IEncoder) *MsgResp {
 	return &MsgResp{
 		SeqId:   seqId,
 		ErrCode: errCode,
 		ErrMsg:  errMsg,
-		Codec:   enc,
+		Codec:   codec,
 	}
 }
 
@@ -201,7 +202,17 @@ func (resp *MsgResp) Marshal() ([]byte, error) {
 	return encoder.Encode(response)
 }
 
-func GetResult[T any](req concepts.IMsgReq) (*T, errs.CodeError) {
+func GetResult[T any](req concepts.IMsgReq) (result *T, code errs.CodeError) {
+	params := reflect.ValueOf(result)
+	if params.Kind() != reflect.Ptr {
+		return nil, errs.NewCodeError(errors.New("params type invalid"))
+	}
+
+	argType := params.Type().Elem()
+	if argType.Kind() == reflect.Ptr {
+		return nil, errs.NewCodeError(errors.New("params type invalid"))
+	}
+
 	request, ok := req.(*MsgReq)
 	if !ok {
 		return nil, errs.NewCodeError(errors.New("invalid cast"))
