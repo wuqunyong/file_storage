@@ -26,11 +26,11 @@ type MsgReq struct {
 	CtxCancel context.CancelFunc
 
 	Sender    *concepts.ActorId
-	Enc       encoders.IEncoder
+	Codec     encoders.IEncoder
 	RPCServer concepts.IRPCServer
 }
 
-func NewMsgReq(target *concepts.ActorId, method string, args any, ctx context.Context) *MsgReq {
+func NewMsgReq(target *concepts.ActorId, method string, args any, ctx context.Context, coder encoders.IEncoder) *MsgReq {
 	var cancel context.CancelFunc
 	if ctx == nil {
 		ctx, cancel = context.WithTimeout(context.Background(), common.DefaultTimeout)
@@ -52,7 +52,7 @@ func NewMsgReq(target *concepts.ActorId, method string, args any, ctx context.Co
 		CtxCancel: cancel,
 		Done:      make(chan *MsgResp),
 		Err:       nil,
-		Enc:       encoders.NewProtobufEncoder(),
+		Codec:     coder,
 	}
 	return req
 }
@@ -72,7 +72,7 @@ func (req *MsgReq) SetSeqId(value int64) {
 func (req *MsgReq) SetRemote(value bool) error {
 	if value {
 		req.Remote = value
-		data, err := req.Enc.Encode(req.Args)
+		data, err := req.Codec.Encode(req.Args)
 		if err != nil {
 			req.Err = err
 			return err
@@ -146,7 +146,7 @@ func RequestUnmarshal(data []byte) (*MsgReq, error) {
 	if err != nil {
 		return nil, err
 	}
-	request := NewMsgReq(concepts.NewActorId(rpcRequest.Server.Stub.Address, rpcRequest.Server.Stub.Id), rpcRequest.FuncName, nil, nil)
+	request := NewMsgReq(concepts.NewActorId(rpcRequest.Server.Stub.Address, rpcRequest.Server.Stub.Id), rpcRequest.FuncName, nil, nil, encoders.NewProtobufEncoder())
 	request.Remote = true
 	request.SeqId = rpcRequest.GetClient().SeqId
 	request.ArgsData = rpcRequest.ArgsData
@@ -175,7 +175,7 @@ type MsgResp struct {
 	Reply     any
 	ReplyData []byte
 
-	Enc encoders.IEncoder
+	Codec encoders.IEncoder
 }
 
 func NewMsgResp(seqId int64, errCode int32, errMsg string, enc encoders.IEncoder) *MsgResp {
@@ -183,7 +183,7 @@ func NewMsgResp(seqId int64, errCode int32, errMsg string, enc encoders.IEncoder
 		SeqId:   seqId,
 		ErrCode: errCode,
 		ErrMsg:  errMsg,
-		Enc:     enc,
+		Codec:   enc,
 	}
 }
 
@@ -222,7 +222,7 @@ func GetResult[T any](req concepts.IMsgReq) (*T, errs.CodeError) {
 
 	if request.Remote {
 		var obj T
-		err = response.Enc.Decode(response.ReplyData, &obj)
+		err = response.Codec.Decode(response.ReplyData, &obj)
 		if err != nil {
 			return nil, errs.NewCodeError(err)
 		}

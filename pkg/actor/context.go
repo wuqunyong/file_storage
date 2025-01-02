@@ -2,6 +2,7 @@ package actor
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
@@ -9,17 +10,17 @@ import (
 )
 
 type Context struct {
+	context   context.Context
 	actorId   *concepts.ActorId
 	engine    concepts.IEngine
-	context   context.Context
 	parentCtx *Context
 	children  *safemap.SafeMap[string, *concepts.ActorId]
 }
 
-func newContext(actorId *concepts.ActorId, ctx context.Context, e concepts.IEngine) *Context {
+func newContext(ctx context.Context, actorId *concepts.ActorId, e concepts.IEngine) *Context {
 	return &Context{
-		actorId:  actorId,
 		context:  ctx,
+		actorId:  actorId,
 		engine:   e,
 		children: safemap.New[string, *concepts.ActorId](),
 	}
@@ -76,11 +77,22 @@ func (c *Context) SpawnChild(actor concepts.IActor, id string) (*concepts.ActorI
 	childId := c.actorId.GetId() + "." + id
 	childActor := NewActor(childId, c.engine)
 	childActor.context.parentCtx = c
+
+	_, ok := c.children.Get(childActor.actorId.ID)
+	if ok {
+		slog.Error("SpawnChild", "info", fmt.Sprintf("%s duplicate id: %s", c.actorId.GetId(), childId))
+
+		return nil, fmt.Errorf("SpawnChild duplicate id: %s", childActor.actorId.ID)
+	}
+
 	c.children.Set(childActor.actorId.ID, childActor.actorId)
 	actor.SetEmbeddingActor(childActor)
 	childActorId, err := c.engine.SpawnActor(actor)
 	if err != nil {
-		slog.Error("SpawnChild", "err", err)
+		slog.Error("SpawnChild", "info", fmt.Sprintf("%s err: %s", c.actorId.GetId(), err))
+
+		c.children.Delete(childActor.actorId.ID)
+		return nil, err
 	}
 
 	return childActorId, err

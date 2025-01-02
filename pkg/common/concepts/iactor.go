@@ -3,6 +3,7 @@ package concepts
 import (
 	"context"
 
+	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/tick"
 )
 
@@ -17,6 +18,8 @@ type IActor interface {
 	GetShutdownCh() <-chan struct{}
 	Send(request IMsgReq) error
 	IsRoot() bool
+	Codec() encoders.IEncoder
+	SetCodec(codec encoders.IEncoder)
 
 	SetEmbeddingActor(actor IActor)
 	SpawnChild(actor IActor, id string) (*ActorId, error)

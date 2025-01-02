@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
 )
@@ -20,21 +21,23 @@ type Actor struct {
 	msgs         *Inbox
 	tickDuration time.Duration
 	timerQueue   *tick.TimerQueue
+	codec        encoders.IEncoder
 
 	cancelch   chan struct{}
-	closed     atomic.Bool
 	shutdownCh chan struct{}
+	closed     atomic.Bool
 }
 
 func NewActor(id string, e concepts.IEngine) *Actor {
 	actorId := concepts.NewActorId(e.GetAddress(), id)
-	ctx := newContext(actorId, context.Background(), e)
+	ctx := newContext(context.Background(), actorId, e)
 	a := &Actor{
 		actorId:      actorId,
 		context:      ctx,
 		msgs:         NewInbox(),
 		tickDuration: time.Duration(10) * time.Millisecond,
 		timerQueue:   tick.NewTimerQueue(),
+		codec:        encoders.NewProtobufEncoder(),
 		cancelch:     make(chan struct{}),
 		shutdownCh:   make(chan struct{}),
 	}
@@ -58,6 +61,14 @@ func (a *Actor) Start() {
 	go a.handleMsg()
 }
 
+func (a *Actor) Codec() encoders.IEncoder {
+	return a.codec
+}
+
+func (a *Actor) SetCodec(codec encoders.IEncoder) {
+	a.codec = codec
+}
+
 func (a *Actor) GetTimerQueue() *tick.TimerQueue {
 	return a.timerQueue
 }
@@ -67,7 +78,7 @@ func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts 
 	if len(opts) > 0 {
 		ctx = opts[0]
 	}
-	request := msg.NewMsgReq(target, method, args, ctx)
+	request := msg.NewMsgReq(target, method, args, ctx, a.Codec())
 	if request.Err != nil {
 		return request
 	}

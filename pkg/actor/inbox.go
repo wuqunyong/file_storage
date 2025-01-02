@@ -137,7 +137,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 	ptrMethod, ok := inbox.method[message.FuncName]
 	if !ok {
 		sError := fmt.Sprintf("unregister name:%s\n", message.FuncName)
-		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
+		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 		return reply
 	}
 
@@ -153,29 +153,29 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 		err := decoder.Decode(message.ArgsData, args)
 		if err != nil {
 			sError := fmt.Sprintf("Decode err:%v\n", err)
-			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
+			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
 		code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, args, response)
 		if err != nil {
 			sError := fmt.Sprintf("err:%s\n" + err.Error())
-			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
+			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
 
 		if code != nil {
-			reply := msg.NewMsgResp(message.SeqId, code.Code(), code.Msg(), message.Enc)
+			reply := msg.NewMsgResp(message.SeqId, code.Code(), code.Msg(), message.Codec)
 			return reply
 		}
 
 		replyData, err := decoder.Encode(response)
 		if err != nil {
 			sError := fmt.Sprintf("Encode err:%v\n", err)
-			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
+			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
 
-		reply := msg.NewMsgResp(message.SeqId, 0, "", message.Enc)
+		reply := msg.NewMsgResp(message.SeqId, 0, "", message.Codec)
 		reply.Remote = message.Remote
 		reply.ReplyData = replyData
 		return reply
@@ -184,15 +184,15 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 	code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, message.Args, response)
 	if err != nil {
 		sError := fmt.Sprintf("err:%s\n" + err.Error())
-		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Enc)
+		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 		return reply
 	}
 	if code != nil {
-		reply := msg.NewMsgResp(message.SeqId, code.Code(), code.Msg(), message.Enc)
+		reply := msg.NewMsgResp(message.SeqId, code.Code(), code.Msg(), message.Codec)
 		return reply
 	}
 
-	reply := msg.NewMsgResp(message.SeqId, 0, "", message.Enc)
+	reply := msg.NewMsgResp(message.SeqId, 0, "", message.Codec)
 	reply.Remote = message.Remote
 	reply.Reply = response
 	return reply
