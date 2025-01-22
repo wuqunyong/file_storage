@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/wuqunyong/file_storage/pkg/common"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
@@ -34,13 +34,13 @@ type MsgReq struct {
 func NewMsgReq(target *concepts.ActorId, method string, args any, ctx context.Context, coder encoders.IEncoder) *MsgReq {
 	var cancel context.CancelFunc
 	if ctx == nil {
-		ctx, cancel = context.WithTimeout(context.Background(), common.DefaultTimeout)
+		ctx, cancel = context.WithTimeout(context.Background(), constants.DefaultTimeout)
 	} else {
 		_, ok := ctx.Deadline()
 		if ok {
 			ctx, cancel = context.WithCancel(ctx)
 		} else {
-			ctx, cancel = context.WithTimeout(ctx, common.DefaultTimeout)
+			ctx, cancel = context.WithTimeout(ctx, constants.DefaultTimeout)
 		}
 	}
 
