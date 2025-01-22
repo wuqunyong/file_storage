@@ -15,8 +15,8 @@ import (
 	"unsafe"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"

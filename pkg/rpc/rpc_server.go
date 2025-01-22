@@ -9,7 +9,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/wuqunyong/file_storage/pkg/cluster"
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 )
 

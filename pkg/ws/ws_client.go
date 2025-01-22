@@ -14,7 +14,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/common"
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
 )

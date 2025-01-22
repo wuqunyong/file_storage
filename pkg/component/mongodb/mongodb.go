@@ -3,7 +3,7 @@ package mongodb
 import (
 	"context"
 
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

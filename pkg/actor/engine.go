@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
 

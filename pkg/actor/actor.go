@@ -10,7 +10,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/wuqunyong/file_storage/pkg/common/concepts"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
