@@ -27,6 +27,7 @@ type Actor struct {
 	cancelch   chan struct{}
 	shutdownCh chan struct{}
 	closed     atomic.Bool
+	handler    concepts.IActorHandler
 }
 
 func NewActor(id string, e concepts.IEngine) *Actor {
@@ -54,7 +55,10 @@ func (a *Actor) GetEngine() concepts.IEngine {
 	return a.context.GetEngine()
 }
 
-func (a *Actor) OnInit() error {
+func (a *Actor) Init() error {
+	if a.handler != nil {
+		return a.handler.OnInit()
+	}
 	return nil
 }
 
@@ -99,8 +103,11 @@ func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts 
 	return request
 }
 
-func (a *Actor) OnShutdown() {
+func (a *Actor) Shutdown() {
 	slog.Info("Actor OnShutdown", "actorId", a.actorId.String(), "address", a.GetObjAddress())
+	if a.handler != nil {
+		a.handler.OnShutdown()
+	}
 }
 
 func (a *Actor) Stop() {
@@ -111,7 +118,7 @@ func (a *Actor) Stop() {
 
 	close(a.shutdownCh)
 	a.waitForChildrenClosed()
-	a.OnShutdown()
+	a.Shutdown()
 
 	if a.context.GetParentCtx() != nil {
 		a.context.GetParentCtx().children.Delete(a.actorId.ID)
@@ -234,4 +241,15 @@ func (a *Actor) SpawnChild(actor concepts.IChildActor, id string) (*concepts.Act
 
 func (a *Actor) GetObjAddress() uintptr {
 	return uintptr(unsafe.Pointer(a))
+}
+
+func (a *Actor) SetActorHandler(handler concepts.IActorHandler) {
+	a.handler = handler
+}
+
+func (a *Actor) OnInit() error {
+	return nil
+}
+
+func (a *Actor) OnShutdown() {
 }

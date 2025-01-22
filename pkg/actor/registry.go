@@ -89,7 +89,7 @@ func (r *Registry) add(actor concepts.IActor) error {
 	}
 	r.lookup[id] = actor
 	r.mu.Unlock()
-	err := actor.OnInit()
+	err := actor.Init()
 	if err != nil {
 		return err
 	}

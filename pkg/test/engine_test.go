@@ -44,6 +44,10 @@ func (actor *ActorObjA) OnInit() error {
 	return nil
 }
 
+func (actor *ActorObjA) OnShutdown() {
+
+}
+
 func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
@@ -195,15 +199,12 @@ type ChildActorObjA struct {
 }
 
 func (a *ChildActorObjA) OnInit() error {
-	a.ChildActor.OnInit()
-	slog.Info("ChildActorObjA OnInit fffffffffff", "actorId", a.ActorId().String(), "address", uintptr(unsafe.Pointer(a)),
-		"child address", a.GetObjAddress())
+	slog.Info("ChildActorObjA OnInit", "actorId", a.ActorId().String(), "address", uintptr(unsafe.Pointer(a)))
 	return nil
 }
 
 func (a *ChildActorObjA) OnShutdown() {
-	a.ChildActor.OnShutdown()
-	slog.Info("ChildActorObjA OnShutdown ggggggggg", "actorId", a.ActorId().String())
+	slog.Info("ChildActorObjA OnShutdown", "actorId", a.ActorId().String())
 }
 
 func TestClient(t *testing.T) {
@@ -236,11 +237,11 @@ func TestClient(t *testing.T) {
 
 		findObj := engine.GetRegistry().GetByID(childObj.ActorId().ID)
 		slog.Info("bbbb", "actorId", findObj.ActorId().String(), "childObj address", findObj.GetObjAddress())
-		findObj.OnShutdown()
+		// findObj.OnShutdown()
 
-		findObj.Stop()
+		// findObj.Stop()
 
-		findObj.OnShutdown()
+		// findObj.OnShutdown()
 	}
 
 	// engine.SpawnActor(actorObj1)

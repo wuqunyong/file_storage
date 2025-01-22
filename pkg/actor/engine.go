@@ -113,10 +113,12 @@ func (e *Engine) GetAddress() string {
 
 func (e *Engine) SpawnActor(actor concepts.IActor) (*concepts.ActorId, error) {
 	slog.Info("Engine SpawnChild", "actorId", actor.ActorId().String(), "address", actor.GetObjAddress())
+	actor.SetActorHandler(actor)
 	err := e.registry.add(actor)
 	if err != nil {
 		return nil, err
 	}
+
 	return actor.ActorId(), nil
 }
 

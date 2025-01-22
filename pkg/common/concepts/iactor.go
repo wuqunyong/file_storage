@@ -7,7 +7,13 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/tick"
 )
 
+type IActorHandler interface {
+	OnInit() error
+	OnShutdown()
+}
+
 type IActor interface {
+	IActorHandler
 	ActorId() *ActorId
 	Register(name string, fun interface{}) error
 	Start()
@@ -22,9 +28,11 @@ type IActor interface {
 	SetCodec(codec encoders.IEncoder)
 
 	SpawnChild(actor IChildActor, id string) (*ActorId, error)
+	SetActorHandler(handler IActorHandler)
 
-	OnInit() error
-	OnShutdown()
+	Init() error
+	Shutdown()
+
 	GetObjAddress() uintptr
 }
 
