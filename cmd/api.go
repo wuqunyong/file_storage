@@ -22,7 +22,7 @@ var apiCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var config ws.Config
 		// 使用 Flags
-		config.HttpPort, _ = cmd.Flags().GetString("httpPort")
+		config.HttpPort, _ = cmd.Flags().GetString("HttpPort")
 		config.HttpsPort, _ = cmd.Flags().GetString("HttpsPort")
 		config.ServerCertificate = "E:/VCity/city/config/metaserver.vcity.app_chain.crt"
 		config.ServerPrivateKey = "E:/VCity/city/config/metaserver.vcity.app_key.key"
@@ -48,7 +48,7 @@ var apiCmd = &cobra.Command{
 
 func init() {
 	// 添加子命令的 Flags
-	apiCmd.Flags().StringP("httpPort", "", ":8080", "httpPort")
+	apiCmd.Flags().StringP("HttpPort", "", ":8080", "HttpPort")
 	apiCmd.Flags().StringP("HttpsPort", "", ":8081", "HttpsPort")
 
 	rootCmd.AddCommand(apiCmd)

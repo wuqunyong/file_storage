@@ -21,9 +21,26 @@ type IActor interface {
 	Codec() encoders.IEncoder
 	SetCodec(codec encoders.IEncoder)
 
-	SetEmbeddingActor(actor IActor)
-	SpawnChild(actor IActor, id string) (*ActorId, error)
+	SpawnChild(actor IChildActor, id string) (*ActorId, error)
 
 	OnInit() error
 	OnShutdown()
+	GetObjAddress() uintptr
+}
+
+type IActorLoader interface {
+	SetEmbeddingActor(actor IActor)
+}
+
+type IChildActor interface {
+	IActor
+	IActorLoader
+}
+
+type ChildActor struct {
+	IActor
+}
+
+func (child *ChildActor) SetEmbeddingActor(actor IActor) {
+	child.IActor = actor
 }

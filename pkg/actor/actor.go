@@ -8,6 +8,7 @@ import (
 	"runtime/debug"
 	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
@@ -99,7 +100,7 @@ func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts 
 }
 
 func (a *Actor) OnShutdown() {
-	slog.Info("Actor OnShutdown", "actorId", a.actorId.String())
+	slog.Info("Actor OnShutdown", "actorId", a.actorId.String(), "address", a.GetObjAddress())
 }
 
 func (a *Actor) Stop() {
@@ -227,10 +228,10 @@ func (a *Actor) handleMsg() {
 	}
 }
 
-func (a *Actor) SetEmbeddingActor(actor concepts.IActor) {
-	panic("Unimplemented: SetEmbeddingActor")
+func (a *Actor) SpawnChild(actor concepts.IChildActor, id string) (*concepts.ActorId, error) {
+	return a.context.SpawnChild(actor, id)
 }
 
-func (a *Actor) SpawnChild(actor concepts.IActor, id string) (*concepts.ActorId, error) {
-	return a.context.SpawnChild(actor, id)
+func (a *Actor) GetObjAddress() uintptr {
+	return uintptr(unsafe.Pointer(a))
 }

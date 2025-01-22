@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"testing"
 	"time"
+	"unsafe"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/common/concepts"
@@ -190,20 +191,19 @@ func GetNextMinuteTimestamp() int64 {
 }
 
 type ChildActorObjA struct {
-	concepts.IActor
+	concepts.ChildActor
 }
 
 func (a *ChildActorObjA) OnInit() error {
-	slog.Info("ChildActorObjA OnInit", "actorId", a.ActorId().String())
+	a.ChildActor.OnInit()
+	slog.Info("ChildActorObjA OnInit fffffffffff", "actorId", a.ActorId().String(), "address", uintptr(unsafe.Pointer(a)),
+		"child address", a.GetObjAddress())
 	return nil
 }
 
 func (a *ChildActorObjA) OnShutdown() {
-	slog.Info("ChildActorObjA OnShutdown", "actorId", a.ActorId().String())
-}
-
-func (a *ChildActorObjA) SetEmbeddingActor(actor concepts.IActor) {
-	a.IActor = actor
+	a.ChildActor.OnShutdown()
+	slog.Info("ChildActorObjA OnShutdown ggggggggg", "actorId", a.ActorId().String())
 }
 
 func TestClient(t *testing.T) {
@@ -227,17 +227,29 @@ func TestClient(t *testing.T) {
 	actorObj2 := &ActorObjA{
 		Actor: actor.NewActor("2", engine),
 	}
-	for i := 0; i < 100; i++ {
-		actorObj2.SpawnChild(&ChildActorObjA{}, fmt.Sprintf("ppp:%d", i))
+	for i := 0; i < 1; i++ {
+		childObj := &ChildActorObjA{}
+		actorObj2.SpawnChild(childObj, fmt.Sprintf("ppp:%d", i))
+		// childObj.OnShutdown()
+
+		slog.Info("aaaa", "actorId", childObj.ActorId().String(), "childObj address", childObj.GetObjAddress())
+
+		findObj := engine.GetRegistry().GetByID(childObj.ActorId().ID)
+		slog.Info("bbbb", "actorId", findObj.ActorId().String(), "childObj address", findObj.GetObjAddress())
+		findObj.OnShutdown()
+
+		findObj.Stop()
+
+		findObj.OnShutdown()
 	}
 
 	// engine.SpawnActor(actorObj1)
 	engine.SpawnActor(actorObj2)
 	engine.Start()
 
-	for i := 200; i < 300; i++ {
-		actorObj2.SpawnChild(&ChildActorObjA{}, fmt.Sprintf("ppp:%d", i))
-	}
+	// for i := 200; i < 300; i++ {
+	// 	actorObj2.SpawnChild(&ChildActorObjA{}, fmt.Sprintf("ppp:%d", i))
+	// }
 
 	defer engine.Stop()
 
@@ -260,11 +272,6 @@ func TestClient(t *testing.T) {
 
 	person := &testdata.Person{Name: "小明", Age: 18}
 	request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
-	if reflect.TypeOf(request) == emptyMsgType {
-		slog.Info("test", "type", "same")
-	}
-
-	fmt.Printf("request:%T, %v\n", request, request)
 	obj, err := msg.GetResult[testdata.Person](request)
 	if err != nil {
 		//t.Fatal("DecodeResponse1", err)
