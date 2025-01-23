@@ -218,7 +218,12 @@ func TestClient(t *testing.T) {
 	var mongoConfig mongodb.Config
 	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
 	mongoConfig.Database = "vcity"
-	component := mongodb.NewMongoComponent(context.Background(), &mongoConfig)
+	mongoConfig.ConnectNum = 2
+
+	configs := map[string]*mongodb.Config{}
+	configs["test"] = &mongoConfig
+
+	component := mongodb.NewMongoComponent(context.Background(), configs)
 	engine.MustAddComponent(component)
 
 	engine.MustInit()
@@ -257,7 +262,7 @@ func TestClient(t *testing.T) {
 	time.Sleep(time.Duration(3) * time.Second)
 
 	mongoComponent := engine.GetComponent(mongodb.ComponentName).(*mongodb.MongoComponent)
-	blackTable, err := NewBlackMongo(mongoComponent.GetDatabase())
+	blackTable, err := NewBlackMongo(mongoComponent.GetDatabase("test"))
 	if err != nil {
 		t.Fatal("init err", err)
 	}

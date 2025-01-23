@@ -8,16 +8,19 @@ import (
 )
 
 type MongoComponent struct {
-	ctx    context.Context
-	engine concepts.IEngine
-	config *Config
-	db     *mongo.Database
+	ctx     context.Context
+	engine  concepts.IEngine
+	configs map[string]*Config
+	dbs     map[string][]*mongo.Database
 }
 
-func NewMongoComponent(ctx context.Context, config *Config) *MongoComponent {
+type DBHashFunc func([]*mongo.Database) int
+
+func NewMongoComponent(ctx context.Context, configs map[string]*Config) *MongoComponent {
 	return &MongoComponent{
-		ctx:    ctx,
-		config: config,
+		ctx:     ctx,
+		configs: configs,
+		dbs:     make(map[string][]*mongo.Database),
 	}
 }
 
@@ -38,11 +41,17 @@ func (component *MongoComponent) GetEngine() concepts.IEngine {
 }
 
 func (component *MongoComponent) OnInit() error {
-	db, err := NewMongoDB(component.ctx, component.config)
-	if err != nil {
-		return err
+	for key, config := range component.configs {
+		clients := make([]*mongo.Database, 0, config.ConnectNum)
+		for index := 0; index < int(config.ConnectNum); index++ {
+			db, err := NewMongoDB(component.ctx, config)
+			if err != nil {
+				return err
+			}
+			clients = append(clients, db)
+		}
+		component.dbs[key] = clients
 	}
-	component.db = db
 	return nil
 }
 
@@ -54,6 +63,26 @@ func (component *MongoComponent) OnCleanup() {
 
 }
 
-func (component *MongoComponent) GetDatabase() *mongo.Database {
-	return component.db
+func (component *MongoComponent) GetDatabase(name string, funObj ...DBHashFunc) *mongo.Database {
+	clients, ok := component.dbs[name]
+	if !ok {
+		return nil
+	}
+	iSize := len(clients)
+	if iSize <= 0 {
+		return nil
+	}
+
+	if len(funObj) == 0 {
+		return clients[0]
+	}
+
+	functor := funObj[0]
+	if functor == nil {
+		return nil
+	}
+
+	iIndex := functor(clients)
+	iSelect := iIndex % iSize
+	return clients[iSelect]
 }

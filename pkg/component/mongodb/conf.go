@@ -17,6 +17,7 @@ type Config struct {
 	Password    string
 	MaxPoolSize int
 	MaxRetry    int
+	ConnectNum  uint32
 }
 
 func NewDefaultConfig() *Config {
