@@ -35,7 +35,7 @@ func Check(ctx context.Context, config *Config) error {
 	clientOpts := options.Client().ApplyURI(config.Uri)
 	mongoClient, err := mongo.Connect(ctx, clientOpts)
 	if err != nil {
-		return fmt.Errorf("%s %s %s %s %s %s %s %s", err, "MongoDB connect failed", "URI", config.Uri, "Database", config.Database, "MaxPoolSize", config.MaxPoolSize)
+		return fmt.Errorf("%s %s %s %s %s %s %s %d", err, "MongoDB connect failed", "URI", config.Uri, "Database", config.Database, "MaxPoolSize", config.MaxPoolSize)
 	}
 
 	defer func() {
@@ -45,7 +45,7 @@ func Check(ctx context.Context, config *Config) error {
 	}()
 
 	if err = mongoClient.Ping(ctx, nil); err != nil {
-		return fmt.Errorf("%s %s %s %s %s %s %s %s", err, "MongoDB ping failed", "URI", config.Uri, "Database", config.Database, "MaxPoolSize", config.MaxPoolSize)
+		return fmt.Errorf("%s %s %s %s %s %s %s %d", err, "MongoDB ping failed", "URI", config.Uri, "Database", config.Database, "MaxPoolSize", config.MaxPoolSize)
 	}
 
 	return nil

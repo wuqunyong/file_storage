@@ -74,7 +74,7 @@ func (c *Context) ActorID() *concepts.ActorId {
 }
 
 func (c *Context) SpawnChild(actor concepts.IChildActor, id string) (*concepts.ActorId, error) {
-	childId := c.actorId.GetId() + "." + id
+	childId := c.actorId.GenChildId(id)
 	childActor := NewActor(childId, c.engine)
 	childActor.context.parentCtx = c
 

@@ -30,6 +30,8 @@ type IActor interface {
 	SetCodec(codec encoders.IEncoder)
 
 	SpawnChild(actor IChildActor, id string) (*ActorId, error)
+	FindChild(id string) *ActorId
+
 	SetActorHandler(handler IActorHandler)
 
 	Init() error

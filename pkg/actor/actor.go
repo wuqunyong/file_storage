@@ -246,6 +246,10 @@ func (a *Actor) SpawnChild(actor concepts.IChildActor, id string) (*concepts.Act
 	return a.context.SpawnChild(actor, id)
 }
 
+func (a *Actor) FindChild(id string) *concepts.ActorId {
+	return a.context.Child(id)
+}
+
 func (a *Actor) GetObjAddress() uintptr {
 	return uintptr(unsafe.Pointer(a))
 }

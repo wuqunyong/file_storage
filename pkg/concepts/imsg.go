@@ -1,6 +1,6 @@
 package concepts
 
-const actorSeparator = "."
+import "github.com/wuqunyong/file_storage/pkg/constants"
 
 type ActorId struct {
 	Address string
@@ -8,7 +8,7 @@ type ActorId struct {
 }
 
 func (actorId *ActorId) String() string {
-	return actorId.Address + actorSeparator + actorId.ID
+	return actorId.Address + constants.ActorSeparator + actorId.ID
 }
 
 func (actorId *ActorId) GetId() string {
@@ -17,6 +17,11 @@ func (actorId *ActorId) GetId() string {
 
 func (actorId *ActorId) Equals(other *ActorId) bool {
 	return actorId.Address == other.Address && actorId.ID == other.ID
+}
+
+func (actorId *ActorId) GenChildId(id string) string {
+	childID := actorId.ID + constants.ActorSeparator + id
+	return childID
 }
 
 func NewActorId(address, id string) *ActorId {
