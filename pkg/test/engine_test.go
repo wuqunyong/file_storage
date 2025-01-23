@@ -272,14 +272,15 @@ func TestClient(t *testing.T) {
 	blackTable.Create(context.Background(), blacks)
 
 	person := &testdata.Person{Name: "小明", Age: 18}
-	request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
-	obj, err := msg.GetResult[testdata.Person](request)
+	// request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
+	// obj, err := msg.GetResult[testdata.Person](request)
+	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
 	if err != nil {
 		//t.Fatal("DecodeResponse1", err)
 	}
 	fmt.Printf("obj:%T, %v\n", obj, obj)
 
-	request = actorObj1.Request(actorObj2.ActorId(), "Func1", person)
+	request := actorObj1.Request(actorObj2.ActorId(), "Func1", person)
 	if reflect.TypeOf(request) == emptyMsgType {
 		fmt.Printf("Same\n")
 	}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
+	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
 )
@@ -76,6 +77,12 @@ func (a *Actor) SetCodec(codec encoders.IEncoder) {
 
 func (a *Actor) GetTimerQueue() *tick.TimerQueue {
 	return a.timerQueue
+}
+
+func SendRequest[T any](actor concepts.IActor, target *concepts.ActorId, method string, args any, opts ...context.Context) (*T, errs.CodeError) {
+	request := actor.Request(target, method, args, opts...)
+	resp, err := msg.GetResult[T](request)
+	return resp, err
 }
 
 func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts ...context.Context) concepts.IMsgReq {

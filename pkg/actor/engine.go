@@ -112,7 +112,6 @@ func (e *Engine) GetAddress() string {
 }
 
 func (e *Engine) SpawnActor(actor concepts.IActor) (*concepts.ActorId, error) {
-	slog.Info("Engine SpawnChild", "actorId", actor.ActorId().String(), "address", actor.GetObjAddress())
 	actor.SetActorHandler(actor)
 	err := e.registry.add(actor)
 	if err != nil {
@@ -120,6 +119,15 @@ func (e *Engine) SpawnActor(actor concepts.IActor) (*concepts.ActorId, error) {
 	}
 
 	return actor.ActorId(), nil
+}
+
+func (e *Engine) MustSpawnActors(actors ...concepts.IActor) {
+	for _, v := range actors {
+		_, err := e.SpawnActor(v)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (e *Engine) HasActor(id *concepts.ActorId) bool {

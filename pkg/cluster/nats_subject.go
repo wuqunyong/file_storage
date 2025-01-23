@@ -26,9 +26,11 @@ func NewNatsSubject(subject string, size int) *NatsSubject {
 }
 
 func (p *NatsSubject) Stop() {
-	err := p.Subscription.Unsubscribe()
-	if err != nil {
-		slog.Error("Unsubscribe error", "subject", p.Subject, "err", err)
+	if p.Subscription != nil {
+		err := p.Subscription.Unsubscribe()
+		if err != nil {
+			slog.Error("Unsubscribe error", "subject", p.Subject, "err", err)
+		}
 	}
 	close(p.Ch)
 }

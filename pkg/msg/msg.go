@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
+	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/constants"
@@ -107,7 +109,15 @@ func (req *MsgReq) Send(resp concepts.IMsgResp) {
 	if !ok {
 		return
 	}
-	req.Done <- response
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	select {
+	case <-ctx.Done():
+		err := ctx.Err()
+		slog.Error("MsgReq Send", "data", response, "err", err)
+	case req.Done <- response:
+	}
 }
 
 func (req *MsgReq) HandleResponse(resp concepts.IMsgResp) {
@@ -115,7 +125,15 @@ func (req *MsgReq) HandleResponse(resp concepts.IMsgResp) {
 	if !ok {
 		return
 	}
-	req.Done <- response
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	select {
+	case <-ctx.Done():
+		err := ctx.Err()
+		slog.Error("MsgReq HandleResponse", "data", response, "err", err)
+	case req.Done <- response:
+	}
 }
 
 func (req *MsgReq) Marshal() ([]byte, error) {

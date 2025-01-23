@@ -14,6 +14,7 @@ import (
 )
 
 type RPCServer struct {
+	id                     string
 	connString             string
 	connectionTimeout      time.Duration
 	maxReconnectionRetries int
@@ -28,6 +29,7 @@ type RPCServerOpt func(*RPCServer)
 
 func NewRPCServer(engine concepts.IEngine, connString, subjectName string, opts ...RPCServerOpt) *RPCServer {
 	rpcServer := &RPCServer{
+		id:                     fmt.Sprintf("RPCServer:%s", time.Now().UTC()),
 		engine:                 engine,
 		connString:             connString,
 		connectionTimeout:      time.Duration(6) * time.Second,
@@ -46,6 +48,7 @@ func NewRPCServer(engine concepts.IEngine, connString, subjectName string, opts 
 
 func (rpc *RPCServer) Init() error {
 	conn, err := cluster.SetupNatsConn(
+		rpc.id,
 		rpc.connString,
 		rpc.dieChan,
 		nats.MaxReconnects(rpc.maxReconnectionRetries),

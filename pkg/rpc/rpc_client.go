@@ -16,6 +16,7 @@ import (
 )
 
 type RPCClient struct {
+	id                     string
 	connString             string
 	connectionTimeout      time.Duration
 	maxReconnectionRetries int
@@ -33,6 +34,7 @@ type RPCClientOpt func(*RPCClient)
 
 func NewRPCClient(engine concepts.IEngine, connString, subjectName string, opts ...RPCClientOpt) *RPCClient {
 	rpcClient := &RPCClient{
+		id:                     fmt.Sprintf("RPCClient:%s", time.Now().UTC()),
 		engine:                 engine,
 		connString:             connString,
 		connectionTimeout:      time.Duration(6) * time.Second,
@@ -52,6 +54,7 @@ func NewRPCClient(engine concepts.IEngine, connString, subjectName string, opts 
 
 func (rpc *RPCClient) Init() error {
 	conn, err := cluster.SetupNatsConn(
+		rpc.id,
 		rpc.connString,
 		rpc.dieChan,
 		nats.MaxReconnects(rpc.maxReconnectionRetries),
@@ -152,7 +155,7 @@ func (rpc *RPCClient) HandleResponse(id int64, resp concepts.IMsgResp) error {
 	}
 	delete(rpc.pending, id)
 
-	go call.HandleResponse(resp)
+	call.HandleResponse(resp)
 	return nil
 }
 
@@ -161,6 +164,7 @@ func (rpc *RPCClient) Stop() {
 		return
 	}
 	rpc.closed.Store(true)
+	rpc.topic.Stop()
 	rpc.conn.Close()
 }
 

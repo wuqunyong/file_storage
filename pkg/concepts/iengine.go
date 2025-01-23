@@ -8,6 +8,8 @@ type IEngine interface {
 	HasActor(id *ActorId) bool
 	RemoveActor(id *ActorId)
 
+	MustSpawnActors(actors ...IActor)
+
 	MustAddComponent(component IComponent)
 	HasComponent(name string) bool
 	GetComponent(name string) IComponent
