@@ -29,7 +29,13 @@ var apiCmd = &cobra.Command{
 
 		engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
 
-		mongoComp := mongodb.NewMongoComponent(context.Background(), mongodb.NewDefaultConfig())
+		configs := map[string]*mongodb.Config{}
+		configs["test"] = &mongodb.Config{
+			Uri:        "mongodb://admin:123456@127.0.0.1:27018",
+			Database:   "vcity",
+			ConnectNum: 2,
+		}
+		mongoComp := mongodb.NewMongoComponent(context.Background(), configs)
 		engine.MustAddComponent(mongoComp)
 
 		tcpServerComp := tcpserver.NewTCPServer(tcpserver.NewPBServerOption(), ":16007")
