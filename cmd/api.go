@@ -8,6 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/cluster/discovery/registry"
+	"github.com/wuqunyong/file_storage/pkg/component/etcd"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/component/tcpserver"
 	"github.com/wuqunyong/file_storage/pkg/component/wsserver"
@@ -43,6 +45,12 @@ var apiCmd = &cobra.Command{
 
 		wsServerComp := wsserver.NewWSServer(config)
 		engine.MustAddComponent(wsServerComp)
+
+		var opts []registry.Option
+		opts = append(opts, registry.Addrs("127.0.0.1:2379"))
+
+		etcdComp := etcd.NewEtcvServiceDiscovery(opts...)
+		engine.MustAddComponent(etcdComp)
 
 		engine.MustInit()
 		engine.Start()
