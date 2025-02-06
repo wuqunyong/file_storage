@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,6 +26,7 @@ func NewMongoDB(ctx context.Context, config *Config) (*mongo.Database, error) {
 			time.Sleep(time.Second / 2)
 			continue
 		}
+		slog.Warn("MongoDB connect success", "Uri", config.Uri)
 		break
 	}
 	if err != nil {
