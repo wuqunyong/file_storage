@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/cluster/discovery/registry"
+	"golang.org/x/exp/slog"
 
 	hash "github.com/mitchellh/hashstructure"
 	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"
@@ -66,7 +67,7 @@ func configure(e *etcdRegistry, opts ...registry.Option) error {
 	}
 
 	if e.options.Timeout == 0 {
-		e.options.Timeout = 5 * time.Second
+		e.options.Timeout = 60 * time.Second
 	}
 
 	config.DialTimeout = e.options.Timeout
@@ -206,6 +207,7 @@ func (e *etcdRegistry) registerNode(s *registry.Service, node *registry.Node, op
 	// renew the lease if it exists
 	if leaseID > 0 {
 		//log.Logf(logger.TraceLevel, "Renewing existing lease for %s %d", s.Name, leaseID)
+		slog.Info("registerNode Renewing existing lease", "Name", s.Name, "leaseID", leaseID)
 		if _, err := e.client.KeepAliveOnce(context.TODO(), leaseID); err != nil {
 			if err != rpctypes.ErrLeaseNotFound {
 				return err
