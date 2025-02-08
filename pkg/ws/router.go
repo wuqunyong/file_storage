@@ -2,6 +2,9 @@ package ws
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	docs "github.com/wuqunyong/file_storage/docs"
 )
 
 func newGinRouter(ws LongConnServer) *gin.Engine {
@@ -9,6 +12,8 @@ func newGinRouter(ws LongConnServer) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Recovery())
+
+	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	// Third service
 	t := NewThirdApi(ws)
@@ -18,6 +23,7 @@ func newGinRouter(ws LongConnServer) *gin.Engine {
 	objectGroup.POST("/access_url", t.AccessURL)
 
 	r.GET("/ws", t.WSHandler)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	return r
 }
