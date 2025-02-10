@@ -1,26 +1,80 @@
 package test
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"os"
+	"os/signal"
+	"sync/atomic"
+	"syscall"
 	"testing"
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
+	testdata "github.com/wuqunyong/file_storage/protobuf"
 )
+
+type ActorObjB struct {
+	*actor.Actor
+	inited atomic.Bool
+	id     int
+}
+
+func (actor *ActorObjB) OnInit() error {
+	if actor.inited.Load() {
+		return errors.New("duplicate init")
+	}
+	actor.Register(1, actor.Func1)
+	actor.Register(2, actor.Func2)
+	actor.inited.Store(true)
+	return nil
+}
+
+func (actor *ActorObjB) OnShutdown() {
+
+}
+
+func (actor *ActorObjB) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+	reply.Age += arg.Age
+	reply.Name = "Func1 hello world"
+	reply.Address = actor.ActorId().ID
+	fmt.Printf("inside value:%v\n", reply)
+
+	return nil
+}
+
+func (actor *ActorObjB) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+	reply.Age += arg.Age
+	reply.Name = "Func1 hello"
+	reply.Address = actor.ActorId().ID
+	fmt.Printf("inside value:%v\n", reply)
+
+	return errs.NewCodeError(errors.New("invalid"), 123)
+}
+
+func (actor *ActorObjB) Func3() {
+	fmt.Println("func3")
+}
 
 func TestServer1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
-	engine := actor.NewEngine(0, 1, 1001, "")
-	sServerAddress := concepts.GenServerAddress(0, 1, 1001)
 
-	rpcServer := rpc.NewRPCServer(engine, "nats://127.0.0.1:4222", sServerAddress)
-	err := rpcServer.Init()
-	if err != nil {
-		t.Fatalf("err:%s", err)
+	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
+	engine.MustInit()
+	actorObj1 := &ActorObjB{
+		Actor: actor.NewActor("1", engine),
 	}
-	rpcServer.Run()
+	engine.SpawnActor(actorObj1)
+	defer engine.Stop()
+	engine.Start()
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
 }
 
 func TestServer2(t *testing.T) {
