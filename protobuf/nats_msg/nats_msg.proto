@@ -1,0 +1,20 @@
+syntax = "proto3";
+package nats_msg;
+option go_package = "github.com/wuqunyong/file_storage/protobuf/nats_msg";
+
+import "rpc_msg/rpc_msg.proto";
+
+
+//---------------------------------------
+
+
+
+message NATS_MSG_PRXOY
+{
+	oneof msg {
+		rpc_msg.RPC_REQUEST rpc_request = 100;
+		rpc_msg.RPC_RESPONSE rpc_response = 101;
+		rpc_msg.RPC_Multiplexer_Forward multiplexer_forward = 102; 
+		rpc_msg.PRC_DeMultiplexer_Forward demultiplexer_forward = 103; 
+	}
+}
