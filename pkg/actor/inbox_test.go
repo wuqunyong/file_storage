@@ -1,6 +1,7 @@
 package actor
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -21,7 +22,7 @@ type Handler struct {
 
 var inboxObj *Inbox = NewInbox()
 
-func (h *Handler) Func1(arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (h *Handler) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
 	fmt.Printf("inside value:%v\n", reply)
@@ -34,6 +35,7 @@ func (h *Handler) Func1(arg *testdata.Person, reply *testdata.Person) errs.CodeE
 		FuncName: 2,
 		ArgsData: data,
 		Done:     make(chan *msg.MsgResp),
+		Ctx:      context.Background(),
 	}
 	inboxObj.Send(msgReq)
 	response, _ := msgReq.Result()
@@ -42,7 +44,7 @@ func (h *Handler) Func1(arg *testdata.Person, reply *testdata.Person) errs.CodeE
 	return errs.NewCodeError(errors.New("invalid"))
 }
 
-func (h *Handler) Func2(arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (h *Handler) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func2"
 	fmt.Printf("inside value:%v\n", reply)
@@ -75,8 +77,13 @@ func Test1(t *testing.T) {
 		FuncName: 1,
 		ArgsData: data,
 		Done:     make(chan *msg.MsgResp),
+		Ctx:      context.Background(),
 	}
-	inboxObj.Send(msgReq)
+	err = inboxObj.Send(msgReq)
+	if err != nil {
+		t.Fatal("err", err)
+	}
+
 	response, _ := msgReq.Result()
 	fmt.Printf("%v %T", response, response)
 

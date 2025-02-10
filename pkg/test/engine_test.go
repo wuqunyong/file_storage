@@ -213,7 +213,7 @@ func TestClient(t *testing.T) {
 	iZero := GetNextMinuteTimestamp()
 	fmt.Println(iZero)
 
-	engine := actor.NewEngine("test", "1.2.3", "nats://127.0.0.1:4222")
+	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
 
 	var mongoConfig mongodb.Config
 	mongoConfig.Uri = "mongodb://admin:123456@127.0.0.1:27018"
@@ -279,7 +279,7 @@ func TestClient(t *testing.T) {
 	person := &testdata.Person{Name: "小明", Age: 18}
 	// request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
 	// obj, err := msg.GetResult[testdata.Person](request)
-	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.test.server.1.2.345", "1"), 1, person)
+	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
 	if err != nil {
 		//t.Fatal("DecodeResponse1", err)
 	}
@@ -303,7 +303,7 @@ func TestClient(t *testing.T) {
 
 func TestServer(t *testing.T) {
 
-	engine := actor.NewEngine("test", "1.2.345", "nats://127.0.0.1:4222")
+	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
 	engine.MustInit()
 	actorObj1 := &ActorObjA{
 		Actor: actor.NewActor("1", engine),
