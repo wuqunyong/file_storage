@@ -62,17 +62,14 @@ func TestClient3(t *testing.T) {
 	actorObj1 := &ActorObjA{
 		Actor: actor.NewActor("1", engine),
 	}
-	engine.SpawnActor(actorObj1)
+	//engine.SpawnActor(actorObj1)
 
 	person := &testdata.Person{Name: "小明", Age: 123456}
-	// request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
-	// obj, err := msg.GetResult[testdata.Person](request)
 	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
 	if err != nil {
-		//t.Fatal("DecodeResponse1", err)
 		fmt.Println("err", err)
 	}
-	fmt.Printf("obj:%T, %v\n", obj, obj)
+	fmt.Printf("\n\n\n================obj:%T, %v\n", obj, obj)
 
 	time.Sleep(time.Duration(1800) * time.Second)
 	time.Sleep(time.Duration(1800) * time.Second)
