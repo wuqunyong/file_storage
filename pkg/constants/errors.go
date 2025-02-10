@@ -29,4 +29,5 @@ var (
 	ErrServiceDiscoveryNotInitialized = errors.New("service discovery client is not initialized")
 	ErrConnectionClosed               = errors.New("client connection closed")
 	ErrInvalidAddress                 = errors.New("invalid address")
+	ErrInvalidNatsMsgType             = errors.New("invalid nats msg type")
 )

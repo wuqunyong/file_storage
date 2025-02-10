@@ -187,7 +187,14 @@ func RequestUnmarshal(data []byte) (*MsgReq, error) {
 		return nil, err
 	}
 
+	if natsRequest.GetMsg() == nil {
+		return nil, constants.ErrInvalidNatsMsgType
+	}
+
 	rpcRequest := natsRequest.GetRpcRequest()
+	if rpcRequest == nil {
+		return nil, constants.ErrInvalidNatsMsgType
+	}
 	serverAddress := concepts.GenServerAddress(rpcRequest.Server.Stub.Realm, rpcRequest.Server.Stub.Type, rpcRequest.Server.Stub.Id)
 	clientAddress := concepts.GenClientAddress(rpcRequest.Client.Stub.Realm, rpcRequest.Client.Stub.Type, rpcRequest.Client.Stub.Id)
 	request := NewMsgReq(concepts.NewActorId(serverAddress, rpcRequest.Server.Stub.ActorId), rpcRequest.Opcodes, nil, nil, encoders.NewProtobufEncoder())
@@ -207,9 +214,13 @@ func ResponseUnmarshal(data []byte) (*MsgResp, error) {
 		return nil, err
 	}
 
+	if natsResponse.GetMsg() == nil {
+		return nil, constants.ErrInvalidNatsMsgType
+	}
+
 	response := natsResponse.GetRpcResponse()
 	if response == nil {
-		return nil, errors.New("invalid nats")
+		return nil, constants.ErrInvalidNatsMsgType
 	}
 
 	resp := NewMsgResp(response.Client.SeqId, response.Status.Code, response.Status.Msg, encoder)
