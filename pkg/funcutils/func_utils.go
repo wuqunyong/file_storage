@@ -45,7 +45,7 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 	// Method needs two ins: context.Context, *args, *reply.
 	if mtype.NumIn() != iNumIn {
 		if reportErr {
-			log.Printf("rpc.Register: method %q has %d input parameters; needs exactly two", mname, mtype.NumIn())
+			log.Printf("rpc.Register: method %q has %d input parameters; needs exactly three", mname, mtype.NumIn())
 		}
 		return nil
 	}
@@ -161,7 +161,7 @@ func GetClientReflectFunc(fun any) (*MethodType, error) {
 	iNumIn := 3
 	// Method needs three ins: *Client, *args, *reply.
 	if mtype.NumIn() != iNumIn {
-		return nil, fmt.Errorf("rpc.Register: method %q has %d input parameters; needs exactly 2, 3", mname, mtype.NumIn())
+		return nil, fmt.Errorf("rpc.Register: method %q has %d input parameters; needs exactly  3", mname, mtype.NumIn())
 	}
 
 	var inArgs []reflect.Type

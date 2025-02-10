@@ -31,7 +31,7 @@ func (h *Handler) Func1(arg *testdata.Person, reply *testdata.Person) errs.CodeE
 	data, _ := decoder.Encode(request)
 	msgReq := &msg.MsgReq{
 		SeqId:    2,
-		FuncName: "Func2",
+		FuncName: 2,
 		ArgsData: data,
 		Done:     make(chan *msg.MsgResp),
 	}
@@ -72,7 +72,7 @@ func Test1(t *testing.T) {
 
 	msgReq := &msg.MsgReq{
 		SeqId:    1,
-		FuncName: "Func1",
+		FuncName: 1,
 		ArgsData: data,
 		Done:     make(chan *msg.MsgResp),
 	}

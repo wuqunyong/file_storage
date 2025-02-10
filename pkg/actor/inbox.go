@@ -136,7 +136,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 
 	ptrMethod, ok := inbox.method[message.FuncName]
 	if !ok {
-		sError := fmt.Sprintf("unregister name:%s", message.FuncName)
+		sError := fmt.Sprintf("unregister name:%d", message.FuncName)
 		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 		return reply
 	}
