@@ -30,4 +30,9 @@ E:\VCity\city\cherry\tools\bin\protoc\bin\protoc.exe -I=protobuf --plugin=protoc
 E:\VCity\city\cherry\tools\bin\protoc\bin\protoc.exe -I=protobuf --plugin=protoc-gen-go=E:\VCity\city\cherry\tools\bin\pbplugin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. rpc_msg/rpc_msg.proto
 E:\VCity\city\cherry\tools\bin\protoc\bin\protoc.exe -I=protobuf --plugin=protoc-gen-go=E:\VCity\city\cherry\tools\bin\pbplugin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. nats_msg/nats_msg.proto
 
+
+E:\VCity\city\cherry\tools\bin\protoc\bin\protoc.exe -I=protobuf --plugin=protoc-gen-go-vtproto=E:\VCity\city\cherry\tools\bin\pbplugin\protoc-gen-go-vtproto.exe  --go-vtproto_out=.    rpc_msg/rpc_msg.proto
+E:\VCity\city\cherry\tools\bin\protoc\bin\protoc.exe -I=protobuf --plugin=protoc-gen-go-vtproto=E:\VCity\city\cherry\tools\bin\pbplugin\protoc-gen-go-vtproto.exe  --go-vtproto_out=.    nats_msg/nats_msg.proto
+
+
 [easytcp](https://github.com/DarthPestilane/easytcp)

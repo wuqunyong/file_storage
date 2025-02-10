@@ -64,7 +64,7 @@ func TestClient3(t *testing.T) {
 	}
 	engine.SpawnActor(actorObj1)
 
-	person := &testdata.Person{Name: "小明", Age: 123}
+	person := &testdata.Person{Name: "小明", Age: 123456}
 	// request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
 	// obj, err := msg.GetResult[testdata.Person](request)
 	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)

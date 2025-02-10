@@ -1,6 +1,6 @@
 syntax = "proto3";
 package nats_msg;
-option go_package = "github.com/wuqunyong/file_storage/protobuf/nats_msg";
+option go_package = "github.com/wuqunyong/file_storage/nats_msg";
 
 import "rpc_msg/rpc_msg.proto";
 

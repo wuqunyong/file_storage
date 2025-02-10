@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/wuqunyong/file_storage/nats_msg"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
@@ -169,17 +170,24 @@ func (req *MsgReq) Marshal() ([]byte, error) {
 			ActorId: req.TargetId.ID,
 		},
 	}
-	return encoder.Encode(request)
+
+	natsRequest := &nats_msg.NATS_MSG_PRXOY{}
+	natsRequest.Msg = &nats_msg.NATS_MSG_PRXOY_RpcRequest{
+		RpcRequest: request,
+	}
+	return encoder.Encode(natsRequest)
 }
 
 func RequestUnmarshal(data []byte) (*MsgReq, error) {
 	encoder := encoders.NewProtobufEncoder()
 
-	rpcRequest := &rpc_msg.RPC_REQUEST{}
-	err := encoder.Decode(data, rpcRequest)
+	natsRequest := &nats_msg.NATS_MSG_PRXOY{}
+	err := encoder.Decode(data, natsRequest)
 	if err != nil {
 		return nil, err
 	}
+
+	rpcRequest := natsRequest.GetRpcRequest()
 	serverAddress := concepts.GenServerAddress(rpcRequest.Server.Stub.Realm, rpcRequest.Server.Stub.Type, rpcRequest.Server.Stub.Id)
 	clientAddress := concepts.GenClientAddress(rpcRequest.Client.Stub.Realm, rpcRequest.Client.Stub.Type, rpcRequest.Client.Stub.Id)
 	request := NewMsgReq(concepts.NewActorId(serverAddress, rpcRequest.Server.Stub.ActorId), rpcRequest.Opcodes, nil, nil, encoders.NewProtobufEncoder())
@@ -191,13 +199,19 @@ func RequestUnmarshal(data []byte) (*MsgReq, error) {
 }
 
 func ResponseUnmarshal(data []byte) (*MsgResp, error) {
-	encoder := encoders.NewProtobufEncoder()
+	natsResponse := &nats_msg.NATS_MSG_PRXOY{}
 
-	response := &rpc_msg.RPC_RESPONSE{}
-	err := encoder.Decode(data, response)
+	encoder := encoders.NewProtobufEncoder()
+	err := encoder.Decode(data, natsResponse)
 	if err != nil {
 		return nil, err
 	}
+
+	response := natsResponse.GetRpcResponse()
+	if response == nil {
+		return nil, errors.New("invalid nats")
+	}
+
 	resp := NewMsgResp(response.Client.SeqId, response.Status.Code, response.Status.Msg, encoder)
 	resp.ReplyData = response.ResultData
 	return resp, nil
@@ -225,6 +239,7 @@ func NewMsgResp(seqId uint64, errCode uint32, errMsg string, codec encoders.IEnc
 
 func (resp *MsgResp) Marshal() ([]byte, error) {
 	encoder := encoders.NewProtobufEncoder()
+
 	response := &rpc_msg.RPC_RESPONSE{}
 	response.Client = &rpc_msg.CLIENT_IDENTIFIER{
 		SeqId: resp.SeqId,
@@ -234,7 +249,12 @@ func (resp *MsgResp) Marshal() ([]byte, error) {
 		Msg:  resp.ErrMsg,
 	}
 	response.ResultData = resp.ReplyData
-	return encoder.Encode(response)
+
+	natsResponse := &nats_msg.NATS_MSG_PRXOY{}
+	natsResponse.Msg = &nats_msg.NATS_MSG_PRXOY_RpcResponse{
+		RpcResponse: response,
+	}
+	return encoder.Encode(natsResponse)
 }
 
 func GetResult[T any](req concepts.IMsgReq) (result *T, code errs.CodeError) {
