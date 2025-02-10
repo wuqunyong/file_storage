@@ -1,6 +1,12 @@
 package concepts
 
-import "github.com/wuqunyong/file_storage/pkg/constants"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/wuqunyong/file_storage/pkg/constants"
+)
 
 type ActorId struct {
 	Address string
@@ -32,13 +38,58 @@ func NewActorId(address, id string) *ActorId {
 	return actorId
 }
 
+func GenServerAddress(realm, kind, id uint32) string {
+	sAddress := fmt.Sprintf("engine.%d.%d.%d.server", realm, kind, id)
+	return sAddress
+}
+
+func GenClientAddress(realm, kind, id uint32) string {
+	sAddress := fmt.Sprintf("engine.%d.%d.%d.client", realm, kind, id)
+	return sAddress
+}
+
+func DecodeAddress(address string) (realm, kind, id uint32, err error) {
+	r := strings.Split(address, ".")
+	for _, s := range r {
+		if strings.TrimSpace(s) == "" {
+			err = constants.ErrInvalidAddress
+			return
+		}
+	}
+
+	if len(r) != 5 {
+		err = constants.ErrInvalidAddress
+		return
+	}
+
+	value, err := strconv.ParseUint(r[1], 10, 32)
+	if err != nil {
+		return
+	}
+	realm = uint32(value)
+
+	value, err = strconv.ParseUint(r[2], 10, 32)
+	if err != nil {
+		return
+	}
+	kind = uint32(value)
+
+	value, err = strconv.ParseUint(r[3], 10, 32)
+	if err != nil {
+		return
+	}
+	id = uint32(value)
+
+	return
+}
+
 type IMsgReq interface {
 	Marshal() ([]byte, error)
 	GetSender() *ActorId
 	GetTarget() *ActorId
 	SetRemote(value bool) error
 	Send(resp IMsgResp)
-	SetSeqId(value int64)
+	SetSeqId(value uint64)
 	HandleResponse(resp IMsgResp)
 }
 

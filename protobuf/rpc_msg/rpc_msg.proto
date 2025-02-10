@@ -48,9 +48,10 @@ enum RPC_CODE {
 
 message CHANNEL
 {
-	uint32 realm = 1; // 区服ID
-	uint32 type = 2;  // 服务类型
-	uint32 id = 3;    // 服务ID
+	uint32 realm = 1;    // address, 区服ID
+	uint32 type = 2;     // address, 服务类型
+	uint32 id = 3;       // address, 服务ID
+	string actor_id = 4; // actor id
 }
 
 message CONTROLLER 

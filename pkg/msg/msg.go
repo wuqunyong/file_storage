@@ -12,13 +12,13 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	"github.com/wuqunyong/file_storage/rpc_msg"
 )
 
 type MsgReq struct {
 	TargetId  *concepts.ActorId
 	Remote    bool
-	SeqId     int64
+	SeqId     uint64
 	FuncName  uint32
 	Args      any
 	ArgsData  []byte
@@ -68,7 +68,7 @@ func (req *MsgReq) GetSender() *concepts.ActorId {
 	return req.Sender
 }
 
-func (req *MsgReq) SetSeqId(value int64) {
+func (req *MsgReq) SetSeqId(value uint64) {
 	req.SeqId = value
 }
 
@@ -137,21 +137,36 @@ func (req *MsgReq) HandleResponse(resp concepts.IMsgResp) {
 }
 
 func (req *MsgReq) Marshal() ([]byte, error) {
+	realm, kind, id, err := concepts.DecodeAddress(req.Sender.Address)
+	if err != nil {
+		return nil, err
+	}
+
 	encoder := encoders.NewProtobufEncoder()
-	request := &testdata.RPC_REQUEST{}
-	request.Client = &testdata.CLIENT_IDENTIFIER{
-		Stub: &testdata.CHANNEL{
-			Address: req.Sender.Address,
-			Id:      req.Sender.ID,
+	request := &rpc_msg.RPC_REQUEST{}
+	request.Client = &rpc_msg.CLIENT_IDENTIFIER{
+		Stub: &rpc_msg.CHANNEL{
+			Realm:   realm,
+			Type:    kind,
+			Id:      id,
+			ActorId: req.Sender.ID,
 		},
 		SeqId: req.SeqId,
 	}
-	request.FuncName = req.FuncName
+	request.ServerStream = false
+	request.Opcodes = req.FuncName
 	request.ArgsData = req.ArgsData
-	request.Server = &testdata.SERVER_IDENTIFIER{
-		Stub: &testdata.CHANNEL{
-			Address: req.TargetId.Address,
-			Id:      req.TargetId.ID,
+
+	realm, kind, id, err = concepts.DecodeAddress(req.TargetId.Address)
+	if err != nil {
+		return nil, err
+	}
+	request.Server = &rpc_msg.SERVER_IDENTIFIER{
+		Stub: &rpc_msg.CHANNEL{
+			Realm:   realm,
+			Type:    kind,
+			Id:      id,
+			ActorId: req.TargetId.ID,
 		},
 	}
 	return encoder.Encode(request)
@@ -160,23 +175,25 @@ func (req *MsgReq) Marshal() ([]byte, error) {
 func RequestUnmarshal(data []byte) (*MsgReq, error) {
 	encoder := encoders.NewProtobufEncoder()
 
-	rpcRequest := &testdata.RPC_REQUEST{}
+	rpcRequest := &rpc_msg.RPC_REQUEST{}
 	err := encoder.Decode(data, rpcRequest)
 	if err != nil {
 		return nil, err
 	}
-	request := NewMsgReq(concepts.NewActorId(rpcRequest.Server.Stub.Address, rpcRequest.Server.Stub.Id), rpcRequest.FuncName, nil, nil, encoders.NewProtobufEncoder())
+	serverAddress := concepts.GenServerAddress(rpcRequest.Server.Stub.Realm, rpcRequest.Server.Stub.Type, rpcRequest.Server.Stub.Id)
+	clientAddress := concepts.GenClientAddress(rpcRequest.Client.Stub.Realm, rpcRequest.Client.Stub.Type, rpcRequest.Client.Stub.Id)
+	request := NewMsgReq(concepts.NewActorId(serverAddress, rpcRequest.Server.Stub.ActorId), rpcRequest.Opcodes, nil, nil, encoders.NewProtobufEncoder())
 	request.Remote = true
 	request.SeqId = rpcRequest.GetClient().SeqId
 	request.ArgsData = rpcRequest.ArgsData
-	request.Sender = concepts.NewActorId(rpcRequest.Client.Stub.Address, rpcRequest.Client.Stub.Id)
+	request.Sender = concepts.NewActorId(clientAddress, rpcRequest.Client.Stub.ActorId)
 	return request, nil
 }
 
 func ResponseUnmarshal(data []byte) (*MsgResp, error) {
 	encoder := encoders.NewProtobufEncoder()
 
-	response := &testdata.RPC_RESPONSE{}
+	response := &rpc_msg.RPC_RESPONSE{}
 	err := encoder.Decode(data, response)
 	if err != nil {
 		return nil, err
@@ -188,8 +205,8 @@ func ResponseUnmarshal(data []byte) (*MsgResp, error) {
 
 type MsgResp struct {
 	Remote    bool
-	SeqId     int64
-	ErrCode   int32
+	SeqId     uint64
+	ErrCode   uint32
 	ErrMsg    string
 	Reply     any
 	ReplyData []byte
@@ -197,7 +214,7 @@ type MsgResp struct {
 	Codec encoders.IEncoder
 }
 
-func NewMsgResp(seqId int64, errCode int32, errMsg string, codec encoders.IEncoder) *MsgResp {
+func NewMsgResp(seqId uint64, errCode uint32, errMsg string, codec encoders.IEncoder) *MsgResp {
 	return &MsgResp{
 		SeqId:   seqId,
 		ErrCode: errCode,
@@ -208,11 +225,11 @@ func NewMsgResp(seqId int64, errCode int32, errMsg string, codec encoders.IEncod
 
 func (resp *MsgResp) Marshal() ([]byte, error) {
 	encoder := encoders.NewProtobufEncoder()
-	response := &testdata.RPC_RESPONSE{}
-	response.Client = &testdata.CLIENT_IDENTIFIER{
+	response := &rpc_msg.RPC_RESPONSE{}
+	response.Client = &rpc_msg.CLIENT_IDENTIFIER{
 		SeqId: resp.SeqId,
 	}
-	response.Status = &testdata.STATUS{
+	response.Status = &rpc_msg.STATUS{
 		Code: resp.ErrCode,
 		Msg:  resp.ErrMsg,
 	}
@@ -247,7 +264,7 @@ func GetResult[T any](req concepts.IMsgReq) (result *T, code errs.CodeError) {
 	}
 
 	if response.ErrCode != 0 {
-		return nil, errs.NewCodeError(errors.New(response.ErrMsg), response.ErrCode)
+		return nil, errs.NewCodeError(errors.New(response.ErrMsg), int32(response.ErrCode))
 	}
 
 	if request.Remote {

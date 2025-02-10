@@ -24,9 +24,9 @@ type RPCClient struct {
 	dieChan                chan bool
 	topic                  *cluster.NatsSubject
 	closed                 atomic.Bool
-	seqId                  int64
+	seqId                  uint64
 	pendingMu              sync.Mutex
-	pending                map[int64]concepts.IMsgReq
+	pending                map[uint64]concepts.IMsgReq
 	engine                 concepts.IEngine
 }
 
@@ -41,7 +41,7 @@ func NewRPCClient(engine concepts.IEngine, connString, subjectName string, opts 
 		maxReconnectionRetries: 3,
 		dieChan:                make(chan bool),
 		topic:                  cluster.NewNatsSubject(subjectName, 1024),
-		pending:                make(map[int64]concepts.IMsgReq),
+		pending:                make(map[uint64]concepts.IMsgReq),
 	}
 	rpcClient.closed.Store(false)
 
@@ -142,7 +142,7 @@ func (rpc *RPCClient) SendRequest(request concepts.IMsgReq) error {
 	return rpc.conn.PublishRequest(request.GetTarget().Address, reply, data)
 }
 
-func (rpc *RPCClient) HandleResponse(id int64, resp concepts.IMsgResp) error {
+func (rpc *RPCClient) HandleResponse(id uint64, resp concepts.IMsgResp) error {
 	if rpc.closed.Load() {
 		return errors.New("rpc client has closed")
 	}

@@ -164,7 +164,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 		}
 
 		if code != nil {
-			reply := msg.NewMsgResp(message.SeqId, code.Code(), code.Msg(), message.Codec)
+			reply := msg.NewMsgResp(message.SeqId, uint32(code.Code()), code.Msg(), message.Codec)
 			return reply
 		}
 
@@ -188,7 +188,7 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 		return reply
 	}
 	if code != nil {
-		reply := msg.NewMsgResp(message.SeqId, code.Code(), code.Msg(), message.Codec)
+		reply := msg.NewMsgResp(message.SeqId, uint32(code.Code()), code.Msg(), message.Codec)
 		return reply
 	}
 

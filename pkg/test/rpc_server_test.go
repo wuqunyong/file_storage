@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
 
 func TestServer1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 	engine := actor.NewEngine(0, 1, 1001, "")
-	sServerAddress := actor.GenServerAddress(0, 1, 1001)
+	sServerAddress := concepts.GenServerAddress(0, 1, 1001)
 
 	rpcServer := rpc.NewRPCServer(engine, "nats://127.0.0.1:4222", sServerAddress)
 	err := rpcServer.Init()
@@ -26,7 +27,7 @@ func TestServer2(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 	//nats pub identify.server.1.2.3 "hello world"
 	engine := actor.NewEngine(0, 1, 1001, "")
-	sServerAddress := actor.GenServerAddress(0, 1, 1001)
+	sServerAddress := concepts.GenServerAddress(0, 1, 1001)
 	rpcServer := rpc.NewRPCServer(engine, "nats://127.0.0.1:4222", sServerAddress)
 	err := rpcServer.Init()
 	if err != nil {

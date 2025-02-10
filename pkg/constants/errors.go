@@ -28,4 +28,5 @@ var (
 	ErrServerNotFound                 = errors.New("server not found")
 	ErrServiceDiscoveryNotInitialized = errors.New("service discovery client is not initialized")
 	ErrConnectionClosed               = errors.New("client connection closed")
+	ErrInvalidAddress                 = errors.New("invalid address")
 )

@@ -46,7 +46,7 @@ func (c IComponentSlice) Less(i, j int) bool { return c[i].Priority() < c[j].Pri
 func (c IComponentSlice) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
 
 func NewEngine(realm, kind, id uint32, connString string) *Engine {
-	sServerAddress := GenServerAddress(realm, kind, id)
+	sServerAddress := concepts.GenServerAddress(realm, kind, id)
 	rpcFlag := false
 	if connString != "" {
 		rpcFlag = true
@@ -60,21 +60,11 @@ func NewEngine(realm, kind, id uint32, connString string) *Engine {
 	e.registry = newRegistry(e)
 	e.rpcFlag = rpcFlag
 	if e.rpcFlag {
-		sClientAddress := GenClientAddress(realm, kind, id)
+		sClientAddress := concepts.GenClientAddress(realm, kind, id)
 		e.rpcClient = rpc.NewRPCClient(e, connString, sClientAddress)
 		e.rpcServer = rpc.NewRPCServer(e, connString, sServerAddress)
 	}
 	return e
-}
-
-func GenServerAddress(realm, kind, id uint32) string {
-	sAddress := fmt.Sprintf("engine.%d.%d.%d.server", realm, kind, id)
-	return sAddress
-}
-
-func GenClientAddress(realm, kind, id uint32) string {
-	sAddress := fmt.Sprintf("engine.%d.%d.%d.client", realm, kind, id)
-	return sAddress
 }
 
 func (e *Engine) GetRegistry() concepts.IRegistry {

@@ -6,16 +6,17 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
+	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
 
 func TestClient1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 	//sTopic := "identify.server.1.2.3"
-	sTopic := actor.GenServerAddress(0, 1, 1001)
+	sTopic := concepts.GenServerAddress(0, 1, 1001)
 
 	engine := actor.NewEngine(0, 1, 1001, "")
-	sClientAddress := actor.GenClientAddress(0, 1, 1001)
+	sClientAddress := concepts.GenClientAddress(0, 1, 1001)
 	rpcClient := rpc.NewRPCClient(engine, "nats://127.0.0.1:4222", sClientAddress)
 	err := rpcClient.Init()
 	if err != nil {
@@ -35,7 +36,7 @@ func TestClient1(t *testing.T) {
 func TestClient2(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 	engine := actor.NewEngine(0, 1, 1001, "")
-	sClientAddress := actor.GenClientAddress(0, 1, 1001)
+	sClientAddress := concepts.GenClientAddress(0, 1, 1001)
 	rpcClient := rpc.NewRPCClient(engine, "nats://127.0.0.1:4222", sClientAddress)
 	err := rpcClient.Init()
 	if err != nil {

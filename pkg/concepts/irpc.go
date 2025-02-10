@@ -5,7 +5,7 @@ type IRPCClient interface {
 	Run()
 	Send(topic string, data []byte) error
 	SendRequest(request IMsgReq) error
-	HandleResponse(id int64, resp IMsgResp) error
+	HandleResponse(id uint64, resp IMsgResp) error
 	Stop()
 }
 
