@@ -21,8 +21,8 @@ type ActorObjA struct {
 }
 
 func (actor *ActorObjA) Init() error {
-	actor.Register("Func1", actor.Func1)
-	actor.Register("Func2", actor.Func2)
+	actor.Register(1, actor.Func1)
+	actor.Register(2, actor.Func2)
 	return nil
 }
 
@@ -67,7 +67,7 @@ func Test(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		age := int32(i)
 		person := &testdata.Person{Name: "小明", Age: age}
-		request := actorObj1.Request(actorObj2.ActorId(), "Func1", person)
+		request := actorObj1.Request(actorObj2.ActorId(), 1, person)
 		fmt.Printf("request:%T, %v\n", request, request)
 		obj, err := msg.GetResult[testdata.Person](request)
 		if err != nil {
@@ -80,7 +80,7 @@ func Test(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		age := int32(i)
 		person := &testdata.Person{Name: "小张", Age: age}
-		request := actorObj2.Request(actorObj1.ActorId(), "Func2", person)
+		request := actorObj2.Request(actorObj1.ActorId(), 2, person)
 		fmt.Printf("request:%T, %v\n", request, request)
 		obj, err := msg.GetResult[testdata.Person](request)
 		if err != nil {

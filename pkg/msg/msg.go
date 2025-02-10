@@ -19,7 +19,7 @@ type MsgReq struct {
 	TargetId  *concepts.ActorId
 	Remote    bool
 	SeqId     int64
-	FuncName  string
+	FuncName  uint32
 	Args      any
 	ArgsData  []byte
 	Done      chan *MsgResp
@@ -33,7 +33,7 @@ type MsgReq struct {
 	RPCServer concepts.IRPCServer
 }
 
-func NewMsgReq(target *concepts.ActorId, method string, args any, ctx context.Context, coder encoders.IEncoder) *MsgReq {
+func NewMsgReq(target *concepts.ActorId, opcode uint32, args any, ctx context.Context, coder encoders.IEncoder) *MsgReq {
 	var cancel context.CancelFunc
 	if ctx == nil {
 		ctx, cancel = context.WithTimeout(context.Background(), constants.DefaultTimeout)
@@ -49,7 +49,7 @@ func NewMsgReq(target *concepts.ActorId, method string, args any, ctx context.Co
 	req := &MsgReq{
 		TargetId:  target,
 		Remote:    false,
-		FuncName:  method,
+		FuncName:  opcode,
 		Args:      args,
 		Ctx:       ctx,
 		CtxCancel: cancel,

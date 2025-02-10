@@ -79,18 +79,18 @@ func (a *Actor) GetTimerQueue() *tick.TimerQueue {
 	return a.timerQueue
 }
 
-func SendRequest[T any](actor concepts.IActor, target *concepts.ActorId, method string, args any, opts ...context.Context) (*T, errs.CodeError) {
-	request := actor.Request(target, method, args, opts...)
+func SendRequest[T any](actor concepts.IActor, target *concepts.ActorId, opcode uint32, args any, opts ...context.Context) (*T, errs.CodeError) {
+	request := actor.Request(target, opcode, args, opts...)
 	resp, err := msg.GetResult[T](request)
 	return resp, err
 }
 
-func (a *Actor) Request(target *concepts.ActorId, method string, args any, opts ...context.Context) concepts.IMsgReq {
+func (a *Actor) Request(target *concepts.ActorId, opcode uint32, args any, opts ...context.Context) concepts.IMsgReq {
 	var ctx context.Context
 	if len(opts) > 0 {
 		ctx = opts[0]
 	}
-	request := msg.NewMsgReq(target, method, args, ctx, a.Codec())
+	request := msg.NewMsgReq(target, opcode, args, ctx, a.Codec())
 	if request.Err != nil {
 		return request
 	}
@@ -145,8 +145,8 @@ func (a *Actor) waitForChildrenClosed() {
 	}
 }
 
-func (a *Actor) Register(name string, fun interface{}) error {
-	return a.msgs.Register(name, fun)
+func (a *Actor) Register(opcode uint32, fun interface{}) error {
+	return a.msgs.Register(opcode, fun)
 }
 
 func (a *Actor) Send(request concepts.IMsgReq) error {

@@ -15,14 +15,14 @@ type IActorHandler interface {
 type IActor interface {
 	IActorHandler
 	ActorId() *ActorId
-	Register(name string, fun interface{}) error
+	Register(opcode uint32, fun interface{}) error
 
 	Start()
 	Stop()
 	GetShutdownCh() <-chan struct{}
 
 	GetTimerQueue() *tick.TimerQueue
-	Request(target *ActorId, method string, args any, opts ...context.Context) IMsgReq
+	Request(target *ActorId, opcode uint32, args any, opts ...context.Context) IMsgReq
 	PostTask(funObj func()) error
 	Send(request IMsgReq) error
 	IsRoot() bool

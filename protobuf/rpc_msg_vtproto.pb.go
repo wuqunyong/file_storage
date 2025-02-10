@@ -455,12 +455,10 @@ func (m *RPC_REQUEST) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x22
 	}
-	if len(m.FuncName) > 0 {
-		i -= len(m.FuncName)
-		copy(dAtA[i:], m.FuncName)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.FuncName)))
+	if m.FuncName != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.FuncName))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x18
 	}
 	if m.Server != nil {
 		size, err := m.Server.MarshalToSizedBufferVT(dAtA[:i])
@@ -775,12 +773,10 @@ func (m *RPC_REQUEST) MarshalToSizedBufferVTStrict(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x22
 	}
-	if len(m.FuncName) > 0 {
-		i -= len(m.FuncName)
-		copy(dAtA[i:], m.FuncName)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.FuncName)))
+	if m.FuncName != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.FuncName))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x18
 	}
 	if m.Server != nil {
 		size, err := m.Server.MarshalToSizedBufferVTStrict(dAtA[:i])
@@ -983,9 +979,8 @@ func (m *RPC_REQUEST) SizeVT() (n int) {
 		l = m.Server.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	l = len(m.FuncName)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	if m.FuncName != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.FuncName))
 	}
 	l = len(m.ArgsData)
 	if l > 0 {
@@ -1448,10 +1443,10 @@ func (m *RPC_REQUEST) UnmarshalVT(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 3:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FuncName", wireType)
 			}
-			var stringLen uint64
+			m.FuncName = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -1461,24 +1456,11 @@ func (m *RPC_REQUEST) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.FuncName |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FuncName = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ArgsData", wireType)
@@ -2248,10 +2230,10 @@ func (m *RPC_REQUEST) UnmarshalVTUnsafe(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 3:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FuncName", wireType)
 			}
-			var stringLen uint64
+			m.FuncName = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -2261,28 +2243,11 @@ func (m *RPC_REQUEST) UnmarshalVTUnsafe(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.FuncName |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			var stringValue string
-			if intStringLen > 0 {
-				stringValue = unsafe.String(&dAtA[iNdEx], intStringLen)
-			}
-			m.FuncName = stringValue
-			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ArgsData", wireType)

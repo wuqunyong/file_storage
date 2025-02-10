@@ -52,8 +52,8 @@ func (h *Handler) Func2(arg *testdata.Person, reply *testdata.Person) errs.CodeE
 func Test1(t *testing.T) {
 	handler := Handler{}
 
-	inboxObj.Register("Func1", handler.Func1)
-	inboxObj.Register("Func2", handler.Func2)
+	inboxObj.Register(1, handler.Func1)
+	inboxObj.Register(2, handler.Func2)
 	go func() {
 		for {
 			select {

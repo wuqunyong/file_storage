@@ -17,7 +17,7 @@ import (
 
 type Inbox struct {
 	lock   sync.Mutex
-	method map[string]*funcutils.MethodType // registered methods
+	method map[uint32]*funcutils.MethodType // registered methods
 
 	pending   *queue.MsgQueue
 	pendingCh chan struct{}
@@ -26,7 +26,7 @@ type Inbox struct {
 
 func NewInbox() *Inbox {
 	inbox := &Inbox{
-		method:    make(map[string]*funcutils.MethodType),
+		method:    make(map[uint32]*funcutils.MethodType),
 		pending:   queue.NewTimerQueue(),
 		pendingCh: make(chan struct{}, 1),
 		ctx:       context.Background(),
@@ -34,21 +34,21 @@ func NewInbox() *Inbox {
 	return inbox
 }
 
-func (inbox *Inbox) Register(name string, fun interface{}) error {
+func (inbox *Inbox) Register(opcode uint32, fun interface{}) error {
 	inbox.lock.Lock()
 	defer inbox.lock.Unlock()
 
-	_, ok := inbox.method[name]
+	_, ok := inbox.method[opcode]
 	if ok {
-		return errors.New("duplicate name:" + name)
+		return errors.New(fmt.Sprintf("duplicate name:%d", opcode))
 	}
 
 	ptrMethod := funcutils.GetRPCReflectFunc(fun, true)
 	if ptrMethod == nil {
-		return errors.New("GetRPCReflectFunc err:" + name)
+		return errors.New(fmt.Sprintf("GetRPCReflectFunc err:%d", opcode))
 	}
 
-	inbox.method[name] = ptrMethod
+	inbox.method[opcode] = ptrMethod
 	return nil
 }
 

@@ -64,7 +64,7 @@ message RPC_REQUEST
 {
 	CLIENT_IDENTIFIER client = 1;  // 调用方
 	SERVER_IDENTIFIER server = 2;  // 被调用方
-	string func_name = 3;
+	uint32 func_name = 3;
 	bytes args_data = 4;
 }
 
