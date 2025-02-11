@@ -1,15 +1,19 @@
 package logger
 
 import (
-	"fmt"
 	"log/slog"
-	"os"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func CreateLogger(name string) (*slog.Logger, error) {
-	file, err := os.OpenFile(name, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open log file: %v, filename:%s", err, file)
+	r := &lumberjack.Logger{
+		Filename:   name,
+		LocalTime:  true,
+		MaxSize:    100, // megabytes
+		MaxAge:     28,  // days
+		MaxBackups: 3,
+		Compress:   false, // disabled by default
 	}
 
 	options := &slog.HandlerOptions{
@@ -17,14 +21,18 @@ func CreateLogger(name string) (*slog.Logger, error) {
 		Level:     slog.LevelDebug,
 	}
 
-	// fileHandler := slog.NewTextHandler(file, options)
+	fileHandler := slog.NewTextHandler(r, options)
 
 	// 创建一个屏幕输出的 Handler
-	consoleHandler := slog.NewTextHandler(os.Stdout, options)
+	// consoleHandler := slog.NewTextHandler(os.Stdout, options)
 
 	// 创建 Logger
-	logger := slog.New(consoleHandler)
+	logger := slog.New(fileHandler)
 	slog.SetDefault(logger)
 
 	return logger, nil
+}
+
+func init() {
+	CreateLogger("log_rotate.txt")
 }

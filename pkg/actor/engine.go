@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	_ "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
 
