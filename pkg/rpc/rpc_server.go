@@ -3,6 +3,7 @@ package rpc
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"runtime/debug"
 	"sync/atomic"
 	"time"
@@ -77,21 +78,17 @@ func (rpc *RPCServer) Run() {
 	}()
 
 	process := func(natsMsg *nats.Msg) {
-		fmt.Printf("msg:%+v", natsMsg)
-		fmt.Printf("data:%s", string(natsMsg.Data))
-
+		slog.Debug("RPCServer Recv", "msg", natsMsg, "data", natsMsg.Data)
 		if len(natsMsg.Data) == 0 {
 			return
 		}
 
 		request, err := msg.RequestUnmarshal(natsMsg.Data)
 		if err != nil {
-			fmt.Printf("err:%+v", err)
+			slog.Error("RPCServer Recv", "err", err)
 			return
 		}
 		rpc.HandleRequest(request)
-		//reply := append(natsMsg.Data, "|response"...)
-		//rpc.conn.Publish(natsMsg.Reply, reply)
 	}
 
 	for {

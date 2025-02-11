@@ -198,7 +198,11 @@ func RequestUnmarshal(data []byte) (*MsgReq, error) {
 		return nil, constants.ErrInvalidNatsMsgType
 	}
 	serverAddress := concepts.GenServerAddress(rpcRequest.Server.Stub.Realm, rpcRequest.Server.Stub.Type, rpcRequest.Server.Stub.Id)
-	clientAddress := concepts.GenClientAddress(rpcRequest.Client.Stub.Realm, rpcRequest.Client.Stub.Type, rpcRequest.Client.Stub.Id)
+	clientAddress := rpcRequest.Client.ReplyTopic
+	if len(clientAddress) == 0 {
+		clientAddress = concepts.GenClientAddress(rpcRequest.Client.Stub.Realm, rpcRequest.Client.Stub.Type, rpcRequest.Client.Stub.Id)
+	}
+
 	request := NewMsgReq(concepts.NewActorId(serverAddress, rpcRequest.Server.Stub.ActorId), rpcRequest.Opcodes, nil, nil, encoders.NewProtobufEncoder())
 	request.Remote = true
 	request.SeqId = rpcRequest.GetClient().SeqId
