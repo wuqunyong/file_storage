@@ -82,6 +82,7 @@ message CLIENT_IDENTIFIER
 	CHANNEL stub = 1;
 	uint64 seq_id = 2;
 	bool required_reply = 3;
+	string reply_topic = 4;
 }
 
 message SERVER_IDENTIFIER
@@ -127,4 +128,17 @@ message PRC_DeMultiplexer_Forward
 	RoleIdentifier role = 1;
 	ClientMessageInfo info = 2;
 	bytes body_msg = 3;
+}
+
+
+message RPC_EchoTestRequest
+{
+	uint64 value1 = 1;
+	string value2 = 2;
+}
+
+message RPC_EchoTestResponse
+{
+	uint64 value1 = 1;
+	string value2 = 2;
 }

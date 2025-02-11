@@ -8,7 +8,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	"github.com/wuqunyong/file_storage/rpc_msg"
 )
 
 func TestClient1(t *testing.T) {
@@ -64,12 +64,22 @@ func TestClient3(t *testing.T) {
 	}
 	//engine.SpawnActor(actorObj1)
 
-	person := &testdata.Person{Name: "小明", Age: 123456}
-	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
+	// person := &testdata.Person{Name: "小明", Age: 123456}
+	// obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
+	// if err != nil {
+	// 	fmt.Println("err", err)
+	// }
+	// fmt.Printf("\n\n\n================obj:%T, %v\n", obj, obj)
+
+	echoObj := &rpc_msg.RPC_EchoTestRequest{Value1: 12345678, Value2: "小明"}
+
+	//engine.1.4.1.serve
+	//echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1001, echoObj)
+	echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.1.4.1.server", "C++"), 1001, echoObj)
 	if err != nil {
 		fmt.Println("err", err)
 	}
-	fmt.Printf("\n\n\n================obj:%T, %v\n", obj, obj)
+	fmt.Printf("\n\n\n================echoResponse:%T, %v\n", echoResponse, echoResponse)
 
 	time.Sleep(time.Duration(1800) * time.Second)
 	time.Sleep(time.Duration(1800) * time.Second)

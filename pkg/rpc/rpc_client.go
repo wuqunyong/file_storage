@@ -171,3 +171,7 @@ func (rpc *RPCClient) Stop() {
 func (rpc *RPCClient) getReplySubject() string {
 	return rpc.topic.Subject
 }
+
+func (rpc *RPCClient) GetAddress() string {
+	return rpc.topic.Subject
+}

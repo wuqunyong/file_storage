@@ -16,6 +16,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
+	"github.com/wuqunyong/file_storage/rpc_msg"
 )
 
 type ActorObjB struct {
@@ -30,6 +31,7 @@ func (actor *ActorObjB) OnInit() error {
 	}
 	actor.Register(1, actor.Func1)
 	actor.Register(2, actor.Func2)
+	actor.Register(1001, actor.EchoTest)
 	actor.inited.Store(true)
 	return nil
 }
@@ -54,6 +56,14 @@ func (actor *ActorObjB) Func2(ctx context.Context, arg *testdata.Person, reply *
 	fmt.Printf("inside value:%v\n", reply)
 
 	return errs.NewCodeError(errors.New("invalid"), 123)
+}
+
+func (actor *ActorObjB) EchoTest(ctx context.Context, arg *rpc_msg.RPC_EchoTestRequest, reply *rpc_msg.RPC_EchoTestResponse) errs.CodeError {
+	reply.Value1 = arg.Value1
+	reply.Value2 = arg.Value2 + "|Response"
+	fmt.Printf("inside value:%v\n", reply)
+
+	return nil
 }
 
 func (actor *ActorObjB) Func3() {

@@ -152,7 +152,9 @@ func (req *MsgReq) Marshal() ([]byte, error) {
 			Id:      id,
 			ActorId: req.Sender.ID,
 		},
-		SeqId: req.SeqId,
+		SeqId:         req.SeqId,
+		RequiredReply: true,
+		ReplyTopic:    req.Sender.Address,
 	}
 	request.ServerStream = false
 	request.Opcodes = req.FuncName
