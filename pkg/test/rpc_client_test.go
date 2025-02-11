@@ -8,6 +8,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
+	testdata "github.com/wuqunyong/file_storage/protobuf"
 	"github.com/wuqunyong/file_storage/rpc_msg"
 )
 
@@ -64,18 +65,26 @@ func TestClient3(t *testing.T) {
 	}
 	//engine.SpawnActor(actorObj1)
 
-	// person := &testdata.Person{Name: "小明", Age: 123456}
-	// obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
-	// if err != nil {
-	// 	fmt.Println("err", err)
-	// }
-	// fmt.Printf("\n\n\n================obj:%T, %v\n", obj, obj)
+	person := &testdata.Person{Name: "小明", Age: 123456}
+	obj1, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
+	if err != nil {
+		fmt.Printf("\n\n\n================obj1:err:%v,data:%v\n", err, obj1)
+	} else {
+		fmt.Printf("\n\n\n================obj1:%T, %v\n", obj1, obj1)
+	}
+
+	obj2, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 2, person)
+	if err != nil {
+		fmt.Printf("\n\n\n================obj2:err:%v,data:%v\n", err, obj2)
+	} else {
+		fmt.Printf("\n\n\n================obj2:%T, %v\n", obj2, obj2)
+	}
 
 	echoObj := &rpc_msg.RPC_EchoTestRequest{Value1: 12345678, Value2: "小明"}
 
 	//engine.1.4.1.serve
 	echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1001, echoObj)
-	//echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.1.4.1.server", "C++"), 1001, echoObj)
+	// echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.1.4.1.server", "C++"), 1001, echoObj)
 	if err != nil {
 		fmt.Println("err", err)
 	}
