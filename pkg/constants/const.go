@@ -11,6 +11,6 @@ const (
 	DefaultReconnectJitter    = 100 * time.Millisecond
 	DefaultReconnectJitterTLS = time.Second
 	DefaultTimeout            = 6 * time.Second
-
-	ActorSeparator = "."
+	DefaultRPCTimeout         = 30 * time.Second
+	ActorSeparator            = "."
 )

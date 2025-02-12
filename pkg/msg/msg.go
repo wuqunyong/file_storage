@@ -37,13 +37,13 @@ type MsgReq struct {
 func NewMsgReq(target *concepts.ActorId, opcode uint32, args any, ctx context.Context, coder encoders.IEncoder) *MsgReq {
 	var cancel context.CancelFunc
 	if ctx == nil {
-		ctx, cancel = context.WithTimeout(context.Background(), constants.DefaultTimeout)
+		ctx, cancel = context.WithTimeout(context.Background(), constants.DefaultRPCTimeout)
 	} else {
 		_, ok := ctx.Deadline()
 		if ok {
 			ctx, cancel = context.WithCancel(ctx)
 		} else {
-			ctx, cancel = context.WithTimeout(ctx, constants.DefaultTimeout)
+			ctx, cancel = context.WithTimeout(ctx, constants.DefaultRPCTimeout)
 		}
 	}
 
@@ -78,7 +78,7 @@ func (req *MsgReq) SetRemote(value bool) error {
 		req.Remote = value
 		data, err := req.Codec.Encode(req.Args)
 		if err != nil {
-			req.Err = err
+			req.Err = fmt.Errorf("SetRemote failed, err:%s, %w", err.Error(), constants.ErrRPCArgsEncodeFailure)
 			return err
 		}
 

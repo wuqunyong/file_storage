@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/constants"
 	_ "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
@@ -133,7 +134,7 @@ func (e *Engine) RemoveActor(id *concepts.ActorId) {
 func (e *Engine) Request(request concepts.IMsgReq) error {
 	if !e.isLocalMessage(request.GetTarget()) {
 		if !e.rpcFlag {
-			return errors.New("rpcFlag is false")
+			return constants.ErrRPCFlagIsFalse
 		}
 		err := request.SetRemote(true)
 		if err != nil {

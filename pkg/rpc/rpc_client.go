@@ -12,6 +12,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/wuqunyong/file_storage/pkg/cluster"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 )
 
@@ -114,7 +115,7 @@ func (rpc *RPCClient) Run() {
 
 func (rpc *RPCClient) Send(topic string, data []byte) error {
 	if rpc.closed.Load() {
-		return errors.New("rpc client has closed")
+		return constants.ErrRPCClientHasClosed
 	}
 
 	reply := rpc.getReplySubject()
@@ -123,7 +124,7 @@ func (rpc *RPCClient) Send(topic string, data []byte) error {
 
 func (rpc *RPCClient) SendRequest(request concepts.IMsgReq) error {
 	if rpc.closed.Load() {
-		return errors.New("rpc client has closed")
+		return constants.ErrRPCClientHasClosed
 	}
 
 	reply := rpc.getReplySubject()
@@ -144,7 +145,7 @@ func (rpc *RPCClient) SendRequest(request concepts.IMsgReq) error {
 
 func (rpc *RPCClient) HandleResponse(id uint64, resp concepts.IMsgResp) error {
 	if rpc.closed.Load() {
-		return errors.New("rpc client has closed")
+		return constants.ErrRPCClientHasClosed
 	}
 
 	rpc.pendingMu.Lock()
