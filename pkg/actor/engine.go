@@ -47,9 +47,13 @@ func (c IComponentSlice) Len() int           { return len(c) }
 func (c IComponentSlice) Less(i, j int) bool { return c[i].Priority() < c[j].Priority() }
 func (c IComponentSlice) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
 
-func NewEngine(realm, kind, id uint32, connString string) *Engine {
+func NewEngine(realm, kind, id uint32, optConnString ...string) *Engine {
 	sServerAddress := concepts.GenServerAddress(realm, kind, id)
 	rpcFlag := false
+	connString := ""
+	if len(optConnString) > 0 {
+		connString = optConnString[0]
+	}
 	if connString != "" {
 		rpcFlag = true
 	}
