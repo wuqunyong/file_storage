@@ -9,16 +9,19 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 )
 
-// PBPacker treats packet as:
-//
-// totalSize(4)|idSize(2)|id(n)|data(n)
-//
-// | segment     | type   | size    | remark                |
-// | ----------- | ------ | ------- | --------------------- |
-// | `totalSize` | uint32 | 4       | the whole packet size |
-// | `idSize`    | uint16 | 2       | length of id          |
-// | `id`        | string | dynamic |                       |
-// | `data`      | []byte | dynamic |                       |
+/*
+C++
+struct ProtocolHead
+{
+	uint32_t iRPCRequestID;
+	uint8_t iFlags;
+	uint8_t iMagic;
+	uint16_t iOpcode;
+	uint32_t iBodyLen;
+	uint32_t iCheckSum;
+};
+*/
+
 type PBPacker struct{}
 
 func NewPBPacker() *PBPacker {
