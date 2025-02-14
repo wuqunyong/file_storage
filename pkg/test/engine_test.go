@@ -17,6 +17,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
@@ -325,4 +326,16 @@ func TestServer(t *testing.T) {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	<-sigs
+}
+
+func TestTCPClient(t *testing.T) {
+	client := easytcp.NewClient(&easytcp.ClientOption{})
+	sission, err := client.Dial("127.0.0.1:16007")
+	if err != nil {
+		return
+	}
+
+	var reqData testdata.AccountLoginRequest
+	reqData.AccountId = 1234
+	fmt.Println(sission)
 }
