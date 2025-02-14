@@ -22,6 +22,7 @@ type Client struct {
 	printRoutes           bool
 	stoppedC              chan struct{}
 	asyncRouter           bool
+	sess                  *session
 }
 
 type ClientOption struct {
@@ -63,10 +64,10 @@ func NewClient(opt *ClientOption) *Client {
 	}
 }
 
-func (c *Client) Dial(address string) (*session, error) {
+func (c *Client) Dial(address string) error {
 	conn, err := net.Dial("tcp", address)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	sess := newSession(conn, &sessionOption{
@@ -78,7 +79,8 @@ func (c *Client) Dial(address string) (*session, error) {
 	close(sess.afterCreateHookC)
 
 	go c.handleConn(conn, sess)
-	return sess, nil
+	c.sess = sess
+	return nil
 }
 
 // handleConn creates a new session with `conn`,
@@ -96,6 +98,33 @@ func (c *Client) handleConn(conn net.Conn, sess *session) {
 	}
 
 	close(sess.afterCloseHookC)
+}
+
+func (c *Client) SendRequest(id, data interface{}) error {
+	if c.sess == nil {
+		return fmt.Errorf("sess is nil")
+	}
+
+	codec := c.sess.Codec()
+	if codec == nil {
+		return fmt.Errorf("codec is nil")
+	}
+	dataBytes, err := codec.Encode(data)
+	if err != nil {
+		return err
+	}
+
+	requestMsg := NewMessage(id, dataBytes)
+	bytes, err := c.sess.packer.Pack(requestMsg)
+	if err != nil {
+		return err
+	}
+	_, err = c.sess.Conn().Write(bytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) Stop() error {

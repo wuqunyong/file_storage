@@ -16,6 +16,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
+	"github.com/wuqunyong/file_storage/pkg/component/tcpserver"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/errs"
@@ -328,14 +329,28 @@ func TestServer(t *testing.T) {
 	<-sigs
 }
 
+func NewPBClientOption() *easytcp.ClientOption {
+	packer := tcpserver.NewPBPacker()
+	codec := &easytcp.ProtobufCodec{}
+	return &easytcp.ClientOption{Packer: packer,
+		Codec: codec}
+}
+
 func TestTCPClient(t *testing.T) {
-	client := easytcp.NewClient(&easytcp.ClientOption{})
-	sission, err := client.Dial("127.0.0.1:16007")
+	client := easytcp.NewClient(NewPBClientOption())
+	err := client.Dial("127.0.0.1:16007")
 	if err != nil {
 		return
 	}
 
-	var reqData testdata.AccountLoginRequest
+	reqData := &testdata.AccountLoginRequest{}
 	reqData.AccountId = 1234
-	fmt.Println(sission)
+	err = client.SendRequest(1001, reqData)
+	if err != nil {
+		return
+	}
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
 }
