@@ -17,8 +17,11 @@ type IActor interface {
 	ActorId() *ActorId
 	Register(opcode uint32, fun interface{}) error
 
+	Init() error
 	Start()
 	Stop()
+	Shutdown()
+
 	GetShutdownCh() <-chan struct{}
 
 	GetTimerQueue() *tick.TimerQueue
@@ -33,9 +36,6 @@ type IActor interface {
 	FindChild(id string) *ActorId
 
 	SetActorHandler(handler IActorHandler)
-
-	Init() error
-	Shutdown()
 
 	GetObjAddress() uintptr
 }

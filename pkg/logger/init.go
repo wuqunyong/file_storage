@@ -2,32 +2,32 @@ package logger
 
 import (
 	"log/slog"
-
-	"gopkg.in/natefinch/lumberjack.v2"
+	"os"
 )
 
 func CreateLogger(name string) (*slog.Logger, error) {
-	r := &lumberjack.Logger{
-		Filename:   name,
-		LocalTime:  true,
-		MaxSize:    100, // megabytes
-		MaxAge:     28,  // days
-		MaxBackups: 3,
-		Compress:   false, // disabled by default
-	}
-
 	options := &slog.HandlerOptions{
 		AddSource: false,
 		Level:     slog.LevelDebug,
 	}
 
-	fileHandler := slog.NewTextHandler(r, options)
+	// r := &lumberjack.Logger{
+	// 	Filename:   name,
+	// 	LocalTime:  true,
+	// 	MaxSize:    100, // megabytes
+	// 	MaxAge:     28,  // days
+	// 	MaxBackups: 3,
+	// 	Compress:   false, // disabled by default
+	// }
+	// fileHandler := slog.NewTextHandler(r, options)
+	// // 创建 Logger
+	// logger := slog.New(fileHandler)
+	// slog.SetDefault(logger)
 
 	// 创建一个屏幕输出的 Handler
-	// consoleHandler := slog.NewTextHandler(os.Stdout, options)
-
+	consoleHandler := slog.NewTextHandler(os.Stdout, options)
 	// 创建 Logger
-	logger := slog.New(fileHandler)
+	logger := slog.New(consoleHandler)
 	slog.SetDefault(logger)
 
 	return logger, nil
