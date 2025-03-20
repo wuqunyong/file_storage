@@ -35,7 +35,7 @@ E:\ProtobufBin\protoc.exe -I=protobuf --plugin=protoc-gen-go-vtproto=E:\Protobuf
 E:\ProtobufBin\protoc.exe -I=protobuf --plugin=protoc-gen-go-vtproto=E:\ProtobufBin\protoc-gen-go-vtproto.exe  --go-vtproto_out=.    nats_msg/nats_msg.proto
 
 
-
+//在生成 Go 代码后，自动为字段注入自定义 Tags
 E:\ProtobufBin\protoc-go-inject-tag.exe -input=C:/Users/Administrator/Desktop/编程杂记/file_storage/rpc_msg/rpc_msg.pb.go
 
 
