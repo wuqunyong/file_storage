@@ -72,7 +72,8 @@ message ClientMessageInfo
 
 message RoleIdentifier
 {
-	uint64 user_id = 1;
+	//@gotags: json:"TestUserId123"
+	uint64 user_id = 1; 
 	CHANNEL gw_id = 2;
 	ClientMessageInfo info = 3;
 }

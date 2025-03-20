@@ -405,6 +405,7 @@ type RoleIdentifier struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// @gotags: json:"TestUserId123"
 	UserId uint64             `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	GwId   *CHANNEL           `protobuf:"bytes,2,opt,name=gw_id,json=gwId,proto3" json:"gw_id,omitempty"`
 	Info   *ClientMessageInfo `protobuf:"bytes,3,opt,name=info,proto3" json:"info,omitempty"`

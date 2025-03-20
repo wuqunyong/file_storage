@@ -336,7 +336,31 @@ func NewPBClientOption() *easytcp.ClientOption {
 		Codec: codec}
 }
 
+type Options struct {
+	// Addrs sets the addresses of auth
+	Addrs []string
+}
+
+type Option func(o *Options)
+
+// Addrs is the auth addresses to use.
+func Addrs(addrs ...string) Option {
+	return func(o *Options) {
+		//o.Addrs = addrs
+		o.Addrs = append(o.Addrs, addrs...)
+	}
+}
+
 func TestTCPClient(t *testing.T) {
+
+	optObj := &Options{}
+	optFunc := Addrs()
+	optFunc(optObj)
+
+	if optObj.Addrs == nil {
+		fmt.Printf("%v", optObj)
+	}
+
 	client := easytcp.NewClient(NewPBClientOption())
 	err := client.Dial("127.0.0.1:16007")
 	if err != nil {
