@@ -26,15 +26,15 @@ func newRegistry(e concepts.IEngine) *Registry {
 	}
 }
 
-// GetPID returns the process id associated for the given kind and its id.
-// GetPID returns nil if the process was not found.
-func (r *Registry) GetActorId(kind, id string) *concepts.ActorId {
-	actor := r.GetByID(kind + "." + id)
-	if actor != nil {
-		return actor.ActorId()
-	}
-	return nil
-}
+// // GetPID returns the process id associated for the given kind and its id.
+// // GetPID returns nil if the process was not found.
+// func (r *Registry) GetActorId(kind, id string) *concepts.ActorId {
+// 	actor := r.GetByID(kind + "." + id)
+// 	if actor != nil {
+// 		return actor.ActorId()
+// 	}
+// 	return nil
+// }
 
 // Remove removes the given PID from the registry.
 func (r *Registry) Remove(actorId *concepts.ActorId) {
