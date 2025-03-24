@@ -30,6 +30,10 @@ func (c *Context) GetEngine() concepts.IEngine {
 	return c.engine
 }
 
+func (c *Context) GetCtx() context.Context {
+	return c.context
+}
+
 func (c *Context) GetParentCtx() *Context {
 	return c.parentCtx
 }
@@ -75,8 +79,15 @@ func (c *Context) ActorID() *concepts.ActorId {
 
 func (c *Context) SpawnChild(actor concepts.IChildActor, id string) (*concepts.ActorId, error) {
 	childId := c.actorId.GenChildId(id)
-	childActor := NewActor(childId, c.engine)
+	childActor := NewChildActor(childId, c.engine)
+
+	shutdownCtx, shutdownCancel := context.WithCancel(c.GetCtx())
+	ctx := newContext(shutdownCtx, childActor.ActorId(), c.engine)
+
+	childActor.context = ctx
 	childActor.context.parentCtx = c
+	childActor.shutdownCtx = shutdownCtx
+	childActor.shutdownCancel = shutdownCancel
 
 	_, ok := c.children.Get(childActor.actorId.ID)
 	if ok {

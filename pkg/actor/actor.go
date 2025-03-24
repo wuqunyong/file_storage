@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"runtime/debug"
+	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
@@ -25,24 +26,41 @@ type Actor struct {
 	timerQueue   *tick.TimerQueue
 	codec        encoders.IEncoder
 
-	cancelch   chan struct{}
-	shutdownCh chan struct{}
-	closed     atomic.Bool
-	handler    concepts.IActorHandler
+	shutdownCtx    context.Context
+	shutdownCancel context.CancelFunc
+	wg             sync.WaitGroup
+	closed         atomic.Bool
+	handler        concepts.IActorHandler
 }
 
 func NewActor(id string, e concepts.IEngine) *Actor {
 	actorId := concepts.NewActorId(e.GetAddress(), id)
-	ctx := newContext(context.Background(), actorId, e)
 	a := &Actor{
 		actorId:      actorId,
-		context:      ctx,
 		msgs:         NewInbox(),
 		tickDuration: time.Duration(10) * time.Millisecond,
 		timerQueue:   tick.NewTimerQueue(),
 		codec:        encoders.NewProtobufEncoder(),
-		cancelch:     make(chan struct{}),
-		shutdownCh:   make(chan struct{}),
+	}
+	a.closed.Store(false)
+
+	shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
+	ctx := newContext(shutdownCtx, actorId, e)
+	a.context = ctx
+	a.context.parentCtx = nil
+	a.shutdownCtx = shutdownCtx
+	a.shutdownCancel = shutdownCancel
+	return a
+}
+
+func NewChildActor(id string, e concepts.IEngine) *Actor {
+	actorId := concepts.NewActorId(e.GetAddress(), id)
+	a := &Actor{
+		actorId:      actorId,
+		msgs:         NewInbox(),
+		tickDuration: time.Duration(10) * time.Millisecond,
+		timerQueue:   tick.NewTimerQueue(),
+		codec:        encoders.NewProtobufEncoder(),
 	}
 	a.closed.Store(false)
 	return a
@@ -64,6 +82,7 @@ func (a *Actor) Init() error {
 }
 
 func (a *Actor) Start() {
+	a.wg.Add(1)
 	go a.handleMsg()
 }
 
@@ -123,7 +142,9 @@ func (a *Actor) Stop() {
 	}
 	a.closed.Store(true)
 
-	close(a.shutdownCh)
+	a.CallShutdown()
+	a.StopChildren()
+
 	a.waitForChildrenClosed()
 	a.Shutdown()
 
@@ -132,7 +153,6 @@ func (a *Actor) Stop() {
 		slog.Info("Actor Delete", "actorId", a.actorId.ID)
 	}
 
-	close(a.cancelch)
 	a.context.engine.RemoveActor(a.ActorId())
 }
 
@@ -169,29 +189,6 @@ func (a *Actor) GetParentActor() concepts.IActor {
 	return nil
 }
 
-func (a *Actor) GetShutdownCh() <-chan struct{} {
-	return a.shutdownCh
-}
-
-func (a *Actor) GetParentShutdownCh() <-chan struct{} {
-	parent := a.context.Parent()
-	if parent != nil {
-		for {
-			parentObj := a.GetParentActor()
-			if parentObj != nil {
-				return parentObj.GetShutdownCh()
-			}
-
-			time.Sleep(10 * time.Millisecond)
-
-			slog.Info("waiting parent actor SpawnActor", "actorId", a.ActorId())
-		}
-	}
-
-	tmpCh := make(chan struct{})
-	return tmpCh
-}
-
 func (a *Actor) handleMsg() {
 	ticker := time.NewTicker(a.tickDuration)
 	defer func() {
@@ -202,7 +199,8 @@ func (a *Actor) handleMsg() {
 		a.Stop()
 	}()
 
-	parentShutdownCh := a.GetParentShutdownCh()
+	a.wg.Done()
+
 	for {
 		bDone := false
 		select {
@@ -210,9 +208,7 @@ func (a *Actor) handleMsg() {
 			a.msgs.Run()
 		case <-ticker.C:
 			// fmt.Println("tick")
-		case <-a.cancelch:
-			bDone = true
-		case <-parentShutdownCh:
+		case <-a.shutdownCtx.Done():
 			bDone = true
 		}
 
@@ -242,6 +238,23 @@ func (a *Actor) handleMsg() {
 			break
 		}
 	}
+}
+
+func (a *Actor) CallShutdown() {
+	a.shutdownCancel()
+}
+
+func (a *Actor) StopChildren() {
+	children := a.context.Children()
+	for _, child := range children {
+		actorObj := a.GetEngine().GetRegistry().GetByID(child.GetId())
+		if actorObj != nil {
+			actorObj.CallShutdown()
+			actorObj.StopChildren()
+		}
+	}
+
+	a.wg.Wait()
 }
 
 func (a *Actor) SpawnChild(actor concepts.IChildActor, id string) (*concepts.ActorId, error) {

@@ -235,7 +235,7 @@ func TestClient(t *testing.T) {
 	actorObj2 := &ActorObjA{
 		Actor: actor.NewActor("2", engine),
 	}
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 3; i++ {
 		childObj := &ChildActorObjA{}
 		actorObj2.SpawnChild(childObj, fmt.Sprintf("ppp:%d", i))
 		// childObj.OnShutdown()

@@ -22,8 +22,6 @@ type IActor interface {
 	Stop()
 	Shutdown()
 
-	GetShutdownCh() <-chan struct{}
-
 	GetTimerQueue() *tick.TimerQueue
 	Request(target *ActorId, opcode uint32, args any, opts ...context.Context) IMsgReq
 	PostTask(funObj func()) error
@@ -34,6 +32,9 @@ type IActor interface {
 
 	SpawnChild(actor IChildActor, id string) (*ActorId, error)
 	FindChild(id string) *ActorId
+
+	CallShutdown()
+	StopChildren()
 
 	SetActorHandler(handler IActorHandler)
 
