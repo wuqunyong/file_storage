@@ -53,7 +53,7 @@ func NewActor(id string, e concepts.IEngine) *Actor {
 	return a
 }
 
-func NewChildActor(id string, e concepts.IEngine) *Actor {
+func NewChildActor(id string, e concepts.IEngine, parent *Context) *Actor {
 	actorId := concepts.NewActorId(e.GetAddress(), id)
 	a := &Actor{
 		actorId:      actorId,
@@ -63,6 +63,13 @@ func NewChildActor(id string, e concepts.IEngine) *Actor {
 		codec:        encoders.NewProtobufEncoder(),
 	}
 	a.closed.Store(false)
+
+	shutdownCtx, shutdownCancel := context.WithCancel(parent.GetCtx())
+	ctx := newContext(shutdownCtx, a.ActorId(), e)
+	a.context = ctx
+	a.context.parentCtx = parent
+	a.shutdownCtx = shutdownCtx
+	a.shutdownCancel = shutdownCancel
 	return a
 }
 
@@ -212,6 +219,10 @@ func (a *Actor) handleMsg() {
 			bDone = true
 		}
 
+		if bDone {
+			break
+		}
+
 		var lRestore []*tick.Timer
 
 		iTime := time.Now().UnixNano()
@@ -232,10 +243,6 @@ func (a *Actor) handleMsg() {
 
 		for _, timer := range lRestore {
 			a.timerQueue.Restore(timer)
-		}
-
-		if bDone {
-			break
 		}
 	}
 }

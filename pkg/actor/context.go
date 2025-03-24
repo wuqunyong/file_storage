@@ -79,16 +79,7 @@ func (c *Context) ActorID() *concepts.ActorId {
 
 func (c *Context) SpawnChild(actor concepts.IChildActor, id string) (*concepts.ActorId, error) {
 	childId := c.actorId.GenChildId(id)
-	childActor := NewChildActor(childId, c.engine)
-
-	shutdownCtx, shutdownCancel := context.WithCancel(c.GetCtx())
-	ctx := newContext(shutdownCtx, childActor.ActorId(), c.engine)
-
-	childActor.context = ctx
-	childActor.context.parentCtx = c
-	childActor.shutdownCtx = shutdownCtx
-	childActor.shutdownCancel = shutdownCancel
-
+	childActor := NewChildActor(childId, c.engine, c)
 	_, ok := c.children.Get(childActor.actorId.ID)
 	if ok {
 		slog.Error("SpawnChild", "info", fmt.Sprintf("%s duplicate id: %s", c.actorId.GetId(), childId))
