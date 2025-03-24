@@ -177,12 +177,14 @@ func (a *Actor) GetParentShutdownCh() <-chan struct{} {
 	parent := a.context.Parent()
 	if parent != nil {
 		for {
-			parent := a.GetParentActor()
-			if parent != nil {
-				return parent.GetShutdownCh()
+			parentObj := a.GetParentActor()
+			if parentObj != nil {
+				return parentObj.GetShutdownCh()
 			}
 
 			time.Sleep(10 * time.Millisecond)
+
+			slog.Info("waiting parent actor SpawnActor", "actorId", a.ActorId())
 		}
 	}
 
