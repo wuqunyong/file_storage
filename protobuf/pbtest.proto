@@ -11,9 +11,15 @@ message Person {
   map<string, Person> children = 10;
 }
 
+message Desk {
+  int32 Num = 1;
+  int32 Price = 2;
+}
+
 message Phone {
   int32 Num = 1;
   int32 Price = 2;
+  map<int32, Desk> Data = 3;
 }
 
 message Watch {
@@ -27,10 +33,11 @@ enum ItemType {
 }
 
 message Item {
-  string Name = 1;
-  int32 Age = 2;
-  string Address = 3;
-  ItemType Type = 4;
+  int64 Id = 1;    
+  string Name = 2;
+  int32 Age = 3;
+  string Address = 4;
+  ItemType Type = 5;
   oneof msg {
 		Phone PhoneInfo = 100;
 		Watch WatchInfo = 101;

@@ -176,7 +176,7 @@ type ItemTbl interface {
 }
 
 func NewItemTblMongo(db *mongo.Database) (ItemTbl, error) {
-	coll := db.Collection("itme_test")
+	coll := db.Collection("item_test")
 	_, err := coll.Indexes().CreateOne(context.Background(), mongo.IndexModel{
 		Keys: bson.D{
 			{Key: "Name", Value: 1},
@@ -205,6 +205,7 @@ func (b *ItemTblMgo) Create(ctx context.Context, items []*testdata.Item) (err er
 		if err != nil {
 			//todo
 		}
+		doc = append(doc, bson.E{Key: "_id", Value: value.Id})
 		bsonArray = append(bsonArray, doc)
 		fmt.Printf("doc:%T, %v\n", doc, doc)
 
@@ -360,13 +361,23 @@ func TestClient(t *testing.T) {
 	}
 	var items []*testdata.Item
 	itemObj1 := &testdata.Item{
+		Id:   12,
 		Name: "obj56",
+		Age:  12,
 		Type: testdata.ItemType_IT_Phone,
+	}
+	deskObj := make(map[int32]*testdata.Desk)
+	deskObj[1] = &testdata.Desk{
+		Num: 5555,
+	}
+	deskObj[2] = &testdata.Desk{
+		Num: 666,
 	}
 	itemObj1.Msg = &testdata.Item_PhoneInfo{
 		PhoneInfo: &testdata.Phone{
 			Num:   123,
 			Price: 345,
+			Data:  deskObj,
 		},
 	}
 	items = append(items, itemObj1)
@@ -395,7 +406,9 @@ func TestClient(t *testing.T) {
 	fmt.Printf("proto1:%T, %v\n", proto1, proto1)
 
 	itemObj2 := &testdata.Item{
+		Id:   123,
 		Name: "obj6",
+		Age:  123,
 		Type: testdata.ItemType_IT_Watch,
 	}
 	itemObj2.Msg = &testdata.Item_WatchInfo{
