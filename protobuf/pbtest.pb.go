@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.33.0
 // 	protoc        v4.25.3
-// source: protobuf/pbtest.proto
+// source: pbtest.proto
 
 package testdata
 
@@ -20,6 +20,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ItemType int32
+
+const (
+	ItemType_IT_Invalid ItemType = 0
+	ItemType_IT_Phone   ItemType = 1
+	ItemType_IT_Watch   ItemType = 2
+)
+
+// Enum value maps for ItemType.
+var (
+	ItemType_name = map[int32]string{
+		0: "IT_Invalid",
+		1: "IT_Phone",
+		2: "IT_Watch",
+	}
+	ItemType_value = map[string]int32{
+		"IT_Invalid": 0,
+		"IT_Phone":   1,
+		"IT_Watch":   2,
+	}
+)
+
+func (x ItemType) Enum() *ItemType {
+	p := new(ItemType)
+	*p = x
+	return p
+}
+
+func (x ItemType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ItemType) Descriptor() protoreflect.EnumDescriptor {
+	return file_pbtest_proto_enumTypes[0].Descriptor()
+}
+
+func (ItemType) Type() protoreflect.EnumType {
+	return &file_pbtest_proto_enumTypes[0]
+}
+
+func (x ItemType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ItemType.Descriptor instead.
+func (ItemType) EnumDescriptor() ([]byte, []int) {
+	return file_pbtest_proto_rawDescGZIP(), []int{0}
+}
+
 type Person struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -34,7 +83,7 @@ type Person struct {
 func (x *Person) Reset() {
 	*x = Person{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_protobuf_pbtest_proto_msgTypes[0]
+		mi := &file_pbtest_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -47,7 +96,7 @@ func (x *Person) String() string {
 func (*Person) ProtoMessage() {}
 
 func (x *Person) ProtoReflect() protoreflect.Message {
-	mi := &file_protobuf_pbtest_proto_msgTypes[0]
+	mi := &file_pbtest_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +109,7 @@ func (x *Person) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Person.ProtoReflect.Descriptor instead.
 func (*Person) Descriptor() ([]byte, []int) {
-	return file_protobuf_pbtest_proto_rawDescGZIP(), []int{0}
+	return file_pbtest_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Person) GetName() string {
@@ -91,63 +140,307 @@ func (x *Person) GetChildren() map[string]*Person {
 	return nil
 }
 
-var File_protobuf_pbtest_proto protoreflect.FileDescriptor
+type Phone struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 
-var file_protobuf_pbtest_proto_rawDesc = []byte{
-	0x0a, 0x15, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x70, 0x62, 0x74, 0x65, 0x73,
-	0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x08, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74,
-	0x61, 0x22, 0xd3, 0x01, 0x0a, 0x06, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x12, 0x12, 0x0a, 0x04,
-	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65,
-	0x12, 0x10, 0x0a, 0x03, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x61,
-	0x67, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x3a, 0x0a, 0x08,
-	0x63, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e, 0x18, 0x0a, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1e,
-	0x2e, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e,
-	0x2e, 0x43, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x08,
-	0x63, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e, 0x1a, 0x4d, 0x0a, 0x0d, 0x43, 0x68, 0x69, 0x6c,
-	0x64, 0x72, 0x65, 0x6e, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x26, 0x0a, 0x05, 0x76,
-	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x74, 0x65, 0x73,
-	0x74, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x05, 0x76, 0x61,
-	0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x42, 0x14, 0x5a, 0x12, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2f, 0x3b, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	Num   int32 `protobuf:"varint,1,opt,name=Num,proto3" json:"Num,omitempty"`
+	Price int32 `protobuf:"varint,2,opt,name=Price,proto3" json:"Price,omitempty"`
+}
+
+func (x *Phone) Reset() {
+	*x = Phone{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pbtest_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Phone) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Phone) ProtoMessage() {}
+
+func (x *Phone) ProtoReflect() protoreflect.Message {
+	mi := &file_pbtest_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Phone.ProtoReflect.Descriptor instead.
+func (*Phone) Descriptor() ([]byte, []int) {
+	return file_pbtest_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Phone) GetNum() int32 {
+	if x != nil {
+		return x.Num
+	}
+	return 0
+}
+
+func (x *Phone) GetPrice() int32 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+type Watch struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name string `protobuf:"bytes,1,opt,name=Name,proto3" json:"Name,omitempty"`
+}
+
+func (x *Watch) Reset() {
+	*x = Watch{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pbtest_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Watch) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Watch) ProtoMessage() {}
+
+func (x *Watch) ProtoReflect() protoreflect.Message {
+	mi := &file_pbtest_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Watch.ProtoReflect.Descriptor instead.
+func (*Watch) Descriptor() ([]byte, []int) {
+	return file_pbtest_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Watch) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type Item struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name    string   `protobuf:"bytes,1,opt,name=Name,proto3" json:"Name,omitempty"`
+	Age     int32    `protobuf:"varint,2,opt,name=Age,proto3" json:"Age,omitempty"`
+	Address string   `protobuf:"bytes,3,opt,name=Address,proto3" json:"Address,omitempty"`
+	Type    ItemType `protobuf:"varint,4,opt,name=Type,proto3,enum=testdata.ItemType" json:"Type,omitempty"`
+	// Types that are assignable to Msg:
+	//
+	//	*Item_PhoneInfo
+	//	*Item_WatchInfo
+	Msg isItem_Msg `protobuf_oneof:"msg"`
+}
+
+func (x *Item) Reset() {
+	*x = Item{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pbtest_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Item) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Item) ProtoMessage() {}
+
+func (x *Item) ProtoReflect() protoreflect.Message {
+	mi := &file_pbtest_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Item.ProtoReflect.Descriptor instead.
+func (*Item) Descriptor() ([]byte, []int) {
+	return file_pbtest_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Item) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Item) GetAge() int32 {
+	if x != nil {
+		return x.Age
+	}
+	return 0
+}
+
+func (x *Item) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *Item) GetType() ItemType {
+	if x != nil {
+		return x.Type
+	}
+	return ItemType_IT_Invalid
+}
+
+func (m *Item) GetMsg() isItem_Msg {
+	if m != nil {
+		return m.Msg
+	}
+	return nil
+}
+
+func (x *Item) GetPhoneInfo() *Phone {
+	if x, ok := x.GetMsg().(*Item_PhoneInfo); ok {
+		return x.PhoneInfo
+	}
+	return nil
+}
+
+func (x *Item) GetWatchInfo() *Watch {
+	if x, ok := x.GetMsg().(*Item_WatchInfo); ok {
+		return x.WatchInfo
+	}
+	return nil
+}
+
+type isItem_Msg interface {
+	isItem_Msg()
+}
+
+type Item_PhoneInfo struct {
+	PhoneInfo *Phone `protobuf:"bytes,100,opt,name=PhoneInfo,proto3,oneof"`
+}
+
+type Item_WatchInfo struct {
+	WatchInfo *Watch `protobuf:"bytes,101,opt,name=WatchInfo,proto3,oneof"`
+}
+
+func (*Item_PhoneInfo) isItem_Msg() {}
+
+func (*Item_WatchInfo) isItem_Msg() {}
+
+var File_pbtest_proto protoreflect.FileDescriptor
+
+var file_pbtest_proto_rawDesc = []byte{
+	0x0a, 0x0c, 0x70, 0x62, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x08,
+	0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x22, 0xd3, 0x01, 0x0a, 0x06, 0x50, 0x65, 0x72,
+	0x73, 0x6f, 0x6e, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x61, 0x67, 0x65, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x61, 0x67, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72,
+	0x65, 0x73, 0x73, 0x12, 0x3a, 0x0a, 0x08, 0x63, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e, 0x18,
+	0x0a, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61,
+	0x2e, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x2e, 0x43, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e,
+	0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x08, 0x63, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e, 0x1a,
+	0x4d, 0x0a, 0x0d, 0x43, 0x68, 0x69, 0x6c, 0x64, 0x72, 0x65, 0x6e, 0x45, 0x6e, 0x74, 0x72, 0x79,
+	0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b,
+	0x65, 0x79, 0x12, 0x26, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x10, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x50, 0x65, 0x72,
+	0x73, 0x6f, 0x6e, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x2f,
+	0x0a, 0x05, 0x50, 0x68, 0x6f, 0x6e, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x4e, 0x75, 0x6d, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x4e, 0x75, 0x6d, 0x12, 0x14, 0x0a, 0x05, 0x50, 0x72, 0x69,
+	0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x50, 0x72, 0x69, 0x63, 0x65, 0x22,
+	0x1b, 0x0a, 0x05, 0x57, 0x61, 0x74, 0x63, 0x68, 0x12, 0x12, 0x0a, 0x04, 0x4e, 0x61, 0x6d, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x4e, 0x61, 0x6d, 0x65, 0x22, 0xd7, 0x01, 0x0a,
+	0x04, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x12, 0x0a, 0x04, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x41, 0x67, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x41, 0x67, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x41,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x41, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x26, 0x0a, 0x04, 0x54, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x0e, 0x32, 0x12, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x49,
+	0x74, 0x65, 0x6d, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x54, 0x79, 0x70, 0x65, 0x12, 0x2f, 0x0a,
+	0x09, 0x50, 0x68, 0x6f, 0x6e, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x18, 0x64, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x0f, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x50, 0x68, 0x6f, 0x6e,
+	0x65, 0x48, 0x00, 0x52, 0x09, 0x50, 0x68, 0x6f, 0x6e, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x2f,
+	0x0a, 0x09, 0x57, 0x61, 0x74, 0x63, 0x68, 0x49, 0x6e, 0x66, 0x6f, 0x18, 0x65, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x0f, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x57, 0x61, 0x74,
+	0x63, 0x68, 0x48, 0x00, 0x52, 0x09, 0x57, 0x61, 0x74, 0x63, 0x68, 0x49, 0x6e, 0x66, 0x6f, 0x42,
+	0x05, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x2a, 0x36, 0x0a, 0x08, 0x49, 0x74, 0x65, 0x6d, 0x54, 0x79,
+	0x70, 0x65, 0x12, 0x0e, 0x0a, 0x0a, 0x49, 0x54, 0x5f, 0x49, 0x6e, 0x76, 0x61, 0x6c, 0x69, 0x64,
+	0x10, 0x00, 0x12, 0x0c, 0x0a, 0x08, 0x49, 0x54, 0x5f, 0x50, 0x68, 0x6f, 0x6e, 0x65, 0x10, 0x01,
+	0x12, 0x0c, 0x0a, 0x08, 0x49, 0x54, 0x5f, 0x57, 0x61, 0x74, 0x63, 0x68, 0x10, 0x02, 0x42, 0x14,
+	0x5a, 0x12, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x3b, 0x74, 0x65, 0x73, 0x74,
+	0x64, 0x61, 0x74, 0x61, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_protobuf_pbtest_proto_rawDescOnce sync.Once
-	file_protobuf_pbtest_proto_rawDescData = file_protobuf_pbtest_proto_rawDesc
+	file_pbtest_proto_rawDescOnce sync.Once
+	file_pbtest_proto_rawDescData = file_pbtest_proto_rawDesc
 )
 
-func file_protobuf_pbtest_proto_rawDescGZIP() []byte {
-	file_protobuf_pbtest_proto_rawDescOnce.Do(func() {
-		file_protobuf_pbtest_proto_rawDescData = protoimpl.X.CompressGZIP(file_protobuf_pbtest_proto_rawDescData)
+func file_pbtest_proto_rawDescGZIP() []byte {
+	file_pbtest_proto_rawDescOnce.Do(func() {
+		file_pbtest_proto_rawDescData = protoimpl.X.CompressGZIP(file_pbtest_proto_rawDescData)
 	})
-	return file_protobuf_pbtest_proto_rawDescData
+	return file_pbtest_proto_rawDescData
 }
 
-var file_protobuf_pbtest_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_protobuf_pbtest_proto_goTypes = []interface{}{
-	(*Person)(nil), // 0: testdata.Person
-	nil,            // 1: testdata.Person.ChildrenEntry
+var file_pbtest_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_pbtest_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_pbtest_proto_goTypes = []interface{}{
+	(ItemType)(0),  // 0: testdata.ItemType
+	(*Person)(nil), // 1: testdata.Person
+	(*Phone)(nil),  // 2: testdata.Phone
+	(*Watch)(nil),  // 3: testdata.Watch
+	(*Item)(nil),   // 4: testdata.Item
+	nil,            // 5: testdata.Person.ChildrenEntry
 }
-var file_protobuf_pbtest_proto_depIdxs = []int32{
-	1, // 0: testdata.Person.children:type_name -> testdata.Person.ChildrenEntry
-	0, // 1: testdata.Person.ChildrenEntry.value:type_name -> testdata.Person
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+var file_pbtest_proto_depIdxs = []int32{
+	5, // 0: testdata.Person.children:type_name -> testdata.Person.ChildrenEntry
+	0, // 1: testdata.Item.Type:type_name -> testdata.ItemType
+	2, // 2: testdata.Item.PhoneInfo:type_name -> testdata.Phone
+	3, // 3: testdata.Item.WatchInfo:type_name -> testdata.Watch
+	1, // 4: testdata.Person.ChildrenEntry.value:type_name -> testdata.Person
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_protobuf_pbtest_proto_init() }
-func file_protobuf_pbtest_proto_init() {
-	if File_protobuf_pbtest_proto != nil {
+func init() { file_pbtest_proto_init() }
+func file_pbtest_proto_init() {
+	if File_pbtest_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_protobuf_pbtest_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_pbtest_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Person); i {
 			case 0:
 				return &v.state
@@ -159,23 +452,64 @@ func file_protobuf_pbtest_proto_init() {
 				return nil
 			}
 		}
+		file_pbtest_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Phone); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pbtest_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Watch); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pbtest_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Item); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
+	file_pbtest_proto_msgTypes[3].OneofWrappers = []interface{}{
+		(*Item_PhoneInfo)(nil),
+		(*Item_WatchInfo)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_protobuf_pbtest_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   2,
+			RawDescriptor: file_pbtest_proto_rawDesc,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_protobuf_pbtest_proto_goTypes,
-		DependencyIndexes: file_protobuf_pbtest_proto_depIdxs,
-		MessageInfos:      file_protobuf_pbtest_proto_msgTypes,
+		GoTypes:           file_pbtest_proto_goTypes,
+		DependencyIndexes: file_pbtest_proto_depIdxs,
+		EnumInfos:         file_pbtest_proto_enumTypes,
+		MessageInfos:      file_pbtest_proto_msgTypes,
 	}.Build()
-	File_protobuf_pbtest_proto = out.File
-	file_protobuf_pbtest_proto_rawDesc = nil
-	file_protobuf_pbtest_proto_goTypes = nil
-	file_protobuf_pbtest_proto_depIdxs = nil
+	File_pbtest_proto = out.File
+	file_pbtest_proto_rawDesc = nil
+	file_pbtest_proto_goTypes = nil
+	file_pbtest_proto_depIdxs = nil
 }
