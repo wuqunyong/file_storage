@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+
+option go_package = "github.com/wuqunyong/file_storage/protobuf/;testdata";
+package testdata;
+
+import "protobuf/common.proto";
+
+enum RegistryStatus
+{
+	RS_None = 0;
+	RS_Learning = 1;
+	RS_Forwarding = 2;
+}
+
+enum UpdateMode
+{
+	UM_None = 0;
+	UM_Full = 1;
+	UM_Incremental = 2; 
+}
+
+message EndPointInstance
+{
+	uint32 realm = 1;
+	EndPointType type = 2;
+	uint32 id = 3;
+	string auth = 4;
+	string ip = 5;
+	uint32 port = 6;
+	uint32 codec_type = 7;
+	uint32 mask_flag = 8;
+}
+
+
+message ConnectDialResult
+{
+	uint64 serial_num = 1;
+	uint32 result = 2;
+	string local_ip = 3;	
+}
+
+
+// 注册服务节点 register
+message MSG_REQUEST_REGISTER_INSTANCE
+{
+	EndPointInstance instance = 1;
+	string auth = 2;
+}
+
+message MSG_RESPONSE_REGISTER_INSTANCE
+{
+	uint32 status_code = 1;
+	string listeners_config = 2;
+	string mysql_config = 3;
+	string nats_config = 4;
+	string redis_config = 5;
+}
+
+
+message MSG_NOTICE_INSTANCE
+{
+	string id = 1;
+	uint64 version = 2;
+	RegistryStatus status = 3;
+	UpdateMode mode = 4;
+	repeated EndPointInstance add_instance = 5;
+	repeated EndPointInstance delete_instance = 6;
+	repeated EndPointInstance update_instance = 7;
+}
+
+
+message MSG_REQUEST_HEARTBEAT
+{
+}
+
+message MSG_RESPONSE_HEARTBEAT
+{
+	uint32 status_code = 1;
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+
+
+package testdata;
+option go_package = "github.com/wuqunyong/file_storage/protobuf/;testdata";
+
+enum EndPointType 
+{
+	EPT_None = 0;
+	EPT_Service_Registry = 1;
+	EPT_Login_Server = 2;
+	EPT_Gateway_Server = 3;
+	EPT_Scene_Server = 4;
+	EPT_DbAccount_Proxy = 5;
+	EPT_DbRole_Proxy = 6;
+
+	EPT_Test_Client = 7;
+	
+	EPT_Max = 8;
+}

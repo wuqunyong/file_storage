@@ -9,6 +9,8 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 	"github.com/wuqunyong/file_storage/rpc_msg"
+
+	testdata "github.com/wuqunyong/file_storage/protobuf"
 )
 
 func TestClient1(t *testing.T) {
@@ -88,6 +90,31 @@ func TestClient3(t *testing.T) {
 		fmt.Println("err", err)
 	}
 	fmt.Printf("\n\n\n================echoResponse:%T, %v\n", echoResponse, echoResponse)
+
+	time.Sleep(time.Duration(1800) * time.Second)
+	time.Sleep(time.Duration(1800) * time.Second)
+}
+
+func TestClientRegister(t *testing.T) {
+	engine := actor.NewEngine(0, 1, 1002, "nats://127.0.0.1:4222")
+
+	engine.MustInit()
+	engine.Start()
+
+	actorObj1 := &ActorObjA{
+		Actor: actor.NewActor("1", engine),
+	}
+
+	nodeObj := &testdata.MSG_REQUEST_REGISTER_INSTANCE{
+		Instance: &testdata.EndPointInstance{Realm: 1, Type: 100, Id: 1},
+	}
+
+	//engine.1.1.1.serve
+	nodeResponse, err := actor.SendRequest[testdata.MSG_RESPONSE_REGISTER_INSTANCE](actorObj1, concepts.NewActorId("engine.1.1.1.server", "C++"), 410, nodeObj)
+	if err != nil {
+		fmt.Println("err", err)
+	}
+	fmt.Printf("\n\n\n================nodeResponse:%T, %v\n", nodeResponse, nodeResponse)
 
 	time.Sleep(time.Duration(1800) * time.Second)
 	time.Sleep(time.Duration(1800) * time.Second)
