@@ -42,6 +42,7 @@ func (actor *ActorObjA) OnInit() error {
 	}
 	actor.Register(1, actor.Func1)
 	actor.Register(2, actor.Func2)
+	actor.Register(103, actor.Func3)
 	actor.inited.Store(true)
 	return nil
 }
@@ -108,8 +109,10 @@ func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
-func (actor *ActorObjA) Func3() {
-	fmt.Println("func3")
+func (actor *ActorObjA) Func3(ctx context.Context, arg *testdata.MSG_NOTICE_INSTANCE, reply *testdata.MSG_NOTICE_INSTANCE) errs.CodeError {
+	fmt.Printf("inside value arg:%v\n", arg)
+
+	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
 func Must[T proto.Message](arg []byte, object T) T {

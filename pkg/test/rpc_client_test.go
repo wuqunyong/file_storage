@@ -2,6 +2,9 @@ package test
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 	"testing"
 	"time"
 
@@ -99,14 +102,17 @@ func TestClientRegister(t *testing.T) {
 	engine := actor.NewEngine(0, 1, 1002, "nats://127.0.0.1:4222")
 
 	engine.MustInit()
-	engine.Start()
 
 	actorObj1 := &ActorObjA{
 		Actor: actor.NewActor("1", engine),
 	}
+	engine.SpawnActor(actorObj1)
+
+	engine.Start()
 
 	nodeObj := &testdata.MSG_REQUEST_REGISTER_INSTANCE{
-		Instance: &testdata.EndPointInstance{Realm: 1, Type: 100, Id: 1},
+		Instance: &testdata.EndPointInstance{Realm: 1, Type: 4, Id: 1},
+		Auth:     "hello",
 	}
 
 	//engine.1.1.1.serve
@@ -116,6 +122,7 @@ func TestClientRegister(t *testing.T) {
 	}
 	fmt.Printf("\n\n\n================nodeResponse:%T, %v\n", nodeResponse, nodeResponse)
 
-	time.Sleep(time.Duration(1800) * time.Second)
-	time.Sleep(time.Duration(1800) * time.Second)
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
 }

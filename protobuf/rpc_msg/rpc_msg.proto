@@ -19,6 +19,7 @@ enum RPC_OPCODES {
 	RPC_MysqlQueryAll = 408;
 	RPC_MysqlStatement = 409;
 
+	RPC_RegisterInstance = 410;
 }
 
 
