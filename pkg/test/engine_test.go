@@ -109,10 +109,8 @@ func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
-func (actor *ActorObjA) Func3(ctx context.Context, arg *testdata.MSG_NOTICE_INSTANCE, reply *testdata.MSG_NOTICE_INSTANCE) errs.CodeError {
+func (actor *ActorObjA) Func3(ctx context.Context, arg *testdata.MSG_NOTICE_INSTANCE) {
 	fmt.Printf("inside value arg:%v\n", arg)
-
-	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
 func Must[T proto.Message](arg []byte, object T) T {

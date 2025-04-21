@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"runtime/debug"
 	"sync"
@@ -118,7 +119,9 @@ func (inbox *Inbox) handleMsgReq(message *msg.MsgReq) {
 		}
 	}()
 	response := inbox.callFunc(message)
-	go message.Send(response)
+	if response != nil {
+		go message.Send(response)
+	}
 }
 
 func (inbox *Inbox) handleFuncObj(funcObj func()) {
@@ -142,10 +145,9 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 	}
 
 	var (
-		code     errs.CodeError
-		err      error
-		decoder  = encoders.NewProtobufEncoder()
-		response = reflect.New(ptrMethod.ReplyType.Elem()).Interface()
+		code    errs.CodeError
+		err     error
+		decoder = encoders.NewProtobufEncoder()
 	)
 
 	if message.Remote {
@@ -156,46 +158,69 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
-		code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, args, response)
+
+		switch ptrMethod.NumIn {
+		case 3:
+			var response = reflect.New(ptrMethod.ReplyType.Elem()).Interface()
+			code, err = funcutils.CallPRCReflectRequestFunc(ptrMethod, inbox.ctx, args, response)
+			if err != nil {
+				sError := fmt.Sprintf("err:%s" + err.Error())
+				reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
+				return reply
+			}
+
+			if code != nil {
+				reply := msg.NewMsgResp(message.SeqId, uint32(code.Code()), code.Msg(), message.Codec)
+				return reply
+			}
+
+			replyData, err := decoder.Encode(response)
+			if err != nil {
+				sError := fmt.Sprintf("Encode err:%v", err)
+				reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
+				return reply
+			}
+
+			reply := msg.NewMsgResp(message.SeqId, 0, "", message.Codec)
+			reply.Remote = message.Remote
+			reply.ReplyData = replyData
+			return reply
+		case 2:
+			err = funcutils.CallPRCReflectNotifyFunc(ptrMethod, inbox.ctx, args)
+			if err != nil {
+				sError := fmt.Sprintf("err:%s", err.Error())
+				slog.Info("callFunc", "Error", sError)
+			}
+
+			return nil
+		default:
+			sError := fmt.Sprintf("err:invalid ptrMethod.NumIn:%d", ptrMethod.NumIn)
+			slog.Info("callFunc", "Error", sError)
+			return nil
+		}
+	}
+
+	switch ptrMethod.NumIn {
+	case 3:
+		var response = reflect.New(ptrMethod.ReplyType.Elem()).Interface()
+		code, err = funcutils.CallPRCReflectRequestFunc(ptrMethod, inbox.ctx, message.Args, response)
 		if err != nil {
 			sError := fmt.Sprintf("err:%s" + err.Error())
 			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
 			return reply
 		}
-
 		if code != nil {
 			reply := msg.NewMsgResp(message.SeqId, uint32(code.Code()), code.Msg(), message.Codec)
 			return reply
 		}
 
-		replyData, err := decoder.Encode(response)
-		if err != nil {
-			sError := fmt.Sprintf("Encode err:%v", err)
-			reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
-			return reply
-		}
-
 		reply := msg.NewMsgResp(message.SeqId, 0, "", message.Codec)
 		reply.Remote = message.Remote
-		reply.ReplyData = replyData
+		reply.Reply = response
 		return reply
 	}
 
-	code, err = funcutils.CallPRCReflectFunc(ptrMethod, inbox.ctx, message.Args, response)
-	if err != nil {
-		sError := fmt.Sprintf("err:%s" + err.Error())
-		reply := msg.NewMsgResp(message.SeqId, 1, sError, message.Codec)
-		return reply
-	}
-	if code != nil {
-		reply := msg.NewMsgResp(message.SeqId, uint32(code.Code()), code.Msg(), message.Codec)
-		return reply
-	}
-
-	reply := msg.NewMsgResp(message.SeqId, 0, "", message.Codec)
-	reply.Remote = message.Remote
-	reply.Reply = response
-	return reply
+	return nil
 }
 
 func (inbox *Inbox) Stop() {

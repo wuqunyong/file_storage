@@ -41,84 +41,143 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 
 	mname := mtype.String()
 
-	iNumIn := 3
-	// Method needs two ins: context.Context, *args, *reply.
-	if mtype.NumIn() != iNumIn {
-		if reportErr {
-			log.Printf("rpc.Register: method %q has %d input parameters; needs exactly three", mname, mtype.NumIn())
+	switch mtype.NumIn() {
+	// context.Context, request, response
+	// func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+	case 3:
+		iNumIn := 3
+		// Method needs two ins: context.Context, *args, *reply.
+		if mtype.NumIn() != iNumIn {
+			if reportErr {
+				log.Printf("rpc.Register: method %q has %d input parameters; needs exactly three", mname, mtype.NumIn())
+			}
+			return nil
 		}
-		return nil
-	}
 
-	var inArgs []reflect.Type
-	for i := 0; i < mtype.NumIn(); i++ {
-		t := mtype.In(i)
-		inArgs = append(inArgs, t)
-	}
+		var inArgs []reflect.Type
+		for i := 0; i < mtype.NumIn(); i++ {
+			t := mtype.In(i)
+			inArgs = append(inArgs, t)
+		}
 
-	// First arg must be a pointer.
-	contextType := mtype.In(0)
-	if contextType != typeOfContext {
-		if reportErr {
-			log.Printf("rpc.Register: context.Context of method %q is not a context.Context: %q", mname, contextType)
+		// First arg must be a pointer.
+		contextType := mtype.In(0)
+		if contextType != typeOfContext {
+			if reportErr {
+				log.Printf("rpc.Register: context.Context of method %q is not a context.Context: %q", mname, contextType)
+			}
+			return nil
 		}
-		return nil
-	}
 
-	argType := mtype.In(1)
-	if argType.Kind() != reflect.Ptr {
-		if reportErr {
-			log.Printf("rpc.Register: argument type of method %q is not a pointer: %q", mname, argType)
+		argType := mtype.In(1)
+		if argType.Kind() != reflect.Ptr {
+			if reportErr {
+				log.Printf("rpc.Register: argument type of method %q is not a pointer: %q", mname, argType)
+			}
+			return nil
 		}
-		return nil
-	}
-	if !isExportedOrBuiltinType(argType) {
-		if reportErr {
-			log.Printf("rpc.Register: argument type of method %q is not exported: %q", mname, argType)
+		if !isExportedOrBuiltinType(argType) {
+			if reportErr {
+				log.Printf("rpc.Register: argument type of method %q is not exported: %q", mname, argType)
+			}
+			return nil
 		}
-		return nil
-	}
-	// Second arg must be a pointer.
-	replyType := mtype.In(2)
-	if replyType.Kind() != reflect.Ptr {
-		if reportErr {
-			log.Printf("rpc.Register: reply type of method %q is not a pointer: %q", mname, replyType)
+		// Second arg must be a pointer.
+		replyType := mtype.In(2)
+		if replyType.Kind() != reflect.Ptr {
+			if reportErr {
+				log.Printf("rpc.Register: reply type of method %q is not a pointer: %q", mname, replyType)
+			}
+			return nil
 		}
-		return nil
-	}
-	// Reply type must be exported.
-	if !isExportedOrBuiltinType(replyType) {
-		if reportErr {
-			log.Printf("rpc.Register: reply type of method %q is not exported: %q", mname, replyType)
+		// Reply type must be exported.
+		if !isExportedOrBuiltinType(replyType) {
+			if reportErr {
+				log.Printf("rpc.Register: reply type of method %q is not exported: %q", mname, replyType)
+			}
+			return nil
 		}
-		return nil
-	}
-	// Method needs one out.
-	if mtype.NumOut() != 1 {
-		if reportErr {
-			log.Printf("rpc.Register: method %q has %d output parameters; needs exactly one", mname, mtype.NumOut())
+		// Method needs one out.
+		if mtype.NumOut() != 1 {
+			if reportErr {
+				log.Printf("rpc.Register: method %q has %d output parameters; needs exactly one", mname, mtype.NumOut())
+			}
+			return nil
 		}
-		return nil
-	}
-	// The return type of the method must be error.
-	if returnType := mtype.Out(0); returnType != typeOfCodeError {
-		if reportErr {
-			log.Printf("rpc.Register: return type of method %q is %q, must be CodeError", mname, returnType)
+		// The return type of the method must be error.
+		if returnType := mtype.Out(0); returnType != typeOfCodeError {
+			if reportErr {
+				log.Printf("rpc.Register: return type of method %q is %q, must be CodeError", mname, returnType)
+			}
+			return nil
 		}
-		return nil
-	}
 
-	return &MethodType{
-		Signature: mname,
-		Type:      mtype,
-		Func:      reflect.ValueOf(fun),
-		ArgType:   inArgs,
-		ReplyType: replyType,
-		NumIn:     iNumIn,
+		return &MethodType{
+			Signature: mname,
+			Type:      mtype,
+			Func:      reflect.ValueOf(fun),
+			ArgType:   inArgs,
+			ReplyType: replyType,
+			NumIn:     iNumIn,
+		}
+		// context.Context, notify
+		// func (actor *ActorObjA) Func3(ctx context.Context, arg *testdata.MSG_NOTICE_INSTANCE) {
+	case 2:
+		iNumIn := 2
+		var inArgs []reflect.Type
+		for i := 0; i < mtype.NumIn(); i++ {
+			t := mtype.In(i)
+			inArgs = append(inArgs, t)
+		}
+
+		// First arg must be a pointer.
+		contextType := mtype.In(0)
+		if contextType != typeOfContext {
+			if reportErr {
+				log.Printf("rpc.Register: context.Context of method %q is not a context.Context: %q", mname, contextType)
+			}
+			return nil
+		}
+
+		argType := mtype.In(1)
+		if argType.Kind() != reflect.Ptr {
+			if reportErr {
+				log.Printf("rpc.Register: argument type of method %q is not a pointer: %q", mname, argType)
+			}
+			return nil
+		}
+		if !isExportedOrBuiltinType(argType) {
+			if reportErr {
+				log.Printf("rpc.Register: argument type of method %q is not exported: %q", mname, argType)
+			}
+			return nil
+		}
+
+		// Method needs no return
+		if mtype.NumOut() != 0 {
+			if reportErr {
+				log.Printf("rpc.Register: method %q has %d output parameters; needs exactly zero", mname, mtype.NumOut())
+			}
+			return nil
+		}
+
+		return &MethodType{
+			Signature: mname,
+			Type:      mtype,
+			Func:      reflect.ValueOf(fun),
+			ArgType:   inArgs,
+			NumIn:     iNumIn,
+		}
+
+	default:
+		if reportErr {
+			log.Printf("rpc.Register: method %q has %d input parameters; needs three or two", mname, mtype.NumIn())
+		}
+		return nil
 	}
 }
 
-func CallPRCReflectFunc[T1 any, T2 any](method *MethodType, ctx context.Context, arg1 T1, arg2 T2) (errs.CodeError, error) {
+func CallPRCReflectRequestFunc[T1 any, T2 any](method *MethodType, ctx context.Context, arg1 T1, arg2 T2) (errs.CodeError, error) {
 	if reflect.TypeOf(arg1) != method.ArgType[1] {
 		return nil, errors.New("invalid arg1")
 	}
@@ -147,6 +206,23 @@ func CallPRCReflectFunc[T1 any, T2 any](method *MethodType, ctx context.Context,
 		return nil, errors.New("invalid rets type err")
 	}
 	return result, nil
+}
+
+func CallPRCReflectNotifyFunc[T1 any](method *MethodType, ctx context.Context, arg1 T1) error {
+	if reflect.TypeOf(arg1) != method.ArgType[1] {
+		return errors.New("invalid arg1")
+	}
+
+	args := make([]reflect.Value, method.NumIn)
+	args[0] = reflect.ValueOf(ctx)
+	args[1] = reflect.ValueOf(arg1)
+
+	rets := method.Func.Call(args)
+	if len(rets) != 0 {
+		return errors.New("invalid rets len")
+	}
+
+	return nil
 }
 
 // func(client *Client, request *PB, response *PB) errs.CodeError

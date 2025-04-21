@@ -42,7 +42,7 @@ func Test1(t *testing.T) {
 	reply := &Reply1{}
 	var args *int32 = new(int32)
 	*args = 10
-	CallPRCReflectFunc(ptrMethod, context.Background(), args, reply)
+	CallPRCReflectRequestFunc(ptrMethod, context.Background(), args, reply)
 	fmt.Printf("Reply1 value:%v\n", reply)
 }
 
@@ -65,6 +65,6 @@ func Test2(t *testing.T) {
 
 	var args *int32 = new(int32)
 	*args = 10
-	CallPRCReflectFunc(ptrMethod, context.Background(), args, argValue)
+	CallPRCReflectRequestFunc(ptrMethod, context.Background(), args, argValue)
 	fmt.Printf("Reply2 value:%v\n", reply)
 }
