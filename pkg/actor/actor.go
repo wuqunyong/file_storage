@@ -111,6 +111,10 @@ func SendRequest[T any](actor concepts.IActor, target *concepts.ActorId, opcode 
 	return resp, err
 }
 
+func SendNotify(actor concepts.IActor, target *concepts.ActorId, opcode uint32, args any, opts ...context.Context) {
+	actor.Request(target, opcode, args, opts...)
+}
+
 func (a *Actor) Request(target *concepts.ActorId, opcode uint32, args any, opts ...context.Context) concepts.IMsgReq {
 	var ctx context.Context
 	if len(opts) > 0 {

@@ -32,6 +32,7 @@ func (actor *ActorObjB) OnInit() error {
 	actor.Register(1, actor.Func1)
 	actor.Register(2, actor.Func2)
 	actor.Register(1001, actor.EchoTest)
+	actor.Register(1002, actor.NotifyTest)
 	actor.inited.Store(true)
 	return nil
 }
@@ -64,6 +65,10 @@ func (actor *ActorObjB) EchoTest(ctx context.Context, arg *rpc_msg.RPC_EchoTestR
 	fmt.Printf("inside value:%v\n", reply)
 
 	return nil
+}
+
+func (actor *ActorObjB) NotifyTest(ctx context.Context, arg *rpc_msg.RPC_EchoTestRequest) {
+	fmt.Printf("notify value:%v\n", arg)
 }
 
 func (actor *ActorObjB) Func3() {
