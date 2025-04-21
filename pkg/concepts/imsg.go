@@ -84,6 +84,7 @@ func DecodeAddress(address string) (realm, kind, id uint32, err error) {
 }
 
 type IMsgReq interface {
+	Error() error
 	Marshal() ([]byte, error)
 	GetSender() *ActorId
 	GetTarget() *ActorId

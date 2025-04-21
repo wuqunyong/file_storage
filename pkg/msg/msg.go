@@ -61,6 +61,10 @@ func NewMsgReq(target *concepts.ActorId, opcode uint32, args any, ctx context.Co
 	return req
 }
 
+func (req *MsgReq) Error() error {
+	return req.Err
+}
+
 func (req *MsgReq) GetTarget() *concepts.ActorId {
 	return req.TargetId
 }

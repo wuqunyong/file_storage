@@ -94,8 +94,12 @@ func TestClient3(t *testing.T) {
 	}
 	fmt.Printf("\n\n\n================echoResponse:%T, %v\n", echoResponse, echoResponse)
 
-	actor.SendNotify(actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1002, echoObj)
-	fmt.Printf("\n\n\n================sendNotify:%T, %v\n", echoObj, echoObj)
+	sendErr := actor.SendNotify(actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1002, echoObj)
+	if sendErr != nil {
+		fmt.Printf("\n\n\n================sendNotify Error:%T, %v\n", echoObj, echoObj)
+	} else {
+		fmt.Printf("\n\n\n================sendNotify Success:%T, %v\n", echoObj, echoObj)
+	}
 
 	time.Sleep(time.Duration(1800) * time.Second)
 	time.Sleep(time.Duration(1800) * time.Second)
