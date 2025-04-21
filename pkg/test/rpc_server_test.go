@@ -38,7 +38,7 @@ func (actor *ActorObjB) OnInit() error {
 }
 
 func (actor *ActorObjB) OnShutdown() {
-
+	fmt.Printf("OnShutdown\n")
 }
 
 func (actor *ActorObjB) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
