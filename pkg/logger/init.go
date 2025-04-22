@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"runtime"
@@ -24,13 +25,19 @@ var (
 	fileLogger    *slog.Logger = nil
 	showConsole                = true
 	showSource                 = true
-	showLogLevel               = slog.LevelInfo
+	showLogLevel               = InfoLevel
 )
 
 func init() {
+	var err error
+	showLogLevel, err = GetLevel(os.Getenv("PIE_LOG_LEVEL"))
+	if err != nil {
+		showLogLevel = InfoLevel
+	}
+
 	options := &slog.HandlerOptions{
 		AddSource: showSource,
-		Level:     showLogLevel,
+		Level:     slog.Level(showLogLevel),
 	}
 	// 创建一个屏幕输出的 Handler
 	consoleHandler := slog.NewTextHandler(os.Stdout, options)
@@ -48,6 +55,38 @@ func init() {
 	}
 	fileHandler := slog.NewTextHandler(r, options)
 	fileLogger = slog.New(fileHandler)
+
+	if err != nil {
+		Log(ErrorLevel, "init log", "error", err.Error())
+	}
+}
+
+func (l Level) String() string {
+	switch l {
+	case DebugLevel:
+		return "debug"
+	case InfoLevel:
+		return "info"
+	case WarnLevel:
+		return "warn"
+	case ErrorLevel:
+		return "error"
+	}
+	return ""
+}
+
+func GetLevel(levelStr string) (Level, error) {
+	switch levelStr {
+	case DebugLevel.String():
+		return DebugLevel, nil
+	case InfoLevel.String():
+		return InfoLevel, nil
+	case WarnLevel.String():
+		return WarnLevel, nil
+	case ErrorLevel.String():
+		return ErrorLevel, nil
+	}
+	return InfoLevel, fmt.Errorf("unknown Level String: '%s', defaulting to InfoLevel", levelStr)
 }
 
 func Log(level Level, msg string, args ...any) {
