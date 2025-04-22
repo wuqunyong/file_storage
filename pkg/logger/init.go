@@ -43,17 +43,10 @@ func init() {
 type Level int
 
 const (
-	DebugLevel = slog.LevelDebug
-	InfoLevel  = slog.LevelInfo
-	WarnLevel  = slog.LevelWarn
-	ErrorLevel = slog.LevelError
-)
-
-const (
-	LevelDebug Level = -4
-	LevelInfo  Level = 0
-	LevelWarn  Level = 4
-	LevelError Level = 8
+	DebugLevel = Level(slog.LevelDebug)
+	InfoLevel  = Level(slog.LevelInfo)
+	WarnLevel  = Level(slog.LevelWarn)
+	ErrorLevel = Level(slog.LevelError)
 )
 
 func Log(level Level, msg string, args ...any) {

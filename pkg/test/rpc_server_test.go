@@ -79,7 +79,7 @@ func (actor *ActorObjB) Func3() {
 func TestServer1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 
-	logger.Log(logger.LevelDebug, "TestServer1")
+	logger.Log(logger.InfoLevel, "TestServer1")
 	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
 	engine.MustInit()
 	actorObj1 := &ActorObjB{
