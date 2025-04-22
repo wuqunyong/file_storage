@@ -14,6 +14,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/errs"
+	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
 	"github.com/wuqunyong/file_storage/rpc_msg"
@@ -78,6 +79,7 @@ func (actor *ActorObjB) Func3() {
 func TestServer1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 
+	logger.Log(logger.LevelDebug, "TestServer1")
 	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
 	engine.MustInit()
 	actorObj1 := &ActorObjB{
