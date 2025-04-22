@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"runtime/debug"
 	"sync"
 	"sync/atomic"
@@ -14,6 +13,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
 )
@@ -142,7 +142,7 @@ func (a *Actor) Request(target *concepts.ActorId, opcode uint32, args any, opts 
 }
 
 func (a *Actor) Shutdown() {
-	slog.Info("Actor OnShutdown", "actorId", a.actorId.String(), "address", a.GetObjAddress())
+	logger.Log(logger.InfoLevel, "Actor OnShutdown", "actorId", a.actorId.String(), "address", a.GetObjAddress())
 	if a.handler != nil {
 		a.handler.OnShutdown()
 	}
@@ -162,7 +162,7 @@ func (a *Actor) Stop() {
 
 	if a.context.GetParentCtx() != nil {
 		a.context.GetParentCtx().children.Delete(a.actorId.ID)
-		slog.Info("Actor Delete", "actorId", a.actorId.ID)
+		logger.Log(logger.InfoLevel, "Actor Delete", "actorId", a.actorId.ID)
 	}
 
 	a.context.engine.RemoveActor(a.ActorId())

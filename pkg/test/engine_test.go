@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/signal"
 	"reflect"
@@ -20,6 +19,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/errs"
+	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
@@ -201,12 +201,12 @@ type ChildActorObjA struct {
 }
 
 func (a *ChildActorObjA) OnInit() error {
-	slog.Info("ChildActorObjA OnInit", "actorId", a.ActorId().String(), "address", uintptr(unsafe.Pointer(a)))
+	logger.Log(logger.InfoLevel, "ChildActorObjA OnInit", "actorId", a.ActorId().String(), "address", uintptr(unsafe.Pointer(a)))
 	return nil
 }
 
 func (a *ChildActorObjA) OnShutdown() {
-	slog.Info("ChildActorObjA OnShutdown", "actorId", a.ActorId().String())
+	logger.Log(logger.InfoLevel, "ChildActorObjA OnShutdown", "actorId", a.ActorId().String())
 }
 
 func TestClient(t *testing.T) {
@@ -238,10 +238,10 @@ func TestClient(t *testing.T) {
 		actorObj2.SpawnChild(childObj, fmt.Sprintf("ppp:%d", i))
 		// childObj.OnShutdown()
 
-		slog.Info("aaaa", "actorId", childObj.ActorId().String(), "childObj address", childObj.GetObjAddress())
+		logger.Log(logger.InfoLevel, "aaaa", "actorId", childObj.ActorId().String(), "childObj address", childObj.GetObjAddress())
 
 		findObj := engine.GetRegistry().GetByID(childObj.ActorId().ID)
-		slog.Info("bbbb", "actorId", findObj.ActorId().String(), "childObj address", findObj.GetObjAddress())
+		logger.Log(logger.InfoLevel, "bbbb", "actorId", findObj.ActorId().String(), "childObj address", findObj.GetObjAddress())
 		// findObj.OnShutdown()
 
 		// findObj.Stop()

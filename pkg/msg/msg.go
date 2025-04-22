@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"reflect"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/rpc_msg"
 )
 
@@ -120,7 +120,7 @@ func (req *MsgReq) Send(resp concepts.IMsgResp) {
 	select {
 	case <-ctx.Done():
 		err := ctx.Err()
-		slog.Error("MsgReq Send", "data", response, "err", err)
+		logger.Log(logger.ErrorLevel, "MsgReq Send", "data", response, "err", err)
 	case req.Done <- response:
 	}
 }
@@ -136,7 +136,7 @@ func (req *MsgReq) HandleResponse(resp concepts.IMsgResp) {
 	select {
 	case <-ctx.Done():
 		err := ctx.Err()
-		slog.Error("MsgReq HandleResponse", "data", response, "err", err)
+		logger.Log(logger.ErrorLevel, "MsgReq HandleResponse", "data", response, "err", err)
 	case req.Done <- response:
 	}
 }

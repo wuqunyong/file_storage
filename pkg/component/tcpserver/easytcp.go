@@ -2,10 +2,10 @@ package tcpserver
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
 )
 
@@ -46,7 +46,7 @@ func (s *TCPServer) OnInit() error {
 		if err != nil {
 			fmt.Println("err:", err)
 		}
-		slog.Info("Recv 1001", "data", reqData.String())
+		logger.Log(logger.InfoLevel, "Recv 1001", "data", reqData.String())
 
 		// set response
 		//c.SetResponseMessage(easytcp.NewMessage(1002, []byte("copy that")))
@@ -57,7 +57,7 @@ func (s *TCPServer) OnInit() error {
 		if err != nil {
 			fmt.Println("err:", err)
 		}
-		slog.Info("Recv 1003", "data", reqData.String())
+		logger.Log(logger.InfoLevel, "Recv 1003", "data", reqData.String())
 
 		// set response
 		var response testdata.EchoResponse
@@ -74,7 +74,7 @@ func (s *TCPServer) OnStart() {
 		if err = s.server.Run(s.address); err != nil && err != easytcp.ErrServerStopped {
 			panic(fmt.Sprintf("serve error:%s", err.Error()))
 		}
-		slog.Info("Stopped tcpserver", "err", err)
+		logger.Log(logger.InfoLevel, "Stopped tcpserver", "err", err)
 	}()
 }
 

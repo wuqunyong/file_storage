@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/cluster/discovery/registry"
-	"golang.org/x/exp/slog"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 
 	hash "github.com/mitchellh/hashstructure"
 	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"
@@ -207,7 +207,7 @@ func (e *etcdRegistry) registerNode(s *registry.Service, node *registry.Node, op
 	// renew the lease if it exists
 	if leaseID > 0 {
 		//log.Logf(logger.TraceLevel, "Renewing existing lease for %s %d", s.Name, leaseID)
-		slog.Info("registerNode Renewing existing lease", "Name", s.Name, "leaseID", leaseID)
+		logger.Log(logger.InfoLevel, "registerNode Renewing existing lease", "Name", s.Name, "leaseID", leaseID)
 		if _, err := e.client.KeepAliveOnce(context.TODO(), leaseID); err != nil {
 			if err != rpctypes.ErrLeaseNotFound {
 				return err

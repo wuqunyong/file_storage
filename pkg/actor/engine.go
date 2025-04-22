@@ -3,7 +3,6 @@ package actor
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/constants"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	_ "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
@@ -243,7 +243,7 @@ func (e *Engine) Stop() {
 
 func (e *Engine) setState(state ServerState) {
 	e.state = state
-	slog.Warn("Engine ChangeState", "state", e.state)
+	logger.Log(logger.WarnLevel, "Engine ChangeState", "state", e.state)
 }
 
 func (e *Engine) isLocalMessage(actor *concepts.ActorId) bool {
@@ -256,5 +256,5 @@ func (e *Engine) WaitForShutdown() {
 	<-sigs
 
 	progName := filepath.Base(os.Args[0])
-	slog.Warn("Engine Exit", "reason", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
+	logger.Log(logger.WarnLevel, "Engine Exit", "reason", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
 }

@@ -2,9 +2,9 @@ package cluster
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/nats-io/nats.go"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 )
 
 func NodeSubject(sRealm, sType, sId string) string {
@@ -29,7 +29,7 @@ func (p *NatsSubject) Stop() {
 	if p.Subscription != nil {
 		err := p.Subscription.Unsubscribe()
 		if err != nil {
-			slog.Error("Unsubscribe error", "subject", p.Subject, "err", err)
+			logger.Log(logger.ErrorLevel, "Unsubscribe error", "subject", p.Subject, "err", err)
 		}
 	}
 	close(p.Ch)

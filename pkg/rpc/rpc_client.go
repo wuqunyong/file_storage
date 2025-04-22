@@ -3,7 +3,6 @@ package rpc
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"runtime/debug"
 	"sync"
 	"sync/atomic"
@@ -13,6 +12,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/cluster"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/constants"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 )
 
@@ -88,7 +88,7 @@ func (rpc *RPCClient) Run() {
 		fmt.Printf("data:%s", string(natsMsg.Data))
 
 		if len(natsMsg.Data) == 0 {
-			slog.Error("nats receive", "header", natsMsg.Header, "Subject", natsMsg.Subject, "Reply", natsMsg.Reply)
+			logger.Log(logger.ErrorLevel, "nats receive", "header", natsMsg.Header, "Subject", natsMsg.Subject, "Reply", natsMsg.Reply)
 			return
 		}
 		response, err := msg.ResponseUnmarshal(natsMsg.Data)

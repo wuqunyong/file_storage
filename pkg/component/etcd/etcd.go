@@ -1,12 +1,12 @@
 package etcd
 
 import (
-	"log/slog"
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/cluster/discovery/etcd"
 	"github.com/wuqunyong/file_storage/pkg/cluster/discovery/registry"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 )
 
 var (
@@ -110,7 +110,7 @@ func (sd *EtcdServiceDiscovery) registrar() {
 		// Register self on interval
 		case <-ticker.C:
 			if err := sd.Register(); err != nil {
-				slog.Error("EtcdServiceDiscovery", "err", err)
+				logger.Log(logger.ErrorLevel, "EtcdServiceDiscovery", "err", err)
 			}
 		case ch := <-sd.exit:
 			err := sd.registry.Deregister(sd.service)
@@ -133,10 +133,10 @@ func (sd *EtcdServiceDiscovery) watch() {
 	for {
 		res, err := sd.watcher.Next()
 		if err != nil {
-			slog.Error("EtcdServiceDiscovery", "Next", res)
+			logger.Log(logger.ErrorLevel, "EtcdServiceDiscovery", "Next", res)
 		}
 
-		slog.Info("EtcdServiceDiscovery", "Next", res, "Service", res.Service)
+		logger.Log(logger.InfoLevel, "EtcdServiceDiscovery", "Next", res, "Service", res.Service)
 	}
 }
 
@@ -152,11 +152,11 @@ func (sd *EtcdServiceDiscovery) SyncServers() error {
 		return err
 	}
 	for _, service := range s {
-		slog.Info("SyncServers", "value", service)
+		logger.Log(logger.InfoLevel, "SyncServers", "value", service)
 	}
 
 	elapsed := time.Since(start)
-	slog.Info("SyncServers took", "elapsed", elapsed)
+	logger.Log(logger.InfoLevel, "SyncServers took", "elapsed", elapsed)
 	return nil
 }
 
@@ -180,5 +180,5 @@ func (sd *EtcdServiceDiscovery) OnCleanup() {
 	ch := make(chan error)
 	sd.exit <- ch
 	err := <-ch
-	slog.Error("EtcdServiceDiscovery OnCleanup", "err", err)
+	logger.Log(logger.ErrorLevel, "EtcdServiceDiscovery OnCleanup", "err", err)
 }

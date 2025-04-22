@@ -3,9 +3,9 @@ package actor
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/safemap"
 )
 
@@ -82,7 +82,7 @@ func (c *Context) SpawnChild(actor concepts.IChildActor, id string) (*concepts.A
 	childActor := NewChildActor(childId, c.engine, c)
 	_, ok := c.children.Get(childActor.actorId.ID)
 	if ok {
-		slog.Error("SpawnChild", "info", fmt.Sprintf("%s duplicate id: %s", c.actorId.GetId(), childId))
+		logger.Log(logger.ErrorLevel, "SpawnChild", "info", fmt.Sprintf("%s duplicate id: %s", c.actorId.GetId(), childId))
 
 		return nil, fmt.Errorf("SpawnChild duplicate id: %s", childActor.actorId.ID)
 	}
@@ -91,7 +91,7 @@ func (c *Context) SpawnChild(actor concepts.IChildActor, id string) (*concepts.A
 	actor.SetEmbeddingActor(childActor)
 	childActorId, err := c.engine.SpawnActor(actor)
 	if err != nil {
-		slog.Error("SpawnChild", "info", fmt.Sprintf("%s err: %s", c.actorId.GetId(), err))
+		logger.Log(logger.ErrorLevel, "SpawnChild", "info", fmt.Sprintf("%s err: %s", c.actorId.GetId(), err))
 
 		c.children.Delete(childActor.actorId.ID)
 		return nil, err

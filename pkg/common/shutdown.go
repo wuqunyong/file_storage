@@ -2,11 +2,12 @@ package common
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+
+	"github.com/wuqunyong/file_storage/pkg/logger"
 )
 
 func WaitForShutdown() {
@@ -19,5 +20,5 @@ func WaitForShutdown() {
 
 func SIGTERMExit() {
 	progName := filepath.Base(os.Args[0])
-	slog.Warn("SIGTERMExit", "value", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
+	logger.Log(logger.WarnLevel, "SIGTERMExit", "value", fmt.Sprintf("Warning %s receive process terminal SIGTERM exit 0", progName))
 }

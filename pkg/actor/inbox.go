@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"reflect"
 	"runtime/debug"
 	"sync"
@@ -12,6 +11,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/funcutils"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/queue"
 )
@@ -189,13 +189,13 @@ func (inbox *Inbox) callFunc(message *msg.MsgReq) *msg.MsgResp {
 			err = funcutils.CallPRCReflectNotifyFunc(ptrMethod, inbox.ctx, args)
 			if err != nil {
 				sError := fmt.Sprintf("err:%s", err.Error())
-				slog.Info("callFunc", "Error", sError)
+				logger.Log(logger.InfoLevel, "callFunc", "Error", sError)
 			}
 
 			return nil
 		default:
 			sError := fmt.Sprintf("err:invalid ptrMethod.NumIn:%d", ptrMethod.NumIn)
-			slog.Info("callFunc", "Error", sError)
+			logger.Log(logger.InfoLevel, "callFunc", "Error", sError)
 			return nil
 		}
 	}

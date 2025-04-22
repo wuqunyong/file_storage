@@ -11,6 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/wuqunyong/file_storage/pkg/cluster"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 )
 
@@ -85,7 +86,7 @@ func (rpc *RPCServer) Run() {
 
 		request, err := msg.RequestUnmarshal(natsMsg.Data)
 		if err != nil {
-			slog.Error("RPCServer Recv", "err", err)
+			logger.Log(logger.ErrorLevel, "RPCServer Recv", "err", err)
 			return
 		}
 		rpc.HandleRequest(request)

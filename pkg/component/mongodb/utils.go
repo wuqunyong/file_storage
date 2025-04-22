@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,7 +26,7 @@ func NewMongoDB(ctx context.Context, config *Config) (*mongo.Database, error) {
 			time.Sleep(time.Second / 2)
 			continue
 		}
-		slog.Warn("MongoDB connect success", "Uri", config.Uri)
+		logger.Log(logger.WarnLevel, "MongoDB connect success", "Uri", config.Uri)
 		break
 	}
 	if err != nil {

@@ -3,10 +3,10 @@ package actor
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"sync"
 
 	"github.com/wuqunyong/file_storage/pkg/concepts"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 )
 
 const LocalLookupAddr = "local"
@@ -38,7 +38,7 @@ func newRegistry(e concepts.IEngine) *Registry {
 
 // Remove removes the given PID from the registry.
 func (r *Registry) Remove(actorId *concepts.ActorId) {
-	slog.Info("Actor Remove", "actorId", actorId.String())
+	logger.Log(logger.InfoLevel, "Actor Remove", "actorId", actorId.String())
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -78,7 +78,7 @@ func (r *Registry) GetRootID() []string {
 }
 
 func (r *Registry) add(actor concepts.IActor) error {
-	slog.Info("Actor add", "actorId", actor.ActorId().String())
+	logger.Log(logger.InfoLevel, "Actor add", "actorId", actor.ActorId().String())
 
 	r.mu.Lock()
 	id := actor.ActorId().ID
