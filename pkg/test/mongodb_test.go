@@ -8,7 +8,6 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
-	"github.com/wuqunyong/file_storage/pkg/logger"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -94,8 +93,6 @@ func unmarshalJSONToProto(jsonStr string) (*testdata.Item, error) {
 }
 
 func TestMongo(t *testing.T) {
-	logger.CreateLogger("log.txt")
-
 	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
 
 	var mongoConfig mongodb.Config

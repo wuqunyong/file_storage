@@ -6,39 +6,9 @@ import (
 	"os"
 	"runtime"
 	"time"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
-
-func CreateLogger(name string) (*slog.Logger, error) {
-	options := &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.LevelDebug,
-	}
-
-	// r := &lumberjack.Logger{
-	// 	Filename:   name,
-	// 	LocalTime:  true,
-	// 	MaxSize:    100, // megabytes
-	// 	MaxAge:     28,  // days
-	// 	MaxBackups: 3,
-	// 	Compress:   false, // disabled by default
-	// }
-	// fileHandler := slog.NewTextHandler(r, options)
-	// // 创建 Logger
-	// logger := slog.New(fileHandler)
-	// slog.SetDefault(logger)
-
-	// 创建一个屏幕输出的 Handler
-	consoleHandler := slog.NewTextHandler(os.Stdout, options)
-	// 创建 Logger
-	logger := slog.New(consoleHandler)
-	slog.SetDefault(logger)
-
-	return logger, nil
-}
-
-func init() {
-	CreateLogger("log_rotate.txt")
-}
 
 type Level int
 
@@ -49,21 +19,65 @@ const (
 	ErrorLevel = Level(slog.LevelError)
 )
 
+var (
+	consoleLogger *slog.Logger = nil
+	fileLogger    *slog.Logger = nil
+	showConsole                = true
+	showSource                 = true
+	showLogLevel               = slog.LevelInfo
+)
+
+func init() {
+	options := &slog.HandlerOptions{
+		AddSource: showSource,
+		Level:     showLogLevel,
+	}
+	// 创建一个屏幕输出的 Handler
+	consoleHandler := slog.NewTextHandler(os.Stdout, options)
+	consoleLogger = slog.New(consoleHandler)
+
+	// 创建一个文件输出的 Handler
+	name := "log_rotate.txt"
+	r := &lumberjack.Logger{
+		Filename:   name,
+		LocalTime:  true,
+		MaxSize:    100, // megabytes
+		MaxAge:     28,  // days
+		MaxBackups: 3,
+		Compress:   false, // disabled by default
+	}
+	fileHandler := slog.NewTextHandler(r, options)
+	fileLogger = slog.New(fileHandler)
+}
+
 func Log(level Level, msg string, args ...any) {
 	ctx := context.Background()
 	logLevel := slog.Level(level)
-	logObj := slog.Default()
-	if !logObj.Enabled(ctx, logLevel) {
+
+	if fileLogger == nil {
+		panic("fileLogger not init")
+	}
+
+	if !fileLogger.Enabled(ctx, logLevel) {
 		return
 	}
 
 	var pc uintptr
-	var pcs [1]uintptr
-	// skip [runtime.Callers, this function, this function's caller]
-	runtime.Callers(2, pcs[:])
-	pc = pcs[0]
+	if showSource {
+		var pcs [1]uintptr
+		// skip [runtime.Callers, this function, this function's caller]
+		runtime.Callers(2, pcs[:])
+		pc = pcs[0]
+	}
 
 	r := slog.NewRecord(time.Now(), logLevel, msg, pc)
 	r.Add(args...)
-	_ = logObj.Handler().Handle(ctx, r)
+	_ = fileLogger.Handler().Handle(ctx, r)
+
+	if showConsole {
+		if consoleLogger == nil {
+			panic("consoleLogger not init")
+		}
+		consoleLogger.Handler().Handle(ctx, r)
+	}
 }

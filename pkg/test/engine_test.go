@@ -20,7 +20,6 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/errs"
-	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
 	testdata "github.com/wuqunyong/file_storage/protobuf"
@@ -211,8 +210,6 @@ func (a *ChildActorObjA) OnShutdown() {
 }
 
 func TestClient(t *testing.T) {
-	logger.CreateLogger("log.txt")
-
 	iZero := GetNextMinuteTimestamp()
 	fmt.Println(iZero)
 
