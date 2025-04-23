@@ -175,15 +175,11 @@
         
           
           <li>
-            <a href="#protobuf%2fpbtest.proto">protobuf/pbtest.proto</a>
+            <a href="#proto%2fnats_msg%2fnats_msg.proto">proto/nats_msg/nats_msg.proto</a>
             <ul>
               
                 <li>
-                  <a href="#common_msg.Person"><span class="badge">M</span>Person</a>
-                </li>
-              
-                <li>
-                  <a href="#common_msg.Person.ChildrenEntry"><span class="badge">M</span>Person.ChildrenEntry</a>
+                  <a href="#nats_msg.NATS_MSG_PRXOY"><span class="badge">M</span>NATS_MSG_PRXOY</a>
                 </li>
               
               
@@ -199,12 +195,12 @@
     
       
       <div class="file-heading">
-        <h2 id="protobuf/pbtest.proto">protobuf/pbtest.proto</h2><a href="#title">Top</a>
+        <h2 id="proto/nats_msg/nats_msg.proto">proto/nats_msg/nats_msg.proto</h2><a href="#title">Top</a>
       </div>
       <p></p>
 
       
-        <h3 id="common_msg.Person">Person</h3>
+        <h3 id="nats_msg.NATS_MSG_PRXOY">NATS_MSG_PRXOY</h3>
         <p></p>
 
         
@@ -215,60 +211,29 @@
             <tbody>
               
                 <tr>
-                  <td>name</td>
-                  <td><a href="#string">string</a></td>
+                  <td>rpc_request</td>
+                  <td><a href="#rpc_msg.RPC_REQUEST">rpc_msg.RPC_REQUEST</a></td>
                   <td></td>
                   <td><p> </p></td>
                 </tr>
               
                 <tr>
-                  <td>age</td>
-                  <td><a href="#int32">int32</a></td>
+                  <td>rpc_response</td>
+                  <td><a href="#rpc_msg.RPC_RESPONSE">rpc_msg.RPC_RESPONSE</a></td>
                   <td></td>
                   <td><p> </p></td>
                 </tr>
               
                 <tr>
-                  <td>address</td>
-                  <td><a href="#string">string</a></td>
+                  <td>multiplexer_forward</td>
+                  <td><a href="#rpc_msg.RPC_Multiplexer_Forward">rpc_msg.RPC_Multiplexer_Forward</a></td>
                   <td></td>
                   <td><p> </p></td>
                 </tr>
               
                 <tr>
-                  <td>children</td>
-                  <td><a href="#common_msg.Person.ChildrenEntry">Person.ChildrenEntry</a></td>
-                  <td>repeated</td>
-                  <td><p> </p></td>
-                </tr>
-              
-            </tbody>
-          </table>
-
-          
-
-        
-      
-        <h3 id="common_msg.Person.ChildrenEntry">Person.ChildrenEntry</h3>
-        <p></p>
-
-        
-          <table class="field-table">
-            <thead>
-              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
-            </thead>
-            <tbody>
-              
-                <tr>
-                  <td>key</td>
-                  <td><a href="#string">string</a></td>
-                  <td></td>
-                  <td><p> </p></td>
-                </tr>
-              
-                <tr>
-                  <td>value</td>
-                  <td><a href="#common_msg.Person">Person</a></td>
+                  <td>demultiplexer_forward</td>
+                  <td><a href="#rpc_msg.PRC_DeMultiplexer_Forward">rpc_msg.PRC_DeMultiplexer_Forward</a></td>
                   <td></td>
                   <td><p> </p></td>
                 </tr>

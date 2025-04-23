@@ -8,8 +8,8 @@
 
 
 
-E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/rpc_msg/rpc_msg.proto
-E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/nats_msg/nats_msg.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --plugin=protoc-gen-doc=E:\ProtobufBin\protoc-gen-doc.exe --go_out=. --doc_out=.\proto --go_opt=paths=source_relative --proto_path=. ./proto/rpc_msg/rpc_msg.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --plugin=protoc-gen-doc=E:\ProtobufBin\protoc-gen-doc.exe --go_out=. --doc_out=.\proto --go_opt=paths=source_relative --proto_path=. ./proto/nats_msg/nats_msg.proto
 
 
 E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/common.proto
@@ -19,13 +19,6 @@ E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.ex
 
 
 
-
-
-
-
-
-
-@REM E:\ProtobufBin\protoc.exe -I=proto --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. nats_msg/nats_msg.proto
 
 
 @REM E:\ProtobufBin\protoc.exe -I=proto --plugin=protoc-gen-go-vtproto=E:\ProtobufBin\protoc-gen-go-vtproto.exe  --go-vtproto_out=.    rpc_msg/rpc_msg.proto
