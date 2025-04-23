@@ -8,7 +8,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/component/mongodb"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -17,7 +17,7 @@ import (
 )
 
 type ItemTbl interface {
-	Create(ctx context.Context, items []*testdata.Item) (err error)
+	Create(ctx context.Context, items []*common_msg.Item) (err error)
 	Find(ctx context.Context) (items []bson.D, err error)
 }
 
@@ -39,7 +39,7 @@ type ItemTblMgo struct {
 	coll *mongo.Collection
 }
 
-func (b *ItemTblMgo) Create(ctx context.Context, items []*testdata.Item) (err error) {
+func (b *ItemTblMgo) Create(ctx context.Context, items []*common_msg.Item) (err error) {
 	bsonArray := make([]bson.D, 0)
 	for _, value := range items {
 		jsonObj, err := marshalProtoToJSON(value)
@@ -63,7 +63,7 @@ func (b *ItemTblMgo) Find(ctx context.Context) (items []bson.D, err error) {
 	return mongodb.Find[bson.D](ctx, b.coll, bson.D{})
 }
 
-func marshalProtoToJSON(item *testdata.Item) (string, error) {
+func marshalProtoToJSON(item *common_msg.Item) (string, error) {
 	marshalOpts := protojson.MarshalOptions{
 		Multiline:       true,
 		Indent:          "  ",
@@ -79,12 +79,12 @@ func marshalProtoToJSON(item *testdata.Item) (string, error) {
 	return string(jsonBytes), nil
 }
 
-func unmarshalJSONToProto(jsonStr string) (*testdata.Item, error) {
+func unmarshalJSONToProto(jsonStr string) (*common_msg.Item, error) {
 	unmarshalOpts := protojson.UnmarshalOptions{
 		DiscardUnknown: true,
 	}
 
-	var item testdata.Item
+	var item common_msg.Item
 	if err := unmarshalOpts.Unmarshal([]byte(jsonStr), &item); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON to item: %w", err)
 	}
@@ -118,22 +118,22 @@ func TestMongo(t *testing.T) {
 	if err != nil {
 		t.Fatal("init err", err)
 	}
-	var items []*testdata.Item
-	itemObj1 := &testdata.Item{
+	var items []*common_msg.Item
+	itemObj1 := &common_msg.Item{
 		Id:   12,
 		Name: "obj56",
 		Age:  12,
-		Type: testdata.ItemType_IT_Phone,
+		Type: common_msg.ItemType_IT_Phone,
 	}
-	deskObj := make(map[int32]*testdata.Desk)
-	deskObj[1] = &testdata.Desk{
+	deskObj := make(map[int32]*common_msg.Desk)
+	deskObj[1] = &common_msg.Desk{
 		Num: 5555,
 	}
-	deskObj[2] = &testdata.Desk{
+	deskObj[2] = &common_msg.Desk{
 		Num: 666,
 	}
-	itemObj1.Msg = &testdata.Item_PhoneInfo{
-		PhoneInfo: &testdata.Phone{
+	itemObj1.Msg = &common_msg.Item_PhoneInfo{
+		PhoneInfo: &common_msg.Phone{
 			Num:   123,
 			Price: 345,
 			Data:  deskObj,
@@ -145,7 +145,7 @@ func TestMongo(t *testing.T) {
 	if err != nil {
 		//todo
 	}
-	itemObj11 := &testdata.Item{}
+	itemObj11 := &common_msg.Item{}
 	err = proto.Unmarshal(jsonItem1, itemObj11)
 	if err != nil {
 		//todo
@@ -164,14 +164,14 @@ func TestMongo(t *testing.T) {
 	}
 	fmt.Printf("proto1:%T, %v\n", proto1, proto1)
 
-	itemObj2 := &testdata.Item{
+	itemObj2 := &common_msg.Item{
 		Id:   123,
 		Name: "obj6",
 		Age:  123,
-		Type: testdata.ItemType_IT_Watch,
+		Type: common_msg.ItemType_IT_Watch,
 	}
-	itemObj2.Msg = &testdata.Item_WatchInfo{
-		WatchInfo: &testdata.Watch{
+	itemObj2.Msg = &common_msg.Item_WatchInfo{
+		WatchInfo: &common_msg.Watch{
 			Name: "test",
 		},
 	}
@@ -180,7 +180,7 @@ func TestMongo(t *testing.T) {
 	if err != nil {
 		//todo
 	}
-	jsonItem12 := &testdata.Item{}
+	jsonItem12 := &common_msg.Item{}
 	err = proto.Unmarshal(jsonItem2, jsonItem12)
 	if err != nil {
 		//todo

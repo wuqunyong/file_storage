@@ -22,7 +22,7 @@ import (
 	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -50,7 +50,7 @@ func (actor *ActorObjA) OnShutdown() {
 
 }
 
-func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjA) Func1(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
 	reply.Address = actor.ActorId().ID
@@ -99,7 +99,7 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 	return nil
 }
 
-func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjA) Func2(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
 	reply.Address = actor.ActorId().ID
@@ -108,7 +108,7 @@ func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
-func (actor *ActorObjA) Func3(ctx context.Context, arg *testdata.MSG_NOTICE_INSTANCE) {
+func (actor *ActorObjA) Func3(ctx context.Context, arg *common_msg.MSG_NOTICE_INSTANCE) {
 	fmt.Printf("inside value arg:%v\n", arg)
 }
 
@@ -276,10 +276,10 @@ func TestClient(t *testing.T) {
 	})
 	blackTable.Create(context.Background(), blacks)
 
-	person := &testdata.Person{Name: "小明", Age: 18}
+	person := &common_msg.Person{Name: "小明", Age: 18}
 	// request := actorObj1.Request(concepts.NewActorId("engine.test.server.1.2.345", "1"), "Func1", person)
-	// obj, err := msg.GetResult[testdata.Person](request)
-	obj, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
+	// obj, err := msg.GetResult[common_msg.Person](request)
+	obj, err := actor.SendRequest[common_msg.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
 	if err != nil {
 		//t.Fatal("DecodeResponse1", err)
 	}
@@ -290,7 +290,7 @@ func TestClient(t *testing.T) {
 		fmt.Printf("Same\n")
 	}
 	fmt.Printf("request:%T, %v\n", request, request)
-	obj, err = msg.GetResult[testdata.Person](request)
+	obj, err = msg.GetResult[common_msg.Person](request)
 	if err != nil {
 		t.Fatal("DecodeResponse2", err)
 	}
@@ -313,10 +313,10 @@ func TestServer(t *testing.T) {
 
 	// time.Sleep(time.Duration(6) * time.Second)
 
-	// person := &testdata.Person{Name: "小明", Age: 18}
+	// person := &common_msg.Person{Name: "小明", Age: 18}
 	// request := actorObj1.Request(concepts.NewActorId("identify.server.1.2.3", "12"), "Func1", person, 600*time.Second)
 	// fmt.Printf("request:%T, %v\n", request, request)
-	// obj, err := msg.GetResult[testdata.Person](request)
+	// obj, err := msg.GetResult[common_msg.Person](request)
 	// if err != nil {
 	// 	t.Fatal("DecodeResponse", err)
 	// }
@@ -365,7 +365,7 @@ func TestTCPClient(t *testing.T) {
 		return
 	}
 
-	reqData := &testdata.AccountLoginRequest{}
+	reqData := &common_msg.AccountLoginRequest{}
 	reqData.AccountId = 1234
 	err = client.SendRequest(1001, reqData)
 	if err != nil {

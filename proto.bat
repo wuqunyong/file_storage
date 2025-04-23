@@ -12,8 +12,10 @@ E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.ex
 E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/nats_msg/nats_msg.proto
 
 
-E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common.proto
-E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/service_discovery.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/common.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/login.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/pbtest.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/service_discovery.proto
 
 
 

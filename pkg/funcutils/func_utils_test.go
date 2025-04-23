@@ -9,7 +9,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -26,7 +26,7 @@ func (h *Handler) Func1(ctx context.Context, arg *int32, reply *Reply1) errs.Cod
 	return errs.NewCodeError(errors.New("invalid"))
 }
 
-func (h *Handler) Func2(ctx context.Context, arg *int32, reply *testdata.Person) errs.CodeError {
+func (h *Handler) Func2(ctx context.Context, arg *int32, reply *common_msg.Person) errs.CodeError {
 	reply.Age += *arg
 	fmt.Printf("inside value:%v\n", reply)
 	return nil
@@ -53,7 +53,7 @@ func Test2(t *testing.T) {
 		return
 	}
 
-	reply := &testdata.Person{Name: "小明", Age: 18}
+	reply := &common_msg.Person{Name: "小明", Age: 18}
 	data, err := proto.Marshal(reply)
 	if err != nil {
 		t.Fatal("Couldn't serialize object", err)

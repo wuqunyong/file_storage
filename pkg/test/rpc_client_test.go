@@ -13,7 +13,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 )
 
 func TestClient1(t *testing.T) {
@@ -69,15 +69,15 @@ func TestClient3(t *testing.T) {
 	}
 	//engine.SpawnActor(actorObj1)
 
-	// person := &testdata.Person{Name: "小明", Age: 123456}
-	// obj1, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
+	// person := &common_msg.Person{Name: "小明", Age: 123456}
+	// obj1, err := actor.SendRequest[common_msg.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, person)
 	// if err != nil {
 	// 	fmt.Printf("\n\n\n================obj1:err:%v,data:%v\n", err, obj1)
 	// } else {
 	// 	fmt.Printf("\n\n\n================obj1:%T, %v\n", obj1, obj1)
 	// }
 
-	// obj2, err := actor.SendRequest[testdata.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 2, person)
+	// obj2, err := actor.SendRequest[common_msg.Person](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 2, person)
 	// if err != nil {
 	// 	fmt.Printf("\n\n\n================obj2:err:%v,data:%v\n", err, obj2)
 	// } else {
@@ -117,13 +117,13 @@ func TestClientRegister(t *testing.T) {
 
 	engine.Start()
 
-	nodeObj := &testdata.MSG_REQUEST_REGISTER_INSTANCE{
-		Instance: &testdata.EndPointInstance{Realm: 1, Type: 4, Id: 1},
+	nodeObj := &common_msg.MSG_REQUEST_REGISTER_INSTANCE{
+		Instance: &common_msg.EndPointInstance{Realm: 1, Type: 4, Id: 1},
 		Auth:     "hello",
 	}
 
 	//engine.1.1.1.serve
-	nodeResponse, err := actor.SendRequest[testdata.MSG_RESPONSE_REGISTER_INSTANCE](actorObj1, concepts.NewActorId("engine.1.1.1.server", "C++"), 410, nodeObj)
+	nodeResponse, err := actor.SendRequest[common_msg.MSG_RESPONSE_REGISTER_INSTANCE](actorObj1, concepts.NewActorId("engine.1.1.1.server", "C++"), 410, nodeObj)
 	if err != nil {
 		fmt.Println("err", err)
 	}

@@ -14,9 +14,9 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/errs"
-	logger "github.com/wuqunyong/file_storage/pkg/logger"
+	"github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 )
 
@@ -42,7 +42,7 @@ func (actor *ActorObjB) OnShutdown() {
 	fmt.Printf("OnShutdown\n")
 }
 
-func (actor *ActorObjB) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjB) Func1(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1 hello world"
 	reply.Address = actor.ActorId().ID
@@ -51,7 +51,7 @@ func (actor *ActorObjB) Func1(ctx context.Context, arg *testdata.Person, reply *
 	return nil
 }
 
-func (actor *ActorObjB) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjB) Func2(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1 hello"
 	reply.Address = actor.ActorId().ID

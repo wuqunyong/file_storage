@@ -20,7 +20,7 @@ func (actor *ActorObjB) OnShutdown() {
 
 }
 
-func (actor *ActorObjB) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjB) Func1(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1 hello world"
 	reply.Address = actor.ActorId().ID

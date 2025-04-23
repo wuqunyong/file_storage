@@ -13,7 +13,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/funcutils"
 	"github.com/wuqunyong/file_storage/pkg/tick"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 	"golang.org/x/exp/rand"
 	"google.golang.org/protobuf/proto"
 )
@@ -172,7 +172,7 @@ func (a *ModuleA) Handler_Func1(client *Client, data *common.Req) ([]byte, errs.
 func (a *ModuleA) Handler_Func2(client *Client, data *common.Req) ([]byte, errs.CodeError) {
 	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
 
-	person := &testdata.Person{}
+	person := &common_msg.Person{}
 	err := proto.Unmarshal(data.Data, person)
 	if err != nil {
 		return nil, errs.NewCodeError(err, errs.CODE_Unmarshal)
@@ -207,7 +207,7 @@ func (a *ModuleA) Handler_Func2(client *Client, data *common.Req) ([]byte, errs.
 	return respBytes, nil
 }
 
-func (a *ModuleA) Handler_Func3(client *Client, reqeust *testdata.Person, response *testdata.Person) errs.CodeError {
+func (a *ModuleA) Handler_Func3(client *Client, reqeust *common_msg.Person, response *common_msg.Person) errs.CodeError {
 	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
 
 	fmt.Printf("recv:%+v", reqeust)
@@ -233,7 +233,7 @@ func (a *ModuleA) Handler_Func3(client *Client, reqeust *testdata.Person, respon
 	return nil
 }
 
-func (a *ModuleA) Handler_Func4(client *Client, reqeust *testdata.Person, response *testdata.Person) errs.CodeError {
+func (a *ModuleA) Handler_Func4(client *Client, reqeust *common_msg.Person, response *common_msg.Person) errs.CodeError {
 	//{"opcode":2,"data":[10,5,100,101,114,101,107,16,22,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,115,97,109,18,30,10,3,115,97,109,16,19,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116,82,37,10,3,109,101,103,18,30,10,3,109,101,103,16,17,26,21,49,52,48,32,78,101,119,32,77,111,110,116,103,111,109,101,114,121,32,83,116]}
 
 	fmt.Printf("recv:%+v", reqeust)

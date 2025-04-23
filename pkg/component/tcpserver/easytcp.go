@@ -6,7 +6,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/logger"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 )
 
 type TCPServer struct {
@@ -41,7 +41,7 @@ func (s *TCPServer) GetEngine() concepts.IEngine {
 
 func (s *TCPServer) OnInit() error {
 	s.server.AddRoute(1001, func(c easytcp.Context) {
-		var reqData testdata.AccountLoginRequest
+		var reqData common_msg.AccountLoginRequest
 		err := c.Bind(&reqData)
 		if err != nil {
 			fmt.Println("err:", err)
@@ -52,7 +52,7 @@ func (s *TCPServer) OnInit() error {
 		//c.SetResponseMessage(easytcp.NewMessage(1002, []byte("copy that")))
 	})
 	s.server.AddRoute(1103, func(c easytcp.Context) {
-		var reqData testdata.EchoRequest
+		var reqData common_msg.EchoRequest
 		err := c.Bind(&reqData)
 		if err != nil {
 			fmt.Println("err:", err)
@@ -60,7 +60,7 @@ func (s *TCPServer) OnInit() error {
 		logger.Log(logger.InfoLevel, "Recv 1003", "data", reqData.String())
 
 		// set response
-		var response testdata.EchoResponse
+		var response common_msg.EchoResponse
 		response.Value1 = reqData.Value1
 		response.Value2 = reqData.Value2 + "|response"
 		c.SetResponse(1104, &response)

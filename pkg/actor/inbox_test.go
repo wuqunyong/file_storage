@@ -10,7 +10,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/msg"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 )
 
 type Reply1 struct {
@@ -22,12 +22,12 @@ type Handler struct {
 
 var inboxObj *Inbox = NewInbox()
 
-func (h *Handler) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (h *Handler) Func1(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
 	fmt.Printf("inside value:%v\n", reply)
 
-	request := &testdata.Person{Name: "小明", Age: 18}
+	request := &common_msg.Person{Name: "小明", Age: 18}
 	decoder := encoders.NewProtobufEncoder()
 	data, _ := decoder.Encode(request)
 	msgReq := &msg.MsgReq{
@@ -44,7 +44,7 @@ func (h *Handler) Func1(ctx context.Context, arg *testdata.Person, reply *testda
 	return errs.NewCodeError(errors.New("invalid"))
 }
 
-func (h *Handler) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (h *Handler) Func2(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func2"
 	fmt.Printf("inside value:%v\n", reply)
@@ -65,7 +65,7 @@ func Test1(t *testing.T) {
 		}
 	}()
 
-	reply := &testdata.Person{Name: "小明", Age: 18}
+	reply := &common_msg.Person{Name: "小明", Age: 18}
 	decoder := encoders.NewProtobufEncoder()
 	data, err := decoder.Encode(reply)
 	if err != nil {

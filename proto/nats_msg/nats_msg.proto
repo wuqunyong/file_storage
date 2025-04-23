@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package nats_msg;
 option go_package = "github.com/wuqunyong/file_storage/proto/nats_msg;nats_msg";
 

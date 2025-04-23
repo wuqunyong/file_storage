@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-option go_package = "protobuf/;testdata";
-package testdata;
+
+package common_msg;
+option go_package = "github.com/wuqunyong/file_storage/proto/common_msg;common_msg";
 
 message Person {
   string name = 1;

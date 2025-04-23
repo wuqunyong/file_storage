@@ -1,9 +1,7 @@
 syntax = "proto3";
 
-
-
-package testdata;
-option go_package = "github.com/wuqunyong/file_storage/proto/;testdata";
+package common_msg;
+option go_package = "github.com/wuqunyong/file_storage/proto/common_msg;common_msg";
 
 enum EndPointType 
 {

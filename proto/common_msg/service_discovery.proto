@@ -1,10 +1,9 @@
 syntax = "proto3";
 
+package common_msg;
+option go_package = "github.com/wuqunyong/file_storage/proto/common_msg;common_msg";
 
-option go_package = "github.com/wuqunyong/file_storage/proto/;testdata";
-package testdata;
-
-import "proto/common.proto";
+import "proto/common_msg/common.proto";
 
 enum RegistryStatus
 {

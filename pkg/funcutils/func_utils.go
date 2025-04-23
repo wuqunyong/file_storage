@@ -43,7 +43,7 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 
 	switch mtype.NumIn() {
 	// context.Context, request, response
-	// func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+	// func (actor *ActorObjA) Func2(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	case 3:
 		iNumIn := 3
 		// Method needs two ins: context.Context, *args, *reply.
@@ -121,7 +121,7 @@ func GetRPCReflectFunc(fun any, reportErr bool) *MethodType {
 			NumIn:     iNumIn,
 		}
 		// context.Context, notify
-		// func (actor *ActorObjA) Func3(ctx context.Context, arg *testdata.MSG_NOTICE_INSTANCE) {
+		// func (actor *ActorObjA) Func3(ctx context.Context, arg *common_msg.MSG_NOTICE_INSTANCE) {
 	case 2:
 		iNumIn := 2
 		var inArgs []reflect.Type

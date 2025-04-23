@@ -3,6 +3,7 @@ package tick
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func Test(t *testing.T) {
@@ -12,7 +13,7 @@ func Test(t *testing.T) {
 		"banana": 3, "apple": 2, "pear": 4,
 	}
 	for _, priority := range items {
-		var iValue int64 = priority
+		iValue := time.Duration(priority) * time.Second
 		item1 := NewTimer(iValue, func(id uint64) {
 			fmt.Println("Id:", id, "priority:", iValue)
 		})

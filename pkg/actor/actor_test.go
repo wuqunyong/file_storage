@@ -12,7 +12,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/msg"
-	testdata "github.com/wuqunyong/file_storage/proto"
+	"github.com/wuqunyong/file_storage/proto/common_msg"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -26,7 +26,7 @@ func (actor *ActorObjA) Init() error {
 	return nil
 }
 
-func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjA) Func1(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
 	reply.Address = actor.actorId.ID
@@ -35,7 +35,7 @@ func (actor *ActorObjA) Func1(ctx context.Context, arg *testdata.Person, reply *
 	return nil
 }
 
-func (actor *ActorObjA) Func2(ctx context.Context, arg *testdata.Person, reply *testdata.Person) errs.CodeError {
+func (actor *ActorObjA) Func2(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
 	reply.Age += arg.Age
 	reply.Name = "Func1"
 	reply.Address = actor.actorId.ID
@@ -66,10 +66,10 @@ func Test(t *testing.T) {
 
 	for i := 0; i < 1000; i++ {
 		age := int32(i)
-		person := &testdata.Person{Name: "小明", Age: age}
+		person := &common_msg.Person{Name: "小明", Age: age}
 		request := actorObj1.Request(actorObj2.ActorId(), 1, person)
 		fmt.Printf("request:%T, %v\n", request, request)
-		obj, err := msg.GetResult[testdata.Person](request)
+		obj, err := msg.GetResult[common_msg.Person](request)
 		if err != nil {
 			t.Fatal("DecodeResponse", err)
 		}
@@ -79,10 +79,10 @@ func Test(t *testing.T) {
 
 	for i := 0; i < 1000; i++ {
 		age := int32(i)
-		person := &testdata.Person{Name: "小张", Age: age}
+		person := &common_msg.Person{Name: "小张", Age: age}
 		request := actorObj2.Request(actorObj1.ActorId(), 2, person)
 		fmt.Printf("request:%T, %v\n", request, request)
-		obj, err := msg.GetResult[testdata.Person](request)
+		obj, err := msg.GetResult[common_msg.Person](request)
 		if err != nil {
 			sError := fmt.Sprintf("DecodeResponse: %v\n", err)
 			t.Fatal(sError)
