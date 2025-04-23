@@ -91,6 +91,7 @@ func TestClient1(t *testing.T) {
 	engine := actor.NewEngine(0, 1, 1002, "nats://127.0.0.1:4222")
 
 	engine.MustInit()
+	defer engine.Stop()
 	engine.Start()
 
 	actorObj1 := &ActorClient{
