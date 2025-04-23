@@ -10,7 +10,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/msg"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 )
 
 type Reply1 struct {

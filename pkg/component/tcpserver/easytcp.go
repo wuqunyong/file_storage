@@ -6,7 +6,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/easytcp"
 	"github.com/wuqunyong/file_storage/pkg/logger"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 )
 
 type TCPServer struct {

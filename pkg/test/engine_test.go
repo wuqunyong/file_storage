@@ -22,7 +22,7 @@ import (
 	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/msg"
 	"github.com/wuqunyong/file_storage/pkg/tick"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

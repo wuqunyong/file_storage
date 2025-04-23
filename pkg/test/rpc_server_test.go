@@ -16,7 +16,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 	"github.com/wuqunyong/file_storage/rpc_msg"
 )
 

@@ -3,7 +3,7 @@ syntax = "proto3";
 
 
 package testdata;
-option go_package = "github.com/wuqunyong/file_storage/protobuf/;testdata";
+option go_package = "github.com/wuqunyong/file_storage/proto/;testdata";
 
 enum EndPointType 
 {

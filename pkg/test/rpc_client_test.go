@@ -13,7 +13,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 	"github.com/wuqunyong/file_storage/rpc_msg"
 
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 )
 
 func TestClient1(t *testing.T) {

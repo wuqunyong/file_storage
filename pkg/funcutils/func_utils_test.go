@@ -9,7 +9,7 @@ import (
 
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 	"google.golang.org/protobuf/proto"
 )
 

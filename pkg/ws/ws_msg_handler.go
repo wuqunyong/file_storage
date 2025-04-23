@@ -13,7 +13,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/funcutils"
 	"github.com/wuqunyong/file_storage/pkg/tick"
-	testdata "github.com/wuqunyong/file_storage/protobuf"
+	testdata "github.com/wuqunyong/file_storage/proto"
 	"golang.org/x/exp/rand"
 	"google.golang.org/protobuf/proto"
 )
