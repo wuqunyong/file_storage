@@ -19,14 +19,19 @@ which protoc-gen-go
 
 echo "Building protobuf code..."
 DIR=`pwd`
+echo "DIR $DIR"
+
+echo "changed dir to scripts"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+echo "after DIR $DIR"
+
 SRCDIR=$GOPATH/src
 
 echo "DIR $DIR"
 echo "SRCDIR $SRCDIR"
 find $DIR/proto -name '*.pb.go' -exec rm {} \;
-find $DIR/proto -name '*.micro.go' -exec rm {} \;
 find $DIR/proto -name '*.proto' -exec echo {} \;
-find $DIR/proto -name '*.proto' -exec protoc --proto_path=$SRCDIR --micro_out=${MOD}:${SRCDIR} --go_out=${MOD}:${SRCDIR} {} \;
+# find $DIR/proto -name '*.proto' -exec protoc --proto_path=$SRCDIR --micro_out=${MOD}:${SRCDIR} --go_out=${MOD}:${SRCDIR} {} \;
 
 
 echo "Complete"
