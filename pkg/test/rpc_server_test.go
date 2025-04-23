@@ -23,7 +23,6 @@ import (
 type ActorObjB struct {
 	*actor.Actor
 	inited atomic.Bool
-	id     int
 }
 
 func (actor *ActorObjB) OnInit() error {
@@ -42,21 +41,17 @@ func (actor *ActorObjB) OnShutdown() {
 	fmt.Printf("OnShutdown\n")
 }
 
-func (actor *ActorObjB) Func1(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
-	reply.Age += arg.Age
-	reply.Name = "Func1 hello world"
-	reply.Address = actor.ActorId().ID
-	fmt.Printf("inside value:%v\n", reply)
+func (actor *ActorObjB) Func1(ctx context.Context, request *common_msg.EchoRequest, reply *common_msg.EchoResponse) errs.CodeError {
+	reply.Value1 = request.Value1 + 1
+	reply.Value2 = request.Value2 + " | response"
+	fmt.Printf("reply value:%v\n", reply)
 
 	return nil
 }
 
-func (actor *ActorObjB) Func2(ctx context.Context, arg *common_msg.Person, reply *common_msg.Person) errs.CodeError {
-	reply.Age += arg.Age
-	reply.Name = "Func1 hello"
-	reply.Address = actor.ActorId().ID
-	fmt.Printf("inside value:%v\n", reply)
+func (actor *ActorObjB) Func2(ctx context.Context, request *common_msg.EchoRequest, reply *common_msg.EchoResponse) errs.CodeError {
 
+	fmt.Printf("request value:%v\n", request)
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
