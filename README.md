@@ -66,7 +66,6 @@ func TestServer1(t *testing.T) {
 
 
 // Client
-
 type ActorClient struct {
 	*actor.Actor
 	inited atomic.Bool
@@ -93,7 +92,6 @@ func TestClient1(t *testing.T) {
 	actorObj1 := &ActorClient{
 		Actor: actor.NewActor("1", engine),
 	}
-	//engine.SpawnActor(actorObj1)
 
 	echo := &common_msg.EchoRequest{Value1: 123456, Value2: "小明"}
 	obj1, err := actor.SendRequest[common_msg.EchoResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, echo)
