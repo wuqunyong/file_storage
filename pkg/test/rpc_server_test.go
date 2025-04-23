@@ -20,12 +20,12 @@ import (
 	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 )
 
-type ActorObjB struct {
+type ActorService struct {
 	*actor.Actor
 	inited atomic.Bool
 }
 
-func (actor *ActorObjB) OnInit() error {
+func (actor *ActorService) OnInit() error {
 	if actor.inited.Load() {
 		return errors.New("duplicate init")
 	}
@@ -37,48 +37,41 @@ func (actor *ActorObjB) OnInit() error {
 	return nil
 }
 
-func (actor *ActorObjB) OnShutdown() {
-	fmt.Printf("OnShutdown\n")
+func (actor *ActorService) OnShutdown() {
 }
 
-func (actor *ActorObjB) Func1(ctx context.Context, request *common_msg.EchoRequest, reply *common_msg.EchoResponse) errs.CodeError {
-	reply.Value1 = request.Value1 + 1
-	reply.Value2 = request.Value2 + " | response"
-	fmt.Printf("reply value:%v\n", reply)
+func (actor *ActorService) Func1(ctx context.Context, request *common_msg.EchoRequest, response *common_msg.EchoResponse) errs.CodeError {
+	logger.Log(logger.InfoLevel, "Func1", "request", request)
 
+	response.Value1 = request.Value1 + 1
+	response.Value2 = request.Value2 + " | response"
 	return nil
 }
 
-func (actor *ActorObjB) Func2(ctx context.Context, request *common_msg.EchoRequest, reply *common_msg.EchoResponse) errs.CodeError {
+func (actor *ActorService) Func2(ctx context.Context, request *common_msg.EchoRequest, response *common_msg.EchoResponse) errs.CodeError {
+	logger.Log(logger.InfoLevel, "Func2", "request", request)
 
-	fmt.Printf("request value:%v\n", request)
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
-func (actor *ActorObjB) EchoTest(ctx context.Context, arg *rpc_msg.RPC_EchoTestRequest, reply *rpc_msg.RPC_EchoTestResponse) errs.CodeError {
-	reply.Value1 = arg.Value1
-	reply.Value2 = arg.Value2 + "|Response"
-	fmt.Printf("inside value:%v\n", reply)
+func (actor *ActorService) EchoTest(ctx context.Context, request *rpc_msg.RPC_EchoTestRequest, response *rpc_msg.RPC_EchoTestResponse) errs.CodeError {
+	response.Value1 = request.Value1
+	response.Value2 = request.Value2 + "| Response"
 
+	logger.Log(logger.InfoLevel, "EchoTest", "request", request, "response", response)
 	return nil
 }
 
-func (actor *ActorObjB) NotifyTest(ctx context.Context, arg *rpc_msg.RPC_EchoTestRequest) {
-	fmt.Printf("notify value:%v\n", arg)
-}
-
-func (actor *ActorObjB) Func3() {
-	fmt.Println("func3")
+func (actor *ActorService) NotifyTest(ctx context.Context, notify *rpc_msg.RPC_EchoTestRequest) {
+	logger.Log(logger.InfoLevel, "NotifyTest", "notify", notify)
 }
 
 func TestServer1(t *testing.T) {
 	//http://127.0.0.1:8222/connz?subs=true
 
-	logger.Log(logger.DebugLevel, "TestServer1 Debug")
-	logger.Log(logger.InfoLevel, "TestServer1 Info")
 	engine := actor.NewEngine(0, 1, 1001, "nats://127.0.0.1:4222")
 	engine.MustInit()
-	actorObj1 := &ActorObjB{
+	actorObj1 := &ActorService{
 		Actor: actor.NewActor("1", engine),
 	}
 	engine.SpawnActor(actorObj1)

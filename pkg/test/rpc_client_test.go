@@ -1,70 +1,47 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
 
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
-	"github.com/wuqunyong/file_storage/pkg/rpc"
+	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 
 	"github.com/wuqunyong/file_storage/proto/common_msg"
 )
 
+type ActorClient struct {
+	*actor.Actor
+	inited atomic.Bool
+}
+
+func (actor *ActorClient) OnInit() error {
+	if actor.inited.Load() {
+		return errors.New("duplicate init")
+	}
+	actor.inited.Store(true)
+	return nil
+}
+
+func (actor *ActorClient) OnShutdown() {
+
+}
+
 func TestClient1(t *testing.T) {
-	//http://127.0.0.1:8222/connz?subs=true
-	//sTopic := "identify.server.1.2.3"
-	sTopic := concepts.GenServerAddress(0, 1, 1001)
-
-	engine := actor.NewEngine(0, 1, 1001, "")
-	sClientAddress := concepts.GenClientAddress(0, 1, 1001)
-	rpcClient := rpc.NewRPCClient(engine, "nats://127.0.0.1:4222", sClientAddress)
-	err := rpcClient.Init()
-	if err != nil {
-		t.Fatalf("err:%s", err)
-	}
-	go rpcClient.Run()
-
-	time.Sleep(time.Duration(3) * time.Second)
-
-	rpcClient.Send(sTopic, []byte("test client 1"))
-	rpcClient.Send(sTopic, []byte("test client 2"))
-	rpcClient.Send(sTopic, []byte("test client 3"))
-
-	time.Sleep(time.Duration(180) * time.Second)
-}
-
-func TestClient2(t *testing.T) {
-	//http://127.0.0.1:8222/connz?subs=true
-	engine := actor.NewEngine(0, 1, 1001, "")
-	sClientAddress := concepts.GenClientAddress(0, 1, 1001)
-	rpcClient := rpc.NewRPCClient(engine, "nats://127.0.0.1:4222", sClientAddress)
-	err := rpcClient.Init()
-	if err != nil {
-		t.Fatalf("err:%s", err)
-	}
-	go rpcClient.Run()
-
-	time.Sleep(time.Duration(10) * time.Second)
-
-	rpcClient.Stop()
-
-	fmt.Printf("rpc closed")
-	time.Sleep(time.Duration(6) * time.Second)
-}
-
-func TestClient3(t *testing.T) {
 	engine := actor.NewEngine(0, 1, 1002, "nats://127.0.0.1:4222")
 
 	engine.MustInit()
 	engine.Start()
 
-	actorObj1 := &ActorObjA{
+	actorObj1 := &ActorClient{
 		Actor: actor.NewActor("1", engine),
 	}
 	//engine.SpawnActor(actorObj1)
@@ -72,16 +49,16 @@ func TestClient3(t *testing.T) {
 	echo := &common_msg.EchoRequest{Value1: 123456, Value2: "小明"}
 	obj1, err := actor.SendRequest[common_msg.EchoResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1, echo)
 	if err != nil {
-		fmt.Printf("\n\n\n================obj1:err:%v,data:%v\n", err, obj1)
+		logger.Log(logger.InfoLevel, "opcode 1 failure", "request", echo, "response", obj1, "err", err)
 	} else {
-		fmt.Printf("\n\n\n================obj1:%T, %v\n", obj1, obj1)
+		logger.Log(logger.InfoLevel, "opcode 1 success", "request", echo, "response", obj1)
 	}
 
 	obj2, err := actor.SendRequest[common_msg.EchoResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 2, echo)
 	if err != nil {
-		fmt.Printf("\n\n\n================obj2:err:%v,data:%v\n", err, obj2)
+		logger.Log(logger.InfoLevel, "opcode 2 failure", "request", echo, "response", obj2, "err", err)
 	} else {
-		fmt.Printf("\n\n\n================obj2:%T, %v\n", obj2, obj2)
+		logger.Log(logger.InfoLevel, "opcode 2 success", "request", echo, "response", obj2)
 	}
 
 	echoObj := &rpc_msg.RPC_EchoTestRequest{Value1: 12345678, Value2: "小明"}
@@ -89,15 +66,14 @@ func TestClient3(t *testing.T) {
 	echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1001, echoObj)
 	// echoResponse, err := actor.SendRequest[rpc_msg.RPC_EchoTestResponse](actorObj1, concepts.NewActorId("engine.1.4.1.server", "C++"), 1001, echoObj)
 	if err != nil {
-		fmt.Println("err", err)
+		logger.Log(logger.InfoLevel, "opcode 1001 failure", "request", echoObj, "response", echoResponse, "err", err)
+	} else {
+		logger.Log(logger.InfoLevel, "opcode 1001 success", "request", echoObj, "response", echoResponse)
 	}
-	fmt.Printf("\n\n\n================echoResponse:%T, %v\n", echoResponse, echoResponse)
 
 	sendErr := actor.SendNotify(actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 1002, echoObj)
 	if sendErr != nil {
-		fmt.Printf("\n\n\n================sendNotify Error:%T, %v\n", echoObj, echoObj)
-	} else {
-		fmt.Printf("\n\n\n================sendNotify Success:%T, %v\n", echoObj, echoObj)
+		logger.Log(logger.InfoLevel, "opcode 1002 failure", "notify", echoObj, "err", sendErr)
 	}
 
 	time.Sleep(time.Duration(1800) * time.Second)
