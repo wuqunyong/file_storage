@@ -17,7 +17,7 @@ import (
 	logger "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 	testdata "github.com/wuqunyong/file_storage/proto"
-	"github.com/wuqunyong/file_storage/rpc_msg"
+	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 )
 
 type ActorObjB struct {

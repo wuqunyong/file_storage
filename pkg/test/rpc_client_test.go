@@ -11,7 +11,7 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/actor"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
-	"github.com/wuqunyong/file_storage/rpc_msg"
+	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 
 	testdata "github.com/wuqunyong/file_storage/proto"
 )
