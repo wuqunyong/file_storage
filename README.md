@@ -34,7 +34,14 @@ func (actor *ActorService) Func1(ctx context.Context, request *common_msg.EchoRe
 func (actor *ActorService) Func2(ctx context.Context, request *common_msg.EchoRequest, response *common_msg.EchoResponse) errs.CodeError {
 	logger.Log(logger.InfoLevel, "Func2", "request", request)
 
-	return errs.NewCodeError(errors.New("invalid"), 123)
+	if request.Value1 == 0 {
+		return errs.NewCodeError(errors.New("invalid"), 123)
+	}
+
+	response.Value1 = request.Value1 + 1
+	response.Value2 = request.Value2 + " | response"
+
+	return nil
 }
 
 // 处理：请求-响应 操作，结果正常
