@@ -113,6 +113,7 @@ func TestClient1(t *testing.T) {
 		logger.Log(logger.InfoLevel, "opcode 1 success", "request", echo, "response", obj1)
 	}
 
+	echo.Value1 = 0
 	obj2, err := actor.SendRequest[common_msg.EchoResponse](actorObj1, concepts.NewActorId("engine.0.1.1001.server", "1"), 2, echo)
 	if err != nil {
 		logger.Log(logger.InfoLevel, "opcode 2 failure", "request", echo, "response", obj2, "err", err)
