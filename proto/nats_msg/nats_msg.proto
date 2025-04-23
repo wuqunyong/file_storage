@@ -1,8 +1,8 @@
 syntax = "proto3";
 package nats_msg;
-option go_package = "github.com/wuqunyong/file_storage/nats_msg";
+option go_package = "github.com/wuqunyong/file_storage/proto/nats_msg;nats_msg";
 
-import "rpc_msg/rpc_msg.proto";
+import "proto/rpc_msg/rpc_msg.proto";
 
 
 //---------------------------------------

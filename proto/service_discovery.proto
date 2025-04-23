@@ -4,7 +4,7 @@ syntax = "proto3";
 option go_package = "github.com/wuqunyong/file_storage/proto/;testdata";
 package testdata;
 
-import "protobuf/common.proto";
+import "proto/common.proto";
 
 enum RegistryStatus
 {

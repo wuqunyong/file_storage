@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package rpc_msg;
-option go_package = "github.com/wuqunyong/file_storage/rpc_msg";
+option go_package = "github.com/wuqunyong/file_storage/proto/rpc_msg;rpc_msg";
 
 
 //-------------RPC-------------

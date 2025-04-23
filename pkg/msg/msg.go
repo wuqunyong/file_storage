@@ -7,13 +7,13 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/wuqunyong/file_storage/nats_msg"
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/encoders"
 	"github.com/wuqunyong/file_storage/pkg/errs"
 	"github.com/wuqunyong/file_storage/pkg/logger"
-	"github.com/wuqunyong/file_storage/rpc_msg"
+	"github.com/wuqunyong/file_storage/proto/nats_msg"
+	"github.com/wuqunyong/file_storage/proto/rpc_msg"
 )
 
 type MsgReq struct {
