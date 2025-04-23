@@ -21,6 +21,7 @@ func (actor *ActorService) OnInit() error {
 func (actor *ActorService) OnShutdown() {
 }
 
+// 处理：请求-响应 操作，结果正常
 func (actor *ActorService) Func1(ctx context.Context, request *common_msg.EchoRequest, response *common_msg.EchoResponse) errs.CodeError {
 	logger.Log(logger.InfoLevel, "Func1", "request", request)
 
@@ -29,12 +30,14 @@ func (actor *ActorService) Func1(ctx context.Context, request *common_msg.EchoRe
 	return nil
 }
 
+// 处理：请求-响应 操作，结果异常
 func (actor *ActorService) Func2(ctx context.Context, request *common_msg.EchoRequest, response *common_msg.EchoResponse) errs.CodeError {
 	logger.Log(logger.InfoLevel, "Func2", "request", request)
 
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
+// 处理：请求-响应 操作，结果正常
 func (actor *ActorService) EchoTest(ctx context.Context, request *rpc_msg.RPC_EchoTestRequest, response *rpc_msg.RPC_EchoTestResponse) errs.CodeError {
 	response.Value1 = request.Value1
 	response.Value2 = request.Value2 + "| Response"
@@ -43,6 +46,7 @@ func (actor *ActorService) EchoTest(ctx context.Context, request *rpc_msg.RPC_Ec
 	return nil
 }
 
+// 处理：通知 操作
 func (actor *ActorService) NotifyTest(ctx context.Context, notify *rpc_msg.RPC_EchoTestRequest) {
 	logger.Log(logger.InfoLevel, "NotifyTest", "notify", notify)
 }
