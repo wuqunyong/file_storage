@@ -8,8 +8,8 @@
 
 
 
-E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --plugin=protoc-gen-doc=E:\ProtobufBin\protoc-gen-doc.exe --go_out=. --doc_out=.\proto --go_opt=paths=source_relative --proto_path=. ./proto/rpc_msg/rpc_msg.proto
-E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --plugin=protoc-gen-doc=E:\ProtobufBin\protoc-gen-doc.exe --go_out=. --doc_out=.\proto --go_opt=paths=source_relative --proto_path=. ./proto/nats_msg/nats_msg.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=. --go_opt=paths=source_relative --proto_path=. ./proto/rpc_msg/rpc_msg.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=. --go_opt=paths=source_relative --proto_path=. ./proto/nats_msg/nats_msg.proto
 
 
 E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/common.proto
@@ -18,8 +18,8 @@ E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.ex
 E:\ProtobufBin\protoc.exe --plugin=protoc-gen-go=E:\ProtobufBin\protoc-gen-go.exe  --go_out=.   --go_opt=paths=source_relative --proto_path=. ./proto/common_msg/service_discovery.proto
 
 
-
-
+@REM E:\ProtobufBin\protoc.exe --plugin=protoc-gen-doc=E:\ProtobufBin\protoc-gen-doc.exe --doc_opt=markdown,docs.md --doc_out=.\proto --proto_path=. ./proto/rpc_msg/*.proto ./proto/nats_msg/*.proto ./proto/common_msg/*.proto
+E:\ProtobufBin\protoc.exe --plugin=protoc-gen-doc=E:\ProtobufBin\protoc-gen-doc.exe --doc_opt=html,index.html --doc_out=.\proto --proto_path=. ./proto/rpc_msg/*.proto ./proto/nats_msg/*.proto ./proto/common_msg/*.proto
 
 @REM E:\ProtobufBin\protoc.exe -I=proto --plugin=protoc-gen-go-vtproto=E:\ProtobufBin\protoc-gen-go-vtproto.exe  --go-vtproto_out=.    rpc_msg/rpc_msg.proto
 @REM E:\ProtobufBin\protoc.exe -I=proto --plugin=protoc-gen-go-vtproto=E:\ProtobufBin\protoc-gen-go-vtproto.exe  --go-vtproto_out=.    nats_msg/nats_msg.proto
