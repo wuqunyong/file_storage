@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
-	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
@@ -28,9 +27,9 @@ type Actor struct {
 
 	shutdownCtx    context.Context
 	shutdownCancel context.CancelFunc
-	wg             sync.WaitGroup
-	closed         atomic.Bool
-	handler        concepts.IActorHandler
+	// wg             sync.WaitGroup
+	closed  atomic.Bool
+	handler concepts.IActorHandler
 }
 
 func NewActor(id string, e concepts.IEngine) *Actor {
@@ -91,7 +90,6 @@ func (a *Actor) Init() error {
 }
 
 func (a *Actor) Start() {
-	a.wg.Add(1)
 	go a.handleMsg()
 }
 
@@ -214,8 +212,6 @@ func (a *Actor) handleMsg() {
 		a.Stop()
 	}()
 
-	a.wg.Done()
-
 	for {
 		bDone := false
 		select {
@@ -268,8 +264,6 @@ func (a *Actor) StopChildren() {
 			actorObj.StopChildren()
 		}
 	}
-
-	a.wg.Wait()
 }
 
 func (a *Actor) SpawnChild(actor concepts.IChildActor, id string) (*concepts.ActorId, error) {

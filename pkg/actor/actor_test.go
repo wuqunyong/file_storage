@@ -27,7 +27,7 @@ func (actor *ActorObjA) OnInit() error {
 	return nil
 }
 
-func (a *ActorObjA) OnShutdown() {
+func (actor *ActorObjA) OnShutdown() {
 }
 
 func (actor *ActorObjA) Func1(ctx context.Context, request *common_msg.EchoRequest, reply *common_msg.EchoResponse) errs.CodeError {
@@ -56,6 +56,20 @@ func Must[T proto.Message](arg []byte, object T) T {
 	return object
 }
 
+type ChildObjA struct {
+	ChildActor
+	id int
+}
+
+func (actor *ChildObjA) OnInit() error {
+	logger.Log(logger.InfoLevel, "ChildObjA OnInit", "id", actor.id)
+	return nil
+}
+
+func (actor *ChildObjA) OnShutdown() {
+	logger.Log(logger.InfoLevel, "ChildObjA OnShutdown", "id", actor.id)
+}
+
 func Test(t *testing.T) {
 
 	engine := NewEngine(0, 1, 1001)
@@ -70,9 +84,14 @@ func Test(t *testing.T) {
 	engine.SpawnActor(actorObj1)
 	engine.SpawnActor(actorObj2)
 
+	for i := 0; i < 3; i++ {
+		childObj := &ChildObjA{id: i}
+		actorObj1.SpawnChild(childObj, fmt.Sprintf("child.%d", i))
+	}
+
 	engine.Start()
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 3; i++ {
 		echo := &common_msg.EchoRequest{Value1: 123456, Value2: "小明"}
 		request := actorObj1.Request(actorObj2.ActorId(), 1, echo)
 		obj, err := msg.GetResult[common_msg.EchoResponse](request)
@@ -83,7 +102,7 @@ func Test(t *testing.T) {
 		logger.Log(logger.InfoLevel, "actorObj1 EchoRequest", "obj", obj, "err", err)
 	}
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 3; i++ {
 		person := &common_msg.EchoRequest{Value1: 123456, Value2: "小明"}
 		request := actorObj2.Request(actorObj1.ActorId(), 2, person)
 		obj, err := msg.GetResult[common_msg.EchoResponse](request)

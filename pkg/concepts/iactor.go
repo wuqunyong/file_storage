@@ -49,11 +49,3 @@ type IChildActor interface {
 	IActor
 	IActorLoader
 }
-
-type ChildActor struct {
-	IActor
-}
-
-func (child *ChildActor) SetEmbeddingActor(actor IActor) {
-	child.IActor = actor
-}

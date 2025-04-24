@@ -197,7 +197,7 @@ func GetNextMinuteTimestamp() int64 {
 }
 
 type ChildActorObjA struct {
-	concepts.ChildActor
+	actor.ChildActor
 }
 
 func (a *ChildActorObjA) OnInit() error {
