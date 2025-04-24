@@ -70,6 +70,20 @@ func (actor *ChildObjA) OnShutdown() {
 	logger.Log(logger.InfoLevel, "ChildObjA OnShutdown", "id", actor.id)
 }
 
+type ChildObjB struct {
+	ChildActor
+	id int
+}
+
+func (actor *ChildObjB) OnInit() error {
+	logger.Log(logger.InfoLevel, "ChildObjB OnInit", "id", actor.id)
+	return nil
+}
+
+func (actor *ChildObjB) OnShutdown() {
+	logger.Log(logger.InfoLevel, "ChildObjB OnShutdown", "id", actor.id)
+}
+
 func Test(t *testing.T) {
 
 	engine := NewEngine(0, 1, 1001)
@@ -87,6 +101,13 @@ func Test(t *testing.T) {
 	for i := 0; i < 3; i++ {
 		childObj := &ChildObjA{id: i}
 		actorObj1.SpawnChild(childObj, fmt.Sprintf("child.%d", i))
+
+		if i == 0 {
+			for j := 10; j < 13; j++ {
+				subObj := &ChildObjB{id: j}
+				childObj.SpawnChild(subObj, fmt.Sprintf("sub.%d", j))
+			}
+		}
 	}
 
 	for i := 4; i < 7; i++ {
