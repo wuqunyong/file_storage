@@ -1,7 +1,6 @@
 package actor
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 
@@ -77,19 +76,21 @@ func (r *Registry) GetRootID() []string {
 	return ids
 }
 
-func (r *Registry) add(actor concepts.IActor) error {
-	logger.Log(logger.InfoLevel, "Actor add", "actorId", actor.ActorId().String())
+func (r *Registry) add(actor concepts.IActor) (err error) {
+	defer func() {
+		logger.Log(logger.InfoLevel, "Actor add", "actorId", actor.ActorId().String(), "err", err)
+	}()
 
 	r.mu.Lock()
 	id := actor.ActorId().ID
 	if _, ok := r.lookup[id]; ok {
 		r.mu.Unlock()
-		sError := fmt.Sprintf("duplicate actor id:%s", id)
-		return errors.New(sError)
+		err = fmt.Errorf("duplicate actor id:%s", id)
+		return err
 	}
 	r.lookup[id] = actor
 	r.mu.Unlock()
-	err := actor.Init()
+	err = actor.Init()
 	if err != nil {
 		return err
 	}
