@@ -14,7 +14,6 @@ import (
 	"github.com/wuqunyong/file_storage/pkg/concepts"
 	"github.com/wuqunyong/file_storage/pkg/constants"
 	"github.com/wuqunyong/file_storage/pkg/logger"
-	_ "github.com/wuqunyong/file_storage/pkg/logger"
 	"github.com/wuqunyong/file_storage/pkg/rpc"
 )
 

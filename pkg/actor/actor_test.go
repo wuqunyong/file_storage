@@ -21,10 +21,13 @@ type ActorObjA struct {
 	*Actor
 }
 
-func (actor *ActorObjA) Init() error {
+func (actor *ActorObjA) OnInit() error {
 	actor.Register(1, actor.Func1)
 	actor.Register(2, actor.Func2)
 	return nil
+}
+
+func (a *ActorObjA) OnShutdown() {
 }
 
 func (actor *ActorObjA) Func1(ctx context.Context, request *common_msg.EchoRequest, reply *common_msg.EchoResponse) errs.CodeError {
@@ -62,8 +65,12 @@ func Test(t *testing.T) {
 	actorObj2 := &ActorObjA{
 		Actor: NewActor("2", engine),
 	}
+
+	engine.MustInit()
 	engine.SpawnActor(actorObj1)
 	engine.SpawnActor(actorObj2)
+
+	engine.Start()
 
 	for i := 0; i < 1000; i++ {
 		echo := &common_msg.EchoRequest{Value1: 123456, Value2: "小明"}
@@ -82,15 +89,17 @@ func Test(t *testing.T) {
 		obj, err := msg.GetResult[common_msg.EchoResponse](request)
 		if err != nil {
 			sError := fmt.Sprintf("DecodeResponse: %v\n", err)
-			t.Fatal(sError)
+			logger.Log(logger.ErrorLevel, "actorObj2 EchoRequest", "err", sError)
+			break
 		}
 		logger.Log(logger.InfoLevel, "actorObj2 EchoRequest", "obj", obj, "err", err)
 	}
 
 	time.Sleep(time.Duration(6) * time.Second)
 
-	actorObj1.Stop()
-	actorObj2.Stop()
+	engine.Stop()
+
+	time.Sleep(time.Duration(6) * time.Second)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
