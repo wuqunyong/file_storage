@@ -298,7 +298,6 @@ func TestClient(t *testing.T) {
 
 	time.Sleep(30 * time.Second)
 	fmt.Println("over")
-	// common.WaitForShutdown()
 }
 
 func TestServer(t *testing.T) {
