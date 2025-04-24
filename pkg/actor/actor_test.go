@@ -89,6 +89,11 @@ func Test(t *testing.T) {
 		actorObj1.SpawnChild(childObj, fmt.Sprintf("child.%d", i))
 	}
 
+	for i := 4; i < 7; i++ {
+		childObj := &ChildObjA{id: i}
+		actorObj2.SpawnChild(childObj, fmt.Sprintf("child.%d", i))
+	}
+
 	engine.Start()
 
 	for i := 0; i < 3; i++ {
