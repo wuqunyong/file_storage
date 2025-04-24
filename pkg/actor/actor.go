@@ -82,6 +82,8 @@ func (a *Actor) GetEngine() concepts.IEngine {
 }
 
 func (a *Actor) Init() error {
+	logger.Log(logger.DebugLevel, "Actor Init", "actorId", a.actorId.String(), "address", a.GetObjAddress())
+
 	if a.handler != nil {
 		return a.handler.OnInit()
 	}
@@ -142,7 +144,8 @@ func (a *Actor) Request(target *concepts.ActorId, opcode uint32, args any, opts 
 }
 
 func (a *Actor) Shutdown() {
-	logger.Log(logger.InfoLevel, "Actor OnShutdown", "actorId", a.actorId.String(), "address", a.GetObjAddress())
+	logger.Log(logger.DebugLevel, "Actor OnShutdown", "actorId", a.actorId.String(), "address", a.GetObjAddress())
+
 	if a.handler != nil {
 		a.handler.OnShutdown()
 	}
@@ -162,7 +165,6 @@ func (a *Actor) Stop() {
 
 	if a.context.GetParentCtx() != nil {
 		a.context.GetParentCtx().children.Delete(a.actorId.ID)
-		logger.Log(logger.InfoLevel, "Actor Delete", "actorId", a.actorId.ID)
 	}
 
 	a.context.engine.RemoveActor(a.ActorId())
@@ -206,7 +208,8 @@ func (a *Actor) handleMsg() {
 	defer func() {
 		ticker.Stop()
 		if r := recover(); r != nil {
-			fmt.Println("task have panic err:", r, string(debug.Stack()))
+			errInfo := fmt.Sprint("task have panic err:", r, string(debug.Stack()))
+			logger.Log(logger.ErrorLevel, "Actor handleMsg", "err", errInfo)
 		}
 		a.Stop()
 	}()
