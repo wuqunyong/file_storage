@@ -24,11 +24,12 @@ message EndPointInstance
 	uint32 realm = 1;
 	EndPointType type = 2;
 	uint32 id = 3;
-	string auth = 4;
-	string ip = 5;
-	uint32 port = 6;
-	uint32 codec_type = 7;
-	uint32 mask_flag = 8;
+	string actor_id = 4;
+	string auth = 5;
+	string ip = 6;
+	uint32 port = 7;
+	uint32 codec_type = 8;
+	uint32 mask_flag = 9;
 }
 
 

@@ -85,6 +85,12 @@ func (actor *ChildObjB) OnShutdown() {
 }
 
 func Test(t *testing.T) {
+	exePath, err := os.Executable()
+	if err != nil {
+		return
+	}
+
+	logger.Log(logger.InfoLevel, "Test", "path", exePath)
 
 	engine := NewEngine(0, 1, 1001)
 	actorObj1 := &ActorObjA{

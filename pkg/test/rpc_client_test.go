@@ -83,19 +83,19 @@ func TestClient1(t *testing.T) {
 }
 
 func TestClientRegister(t *testing.T) {
-	engine := actor.NewEngine(0, 1, 1002, "nats://127.0.0.1:4222")
+	engine := actor.NewEngine(1, 4, 1, "nats://127.0.0.1:4222")
 
 	engine.MustInit()
 
 	actorObj1 := &ActorObjA{
-		Actor: actor.NewActor("1", engine),
+		Actor: actor.NewActor("node1", engine),
 	}
 	engine.SpawnActor(actorObj1)
 
 	engine.Start()
 
 	nodeObj := &common_msg.MSG_REQUEST_REGISTER_INSTANCE{
-		Instance: &common_msg.EndPointInstance{Realm: 1, Type: 4, Id: 1},
+		Instance: &common_msg.EndPointInstance{Realm: 1, Type: 4, Id: 1, ActorId: "node1"},
 		Auth:     "hello",
 	}
 
@@ -104,7 +104,7 @@ func TestClientRegister(t *testing.T) {
 	if err != nil {
 		fmt.Println("err", err)
 	}
-	fmt.Printf("\n\n\n================nodeResponse:%T, %v\n", nodeResponse, nodeResponse)
+	logger.Log(logger.InfoLevel, "REGISTER", "nodeResponse", nodeResponse)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

@@ -108,8 +108,8 @@ func (actor *ActorObjA) Func2(ctx context.Context, arg *common_msg.Person, reply
 	return errs.NewCodeError(errors.New("invalid"), 123)
 }
 
-func (actor *ActorObjA) Func3(ctx context.Context, arg *common_msg.MSG_NOTICE_INSTANCE) {
-	fmt.Printf("inside value arg:%v\n", arg)
+func (actor *ActorObjA) Func3(ctx context.Context, notify *common_msg.MSG_NOTICE_INSTANCE) {
+	logger.Log(logger.InfoLevel, "REGISTER", "notify", notify)
 }
 
 func Must[T proto.Message](arg []byte, object T) T {
